@@ -12,29 +12,5 @@
         public virtual Subject Subject { get; set; }
         public virtual ICollection<Question> Questions { get; set; }
         public virtual ICollection<TestResult> Results { get; set; }
-
-        public Test(
-            int id,
-            string title,
-            DateTime lastUpdate,
-            bool isHidden,
-            DateTime startTime,
-            DateTime endTime,
-            TimeSpan timeLimit,
-            Subject subject,
-            ICollection<Question> questions,
-            ICollection<TestResult> results)
-        {
-            Id = id;
-            Title = title;
-            LastUpdate = lastUpdate;
-            IsHidden = isHidden;
-            StartTime = startTime;
-            EndTime = endTime;
-            TimeLimit = timeLimit;
-            Subject = subject;
-            Questions = questions;
-            Results = results;
-        }
     }
 }

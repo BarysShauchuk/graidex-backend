@@ -12,13 +12,5 @@ namespace Graidex.Domain.Models
         public string Name { get; set; }
         public string Surname { get; set; }
         public string Password { get; set; }
-
-        protected User(string email, string name, string surname, string password)
-        {
-            Email = email;
-            Name = name;
-            Surname = surname;
-            Password = password;
-        }
     }
 }
