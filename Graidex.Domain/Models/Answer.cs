@@ -8,5 +8,6 @@ namespace Graidex.Domain.Models
 {
     public abstract class Answer
     {
+        public int Id { get; set; }
     }
 }
