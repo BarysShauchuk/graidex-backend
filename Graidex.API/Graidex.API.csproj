@@ -15,4 +15,10 @@
     <Folder Include="Controllers\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Graidex.Application\Graidex.Application.csproj" />
+    <ProjectReference Include="..\Graidex.Domain\Graidex.Domain.csproj" />
+    <ProjectReference Include="..\Graidex.Infrastructure\Graidex.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
