@@ -13,13 +13,15 @@ namespace Graidex.Infrastructure.Repositories
         {
             this.context = context;
         }
-        public async Task<Subject> GetById(int id)
+
+        public async Task<Subject?> GetById(int id)
         {
-            return await this.context.Subjects.SingleAsync(x => x.Id == id);
+            return await this.context.Subjects.SingleOrDefaultAsync(x => x.Id == id);
         }
-        public async Task<List<Subject>> GetAll()
+
+        public IQueryable<Subject> GetAll()
         {
-            return await this.context.Subjects.ToListAsync();
+            return this.context.Subjects;
         }
 
         public async Task Add(Subject entity)

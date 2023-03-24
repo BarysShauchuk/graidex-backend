@@ -1,5 +1,5 @@
 ﻿using Graidex.Domain.Interfaces;
-using Graidex.Domain.Models;
+using Graidex.Domain.Models.Users;
 using Graidex.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,13 +13,15 @@ namespace Graidex.Infrastructure.Repositories
         {
             this.context = context;
         }
-        public async Task<Student> GetById(int id)
+
+        public async Task<Student?> GetById(int id)
         {
-            return await this.context.Students.SingleAsync(x => x.Id == id);
+            return await this.context.Students.SingleOrDefaultAsync(x => x.Id == id);
         }
-        public async Task<List<Student>> GetAll()
+
+        public IQueryable<Student> GetAll()
         {
-            return await this.context.Students.ToListAsync();
+            return this.context.Students;
         }
 
         public async Task Add(Student entity)

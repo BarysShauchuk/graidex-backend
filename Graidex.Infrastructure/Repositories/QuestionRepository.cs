@@ -1,5 +1,5 @@
 ﻿using Graidex.Domain.Interfaces;
-using Graidex.Domain.Models;
+using Graidex.Domain.Models.Questions;
 using Graidex.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,13 +13,15 @@ namespace Graidex.Infrastructure.Repositories
         {
             this.context = context;
         }
-        public async Task<Question> GetById(int id)
+
+        public async Task<Question?> GetById(int id)
         {
-            return await this.context.Questions.SingleAsync(x => x.Id == id);
+            return await this.context.Questions.SingleOrDefaultAsync(x => x.Id == id);
         }
-        public async Task<List<Question>> GetAll()
+
+        public IQueryable<Question> GetAll()
         {
-            return await this.context.Questions.ToListAsync();
+            return this.context.Questions;
         }
 
         public async Task Add(Question entity)
