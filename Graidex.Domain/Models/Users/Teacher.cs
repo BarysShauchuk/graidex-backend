@@ -1,5 +1,8 @@
 ﻿namespace Graidex.Domain.Models.Users
-{
+{   
+    /// <summary>
+    /// Represents a teacher who uses the application.
+    /// </summary>
     public class Teacher : User
     {
         /// <summary>

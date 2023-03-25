@@ -19,7 +19,7 @@ namespace Graidex.Domain.Interfaces
         /// <summary>
         /// Gets a list of all entities.
         /// </summary>
-        /// <returns>A task that represents the asynchronous operation to get all <see cref="TEntity"/> objects in the database.</returns>
+        /// <returns>A result of the query of all <see cref="TEntity"/> objects in the database.</returns>
         public IQueryable<TEntity> GetAll();
 
         /// <summary>

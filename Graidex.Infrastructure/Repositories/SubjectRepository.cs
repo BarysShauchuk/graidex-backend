@@ -34,7 +34,7 @@ namespace Graidex.Infrastructure.Repositories
         /// <summary>
         /// Gets a list of all <see cref="Subject"/> objects in the database.
         /// </summary>
-        /// <returns>A task that represents the asynchronous operation to get all <see cref="Subject"/> objects in the database.</returns>
+        /// <returns>A result of the query of all <see cref="Subject"/> objects in the database.</returns>
         public IQueryable<Subject> GetAll()
         {
             return this.context.Subjects;

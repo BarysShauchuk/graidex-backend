@@ -14,6 +14,12 @@ namespace Graidex.Domain.Models
         /// </summary>
         public int Id { get; set; }
 
+        /// <summary>
+        /// Gets or sets the custom ID for the subject.
+        /// </summary>
+        /// <remarks>
+        /// The custom ID is used for easy search of subjects, without the need to use database id or title.
+        /// </remarks>
         [MaxLength(15)]
         public required string CustomId { get; set; }
 
