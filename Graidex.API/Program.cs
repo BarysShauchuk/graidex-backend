@@ -22,6 +22,8 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    SeedData.EnsurePopulated(
+        app.Services.CreateScope().ServiceProvider.GetRequiredService<GraidexDbContext>());
 }
 
 app.UseHttpsRedirection();
