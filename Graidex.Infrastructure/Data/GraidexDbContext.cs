@@ -3,6 +3,7 @@ using Graidex.Domain.Models.Answers;
 using Graidex.Domain.Models.Questions;
 using Graidex.Domain.Models.Users;
 using Microsoft.EntityFrameworkCore;
+using Graidex.Infrastructure.Infrastructure;
 
 namespace Graidex.Infrastructure.Data
 {
@@ -22,13 +23,13 @@ namespace Graidex.Infrastructure.Data
             modelBuilder.Entity<Student>().HasIndex(student => student.Email).IsUnique();
             modelBuilder.Entity<Teacher>().HasIndex(teacher => teacher.Email).IsUnique();
 
-            modelBuilder.Entity<SingleChoiceQuestion>().ToTable(nameof(SingleChoiceQuestion));
-            modelBuilder.Entity<MultipleChoiceQuestion>().ToTable(nameof(MultipleChoiceQuestion));
-            modelBuilder.Entity<OpenQuestion>().ToTable(nameof(OpenQuestion));
+            modelBuilder.Entity<Test>()
+                .Property(x => x.Questions)
+                .HasConversion(JsonExtensions.CreateJsonConverter<List<Question>>());
 
-            modelBuilder.Entity<SingleChoiceAnswer>().ToTable(nameof(SingleChoiceAnswer));
-            modelBuilder.Entity<MultipleChoiceAnswer>().ToTable(nameof(MultipleChoiceAnswer));
-            modelBuilder.Entity<OpenAnswer>().ToTable(nameof(OpenAnswer));
+            modelBuilder.Entity<TestResult>()
+                .Property(x => x.Answers)
+                .HasConversion(JsonExtensions.CreateJsonConverter<List<Answer>>());
         }
 
         public DbSet<Student> Students { get; set; }
@@ -36,7 +37,5 @@ namespace Graidex.Infrastructure.Data
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Test> Tests { get; set; }
         public DbSet<TestResult> TestResults { get; set; }
-        public DbSet<Question> Questions { get; set; }
-        public DbSet<Answer> Answers { get; set; }
     }
 }

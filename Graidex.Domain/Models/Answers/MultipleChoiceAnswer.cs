@@ -15,11 +15,16 @@ namespace Graidex.Domain.Models.Answers
         /// <summary>
         /// Gets or sets the multiple-choice question this answer relates to.
         /// </summary>
-        public required virtual MultipleChoiceQuestion Question { get; set; }
+        public required MultipleChoiceQuestion Question { get; set; }
 
         /// <summary>
-        /// Gets or sets the collection of choice options that were selected as an answer.
+        /// Gets the maximum number of points that can be awarded for this answer.
         /// </summary>
-        public virtual ICollection<ChoiceOption> Answers { get; set; } = new List<ChoiceOption>();
+        public override int MaxPoints => Question.MaxPoints;
+
+        /// <summary>
+        /// Gets or sets the collection of choice option indexes that were selected as an answer.
+        /// </summary>
+        public virtual ICollection<int> ChoiceOptionIndexes { get; set; } = new List<int>();
     }
 }

@@ -53,7 +53,7 @@ namespace Graidex.Domain.Models
         /// <summary>
         /// Gets or sets the collection of questions for the test.
         /// </summary>
-        public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
+        public List<Question> Questions { get; set; } = new List<Question>();
 
         /// <summary>
         /// Gets or sets the collection of results of the test.

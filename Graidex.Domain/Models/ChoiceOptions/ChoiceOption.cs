@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Domain.Models
+namespace Graidex.Domain.Models.ChoiceOptions
 {
     public class ChoiceOption
     {
-        public int Id { get; set; }
-
-        public required virtual Question Question { get; set; }
+        /// <summary>
+        /// Gets or sets the text of the choice option.
+        /// </summary>
+        public required string Text { get; set; }
     }
 }

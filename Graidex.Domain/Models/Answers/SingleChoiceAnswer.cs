@@ -15,11 +15,16 @@ namespace Graidex.Domain.Models.Answers
         /// <summary>
         /// Gets or sets the single-choice question this answer relates to.
         /// </summary>
-        public required virtual SingleChoiceQuestion Question { get; set; }
+        public required SingleChoiceQuestion Question { get; set; }
 
         /// <summary>
-        /// Gets or sets the choice option that was selected as an answer.
+        /// Gets the maximum number of points that can be awarded for this answer.
         /// </summary>
-        public required virtual ChoiceOption Answer { get; set; }
+        public override int MaxPoints => Question.MaxPoints;
+
+        /// <summary>
+        /// Gets or sets the choice option index that was selected as an answer.
+        /// </summary>
+        public required int ChoiceOptionIndex { get; set; }
     }
 }

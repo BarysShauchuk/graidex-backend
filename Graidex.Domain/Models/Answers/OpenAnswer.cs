@@ -15,11 +15,16 @@ namespace Graidex.Domain.Models.Answers
         /// <summary>
         /// Gets or sets the open question this answer relates to.
         /// </summary>
-        public required virtual OpenQuestion Question { get; set; }
+        public required OpenQuestion Question { get; set; }
 
         /// <summary>
-        /// Gets or sets the text of the answer.
+        /// Gets the maximum number of points that can be awarded for this answer.
         /// </summary>
-        public required string Answer { get; set; }
+        public override int MaxPoints => Question.MaxPoints;
+
+        /// <summary>
+        /// Gets or sets the response text of the open answer.
+        /// </summary>
+        public required string Text { get; set; }
     }
 }
