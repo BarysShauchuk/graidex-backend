@@ -6,7 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Graidex.Domain.Models.ChoiceOptions
-{
+{   
+    /// <summary>
+    /// Represents a choice option.
+    /// </summary>
     public class ChoiceOption
     {
         /// <summary>

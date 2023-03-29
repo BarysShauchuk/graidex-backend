@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 using Graidex.Domain.Models.ChoiceOptions;
 
 namespace Graidex.Domain.Models.Questions
-{
+{   
+    /// <summary>
+    /// Represents a multiple-chioce question.
+    /// </summary>
     public class MultipleChoiceQuestion : Question
     {
         /// <summary>
