@@ -1,4 +1,8 @@
+using Graidex.Domain.Interfaces;
+using Graidex.Domain.Models;
+using Graidex.Domain.Models.Users;
 using Graidex.Infrastructure.Data;
+using Graidex.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +14,12 @@ builder.Services.AddDbContext<GraidexDbContext>(options =>
     options
     .UseLazyLoadingProxies()
     .UseSqlServer(builder.Configuration.GetConnectionString("GraidexDb")));
+
+builder.Services.AddScoped<IRepository<Student>, StudentRepository>();
+builder.Services.AddScoped<IRepository<Subject>, SubjectRepository>();
+builder.Services.AddScoped<IRepository<Teacher>, TeacherRepository>();
+builder.Services.AddScoped<IRepository<Test>, TestRepository>();
+builder.Services.AddScoped<IRepository<TestResult>, TestResultRepository>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
