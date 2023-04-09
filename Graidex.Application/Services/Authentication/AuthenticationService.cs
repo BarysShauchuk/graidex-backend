@@ -17,12 +17,12 @@ namespace Graidex.Application.Services.Authentication
 {
     public class AuthenticationService : IAuthenticationService
     {
-        private readonly IRepository<Student> studentRepository;
-        private readonly IRepository<Teacher> teacherRepository;
+        private readonly IStudentRepository studentRepository;
+        private readonly ITeacherRepository teacherRepository;
 
         public AuthenticationService(
-            IRepository<Student> studentRepository,
-            IRepository<Teacher> teacherRepository)
+            IStudentRepository studentRepository,
+            ITeacherRepository teacherRepository)
         {
             this.studentRepository = studentRepository;
             this.teacherRepository = teacherRepository;
@@ -55,7 +55,7 @@ namespace Graidex.Application.Services.Authentication
             return result.Success();
         }
 
-        public async Task<Result<string>> LoginStudent(UserAuthDto student, string keyToken)
+        public Task<Result<string>> LoginStudent(UserAuthDto student, string keyToken)
         {
             var result = new ResultFactory<string>();
 
@@ -66,21 +66,75 @@ namespace Graidex.Application.Services.Authentication
 
             if (dbStudent is null)
             {
-                return result.Failure("Student not found.");
+                return Task.FromResult(result.Failure("Student not found."));
             }
 
             if (dbStudent.Password != student.Password)
             {
-                return result.Failure("Wrong password.");
+                return Task.FromResult(result.Failure("Wrong password."));
             }
 
             var token = CreateStudentToken(student, keyToken);
-            return result.Success(token);
+            return Task.FromResult(result.Success(token));
+        }
+
+        public async Task<Result> RegisterTeacher(TeacherAuthDto teacher)
+        {
+            var result = new ResultFactory();
+
+            bool teacherExists = this.teacherRepository
+                .GetAll()
+                .Any(x => x.Email == teacher.Email);
+
+            if (teacherExists)
+            {
+                return result.Failure($"Teacher with email \"{teacher.Email}\" already exists.");
+            }
+
+            Teacher dbTeacher = new Teacher
+            {
+                Email = teacher.Email,
+                Password = teacher.Password,
+                Name = teacher.Name,
+                Surname = teacher.Surname
+            };
+
+            await this.teacherRepository.Add(dbTeacher);
+
+            return result.Success();
+        }
+
+        public Task<Result<string>> LoginTeacher(UserAuthDto teacher, string keyToken)
+        {
+            var result = new ResultFactory<string>();
+
+            var dbTeacher = this.teacherRepository
+                .GetAll()
+                .Select(x => new { x.Email, x.Password })
+                .SingleOrDefault(x => x.Email == teacher.Email);
+
+            if (dbTeacher is null)
+            {
+                return Task.FromResult(result.Failure("Teacher not found."));
+            }
+
+            if (dbTeacher.Password != teacher.Password)
+            {
+                return Task.FromResult(result.Failure("Wrong password."));
+            }
+
+            var token = CreateTeacherToken(teacher, keyToken);
+            return Task.FromResult(result.Success(token));
         }
 
         private static string CreateStudentToken(UserAuthDto student, string keyToken)
         {
             return CreateToken(student, keyToken, new[] { "Student" });
+        }
+
+        private static string CreateTeacherToken(UserAuthDto teacher, string keyToken)
+        {
+            return CreateToken(teacher, keyToken, new[] { "Teacher" });
         }
 
         private static string CreateToken(UserAuthDto user, string keyToken, IEnumerable<string>? roles = null)

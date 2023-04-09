@@ -8,7 +8,7 @@ namespace Graidex.Infrastructure.Repositories
     /// <summary>
     /// Repository class that implements the <see cref="IRepository{TEntity}"/> interface for the <see cref="Student"/> model.
     /// </summary>
-    public class StudentRepository : IRepository<Student>
+    public class StudentRepository : IStudentRepository
     {
         private readonly GraidexDbContext context;
 
@@ -29,6 +29,16 @@ namespace Graidex.Infrastructure.Repositories
         public async Task<Student?> GetById(int id)
         {
             return await this.context.Students.SingleOrDefaultAsync(x => x.Id == id);
+        }
+
+        /// <summary>
+        /// Gets a <see cref="Student"/> object from the database with a specified email.
+        /// </summary>
+        /// <param name="email">The unique email of the <see cref="Student"/> object to be returned.</param>
+        /// <returns>A task that represents the asynchronous operation to find the <see cref="Student"/> with the specified email.</returns>
+        public async Task<Student?> GetByEmail(string email)
+        {
+            return await this.context.Students.SingleOrDefaultAsync(x => x.Email == email);
         }
 
         /// <summary>

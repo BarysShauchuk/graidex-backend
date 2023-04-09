@@ -13,5 +13,7 @@ namespace Graidex.Application.Services.Authentication
     {
         public Task<Result> RegisterStudent(StudentAuthDto student);
         public Task<Result<string>> LoginStudent(UserAuthDto student, string keyToken);
+        public Task<Result> RegisterTeacher(TeacherAuthDto student);
+        public Task<Result<string>> LoginTeacher(UserAuthDto student, string keyToken);
     }
 }

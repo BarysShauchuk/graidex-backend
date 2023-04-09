@@ -61,5 +61,46 @@ namespace Graidex.API.Controllers
 
             return StatusCode(500);
         }
+
+        [HttpPost("register-teacher")]
+        public async Task<ActionResult> RegisterTeacher(TeacherAuthDto request)
+        {
+            // TODO: Check ModelState
+
+            var result = await this.authenticationService.RegisterTeacher(request);
+
+            if (result.IsFailure(out var failure))
+            {
+                return BadRequest(failure!.Justification);
+            }
+
+            if (result.IsSuccess())
+            {
+                return Ok();
+            }
+
+            return StatusCode(500);
+        }
+
+        [HttpPost("login-teacher")]
+        public async Task<ActionResult<string>> LoginTeacher(UserAuthDto request)
+        {
+            // TODO: Check ModelState
+
+            var keyToken = this.configuration.GetSection("AppSettings:Token").Value!;
+            var result = await this.authenticationService.LoginTeacher(request, keyToken);
+
+            if (result.IsFailure(out var failure))
+            {
+                return BadRequest(failure!.Justification);
+            }
+
+            if (result.IsSuccess(out var success))
+            {
+                return Ok(success!.Value);
+            }
+
+            return StatusCode(500);
+        }
     }
 }

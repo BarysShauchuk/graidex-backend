@@ -20,9 +20,9 @@ builder.Services.AddDbContext<GraidexDbContext>(options =>
     .UseLazyLoadingProxies()
     .UseSqlServer(builder.Configuration.GetConnectionString("GraidexDb")));
 
-builder.Services.AddScoped<IRepository<Student>, StudentRepository>();
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IRepository<Subject>, SubjectRepository>();
-builder.Services.AddScoped<IRepository<Teacher>, TeacherRepository>();
+builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
 builder.Services.AddScoped<IRepository<Test>, TestRepository>();
 builder.Services.AddScoped<IRepository<TestResult>, TestResultRepository>();
 
