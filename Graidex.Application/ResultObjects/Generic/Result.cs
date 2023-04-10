@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace Graidex.Application.ResultObjects.Generic
         /// </summary>
         /// <param name="success">Output parameter to hold the <see cref="Success{TValue}"/> object, if available.</param>
         /// <returns><see langword="true"/> if this is <see cref="Success{TValue}"/> result, <see langword="false"/> otherwise.</returns>
-        public bool IsSuccess(out Success<T>? success)
+        public bool IsSuccess([NotNullWhen(true)] out Success<T>? success)
         {
             if (this is Success<T> successResult)
             {
@@ -43,7 +44,7 @@ namespace Graidex.Application.ResultObjects.Generic
         /// </summary>
         /// <param name="failure">Output parameter to hold the <see cref="Failure{TValue}"/> object, if available.</param>
         /// <returns><see langword="true"/> if this is <see cref="Failure{TValue}"/> result, <see langword="false"/> otherwise.</returns>
-        public bool IsFailure(out Failure<T>? failure)
+        public bool IsFailure([NotNullWhen(true)] out Failure<T>? failure)
         {
             if (this is Failure<T> failureResult)
             {

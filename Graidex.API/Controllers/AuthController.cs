@@ -30,7 +30,7 @@ namespace Graidex.API.Controllers
 
             if (result.IsFailure(out var failure))
             {
-                return BadRequest(failure!.Justification);
+                return BadRequest(failure.Justification);
             }
 
             if (result.IsSuccess())
@@ -51,12 +51,12 @@ namespace Graidex.API.Controllers
 
             if (result.IsFailure(out var failure))
             {
-                return BadRequest(failure!.Justification);
+                return BadRequest(failure.Justification);
             }
 
             if (result.IsSuccess(out var success))
             {
-                return Ok(success!.Value);
+                return Ok(success.Value);
             }
 
             return StatusCode(500);
@@ -71,7 +71,7 @@ namespace Graidex.API.Controllers
 
             if (result.IsFailure(out var failure))
             {
-                return BadRequest(failure!.Justification);
+                return BadRequest(failure.Justification);
             }
 
             if (result.IsSuccess())
@@ -92,12 +92,12 @@ namespace Graidex.API.Controllers
 
             if (result.IsFailure(out var failure))
             {
-                return BadRequest(failure!.Justification);
+                return BadRequest(failure.Justification);
             }
 
             if (result.IsSuccess(out var success))
             {
-                return Ok(success!.Value);
+                return Ok(success.Value);
             }
 
             return StatusCode(500);

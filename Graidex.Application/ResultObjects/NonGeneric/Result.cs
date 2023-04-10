@@ -1,6 +1,7 @@
 ﻿using Graidex.Application.ResultObjects.Generic;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace Graidex.Application.ResultObjects.NonGeneric
         /// </summary>
         /// <param name="failure">Output parameter to hold the <see cref="Failure{TValue}"/> object, if available.</param>
         /// <returns><see langword="true"/> if this is <see cref="Failure{TValue}"/> result, <see langword="false"/> otherwise.</returns>
-        public bool IsFailure(out Failure? failure)
+        public bool IsFailure([NotNullWhen(true)] out Failure? failure)
         {
             if (this is Failure failureResult)
             {
