@@ -4,6 +4,7 @@ using Graidex.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Graidex.Infrastructure.Migrations
 {
     [DbContext(typeof(GraidexDbContext))]
-    partial class GraidexDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230410125408_TestUpdate")]
+    partial class TestUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -161,10 +164,15 @@ namespace Graidex.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int?>("TestId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
+
+                    b.HasIndex("TestId");
 
                     b.ToTable("Students");
                 });
@@ -218,21 +226,6 @@ namespace Graidex.Infrastructure.Migrations
                     b.ToTable("StudentSubject");
                 });
 
-            modelBuilder.Entity("StudentTest", b =>
-                {
-                    b.Property<int>("AllowedStudentsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TestId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AllowedStudentsId", "TestId");
-
-                    b.HasIndex("TestId");
-
-                    b.ToTable("StudentTest");
-                });
-
             modelBuilder.Entity("Graidex.Domain.Models.Subject", b =>
                 {
                     b.HasOne("Graidex.Domain.Models.Users.Teacher", "Teacher")
@@ -274,6 +267,13 @@ namespace Graidex.Infrastructure.Migrations
                     b.Navigation("Test");
                 });
 
+            modelBuilder.Entity("Graidex.Domain.Models.Users.Student", b =>
+                {
+                    b.HasOne("Graidex.Domain.Models.Test", null)
+                        .WithMany("AllowedStudents")
+                        .HasForeignKey("TestId");
+                });
+
             modelBuilder.Entity("StudentSubject", b =>
                 {
                     b.HasOne("Graidex.Domain.Models.Users.Student", null)
@@ -289,21 +289,6 @@ namespace Graidex.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("StudentTest", b =>
-                {
-                    b.HasOne("Graidex.Domain.Models.Users.Student", null)
-                        .WithMany()
-                        .HasForeignKey("AllowedStudentsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Graidex.Domain.Models.Test", null)
-                        .WithMany()
-                        .HasForeignKey("TestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Graidex.Domain.Models.Subject", b =>
                 {
                     b.Navigation("Tests");
@@ -311,6 +296,8 @@ namespace Graidex.Infrastructure.Migrations
 
             modelBuilder.Entity("Graidex.Domain.Models.Test", b =>
                 {
+                    b.Navigation("AllowedStudents");
+
                     b.Navigation("Results");
                 });
 

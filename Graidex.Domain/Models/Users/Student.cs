@@ -25,6 +25,5 @@ namespace Graidex.Domain.Models.Users
         /// Gets or sets the collection of subjects that the student is assigned to.
         /// </summary>
         public virtual ICollection<Subject> Subjects { get; set; } = new List<Subject>();
-
     }
 }

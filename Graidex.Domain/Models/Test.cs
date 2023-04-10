@@ -1,6 +1,8 @@
 ﻿using Graidex.Domain.Models.Questions;
+using Graidex.Domain.Models.Users;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Graidex.Domain.Models
 {   
@@ -51,9 +53,25 @@ namespace Graidex.Domain.Models
         public required virtual Subject Subject { get; set; }
 
         /// <summary>
+        /// Gets or sets the collection of students that are allowed to take the test.
+        /// </summary>
+        public virtual ICollection<Student> AllowedStudents { get; set; } = new List<Student>();
+
+        /// <summary>
         /// Gets or sets the collection of questions for the test.
         /// </summary>
         public List<Question> Questions { get; set; } = new List<Question>();
+
+        /// <summary>
+        /// Gets or sets the maximum amount of points that can be earned for the test.
+        /// </summary>
+        [NotMapped]
+        public int MaxPoints => Questions.Sum(question => question.MaxPoints);
+
+        /// <summary>
+        /// Gets or sets the minimum grage to pass this test.
+        /// </summary>
+        public int GradeToPass { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of results of the test.

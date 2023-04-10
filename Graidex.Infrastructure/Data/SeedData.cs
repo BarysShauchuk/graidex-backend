@@ -78,7 +78,7 @@ namespace Graidex.Infrastructure.Data
                 Surname = "Pinkman",
                 Password = "jessepassword",
                 CustomId = "IF_200001",
-                Subjects = new List<Subject>()
+                Subjects = new List<Subject>(),
             };
 
             var student2 = new Student
@@ -88,7 +88,7 @@ namespace Graidex.Infrastructure.Data
                 Surname = "Student",
                 Password = "carelesspassword",
                 CustomId = "NS_200002",
-                Subjects = new List<Subject>()
+                Subjects = new List<Subject>(),
             };
 
             var student3 = new Student
@@ -98,7 +98,7 @@ namespace Graidex.Infrastructure.Data
                 Surname = "Kid",
                 Password = "Str0Ng-Pa$sW0rD",
                 CustomId = "NS_200003",
-                Subjects = new List<Subject>()
+                Subjects = new List<Subject>(),
             };
             #endregion Users
 
@@ -309,8 +309,10 @@ namespace Graidex.Infrastructure.Data
                 EndTime = new DateTime(2023, 7, 10, 13, 0, 0),
                 TimeLimit = new TimeSpan(1, 0, 0),
                 Subject = subject1,
+                AllowedStudents = new List<Student> { student1, student2 },
                 Questions = new List<Question> { multQuestion1, openQuestion1, singleQuestion1 },
-                Results = new List<TestResult>()
+                GradeToPass = 6,
+                Results = new List<TestResult>(),
             };
 
             var test2 = new Test
@@ -322,7 +324,9 @@ namespace Graidex.Infrastructure.Data
                 EndTime = new DateTime(2023, 6, 10, 13, 0, 0),
                 TimeLimit = new TimeSpan(1, 0, 0),
                 Subject = subject2,
+                AllowedStudents = new List<Student> { student2, student3 },
                 Questions = new List<Question> { multQuestion2, openQuestion2, singleQuestion2, singleQuestion1},
+                GradeToPass = 7,
                 Results = new List<TestResult>()
             };
 
@@ -335,7 +339,9 @@ namespace Graidex.Infrastructure.Data
                 EndTime = new DateTime(2023, 5, 10, 13, 0, 0),
                 TimeLimit = new TimeSpan(1, 0, 0),
                 Subject = subject3,
+                AllowedStudents = new List<Student> { student1, student3 },
                 Questions = new List<Question> { multQuestion3, openQuestion3, singleQuestion3, multQuestion2},
+                GradeToPass = 8,
                 Results = new List<TestResult>()
             };
             #endregion Tests
@@ -379,6 +385,7 @@ namespace Graidex.Infrastructure.Data
             student3.Subjects.Add(subject3);
 
             teacher1.Subjects.Add(subject1);
+            teacher1.Subjects.Add(subject3);
             teacher2.Subjects.Add(subject2);
             teacher3.Subjects.Add(subject3);
             

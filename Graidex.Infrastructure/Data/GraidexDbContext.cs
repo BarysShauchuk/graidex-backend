@@ -46,6 +46,9 @@ namespace Graidex.Infrastructure.Data
             modelBuilder.Entity<TestResult>()
                 .Property(x => x.Answers)
                 .HasConversion(JsonExtensions.CreateJsonConverter<List<Answer>>());
+            modelBuilder.Entity<Test>()
+                .HasMany(test => test.AllowedStudents)
+                .WithMany();
         }
 
         /// <summary>
