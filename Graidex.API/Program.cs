@@ -9,16 +9,27 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
+using System.Runtime.InteropServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+string connectionString = "GraidexDb";
+if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+{
+    connectionString = "GraidexDbMac";
+}
+else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+{
+    connectionString = "GraidexDbLinux";
+}
+
 builder.Services.AddControllers();
 builder.Services.AddDbContext<GraidexDbContext>(options =>
     options
     .UseLazyLoadingProxies()
-    .UseSqlServer(builder.Configuration.GetConnectionString("GraidexDb")));
+    .UseSqlServer(builder.Configuration.GetConnectionString(connectionString)));
 
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
