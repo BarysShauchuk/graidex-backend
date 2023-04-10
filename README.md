@@ -2,7 +2,43 @@
 
 > This is backend repository. To see frontend, follow the link: https://github.com/kinmary/graidex-frontend
 
+> **Warning** <br />
+>  Password handling in this application is not cryptographically secure.
+
 This is a student testing system that provides teachers with an effective evaluation tool. The platform will have specific features geared towards effective knowledge testing. This project will be performed in three stages: casual testing system creation, implementation of AI evaluation, and implementation of plagiarism checks.
+
+## Technologies
+
+- .NET 7
+- ASP.NET Core
+- Entity Framework Core
+- MS SQL Server
+- JWT tokens
+- Swagger UI
+- NUnit
+
+## Startup
+
+Add `appsettings.json` file to `Graidex.API`. This file should be as follows:
+```json
+{
+  "AppSettings": {
+    "Token":  "[The key token string]"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "GraidexDb": "[Default database connection string]",
+    "GraidexDbMac": "[Database connection string for MacOS, no need to add if no MacOS will be used]",
+    "GraidexDbLinux": "[Database connection string for Linux, no need to add if no Linux will be used]"
+  }
+}
+```
 
 ## Base functionality
 
