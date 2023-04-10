@@ -9,11 +9,51 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.Services.Authentication
 {
+    /// <summary>
+    /// Interface for authentication service.
+    /// </summary>
     public interface IAuthenticationService
     {
+        /// <summary>
+        /// Register student.
+        /// </summary>
+        /// <param name="student"><see cref="StudentAuthDto"/> object with student data for registration.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation to get <see cref="Result"/>
+        /// of student registration.
+        /// </returns>
         public Task<Result> RegisterStudent(StudentAuthDto student);
+
+        /// <summary>
+        /// Login student.
+        /// </summary>
+        /// <param name="student"><see cref="UserAuthDto"/> object with student credentials for login.</param>
+        /// <param name="keyToken">Secret key for generating token.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation to get <see cref="Result"/>
+        /// of student login with student token in case of success.
+        /// </returns>
         public Task<Result<string>> LoginStudent(UserAuthDto student, string keyToken);
-        public Task<Result> RegisterTeacher(TeacherAuthDto student);
-        public Task<Result<string>> LoginTeacher(UserAuthDto student, string keyToken);
+
+        /// <summary>
+        /// Register teacher.
+        /// </summary>
+        /// <param name="teacher"><see cref="TeacherAuthDto"/> object with teacher data for registration.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation to get <see cref="Result"/>
+        /// of teacher registration.
+        /// </returns>
+        public Task<Result> RegisterTeacher(TeacherAuthDto teacher);
+
+        /// <summary>
+        /// Login teacher.
+        /// </summary>
+        /// <param name="teacher"><see cref="UserAuthDto"/> object with teacher credentials for login.</param>
+        /// <param name="keyToken">Secret key for generating token.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation to get <see cref="Result"/>
+        /// of teacher login with teacher token in case of success.
+        /// </returns>
+        public Task<Result<string>> LoginTeacher(UserAuthDto teacher, string keyToken);
     }
 }

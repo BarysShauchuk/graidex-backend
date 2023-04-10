@@ -15,11 +15,19 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.Services.Authentication
 {
+    /// <summary>
+    /// Authentication Service.
+    /// </summary>
     public class AuthenticationService : IAuthenticationService
     {
         private readonly IStudentRepository studentRepository;
         private readonly ITeacherRepository teacherRepository;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuthenticationService"/> class.
+        /// </summary>
+        /// <param name="studentRepository">Repository for <see cref="Student"/>.</param>
+        /// <param name="teacherRepository">Repository for <see cref="Teacher"/>.</param>
         public AuthenticationService(
             IStudentRepository studentRepository,
             ITeacherRepository teacherRepository)
@@ -28,6 +36,7 @@ namespace Graidex.Application.Services.Authentication
             this.teacherRepository = teacherRepository;
         }
 
+        /// <inheritdoc/>
         public async Task<Result> RegisterStudent(StudentAuthDto student)
         {
             var result = new ResultFactory();
@@ -55,6 +64,7 @@ namespace Graidex.Application.Services.Authentication
             return result.Success();
         }
 
+        /// <inheritdoc/>
         public Task<Result<string>> LoginStudent(UserAuthDto student, string keyToken)
         {
             var result = new ResultFactory<string>();
@@ -78,6 +88,7 @@ namespace Graidex.Application.Services.Authentication
             return Task.FromResult(result.Success(token));
         }
 
+        /// <inheritdoc/>
         public async Task<Result> RegisterTeacher(TeacherAuthDto teacher)
         {
             var result = new ResultFactory();
@@ -104,6 +115,7 @@ namespace Graidex.Application.Services.Authentication
             return result.Success();
         }
 
+        /// <inheritdoc/>
         public Task<Result<string>> LoginTeacher(UserAuthDto teacher, string keyToken)
         {
             var result = new ResultFactory<string>();
@@ -129,15 +141,15 @@ namespace Graidex.Application.Services.Authentication
 
         private static string CreateStudentToken(UserAuthDto student, string keyToken)
         {
-            return CreateToken(student, keyToken, new[] { "Student" });
+            return CreateToken(student, keyToken, 12, new[] { "Student" });
         }
 
         private static string CreateTeacherToken(UserAuthDto teacher, string keyToken)
         {
-            return CreateToken(teacher, keyToken, new[] { "Teacher" });
+            return CreateToken(teacher, keyToken, 24, new[] { "Teacher" });
         }
 
-        private static string CreateToken(UserAuthDto user, string keyToken, IEnumerable<string>? roles = null)
+        private static string CreateToken(UserAuthDto user, string keyToken, int hoursToExpiration, IEnumerable<string>? roles = null)
         {
             var claims = new List<Claim>
             {
@@ -157,7 +169,7 @@ namespace Graidex.Application.Services.Authentication
 
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.Now.AddHours(4),
+                expires: DateTime.Now.AddHours(hoursToExpiration),
                 signingCredentials: creds);
 
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);

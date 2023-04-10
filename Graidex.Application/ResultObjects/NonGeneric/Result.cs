@@ -7,13 +7,25 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.ResultObjects.NonGeneric
 {
+    /// <summary>
+    /// Base class for all result objects.
+    /// </summary>
     public abstract class Result
     {
+        /// <summary>
+        /// Checks whether this is <see cref="Success"/> result.
+        /// </summary>
+        /// <returns><see langword="true"/> if this is <see cref="Success{TValue}"/> result, <see langword="false"/> otherwise.</returns>
         public bool IsSuccess()
         {
             return this is Success;
         }
 
+        /// <summary>
+        /// Checks whether this is <see cref="Failure"/> result.
+        /// </summary>
+        /// <param name="failure">Output parameter to hold the <see cref="Failure{TValue}"/> object, if available.</param>
+        /// <returns><see langword="true"/> if this is <see cref="Failure{TValue}"/> result, <see langword="false"/> otherwise.</returns>
         public bool IsFailure(out Failure? failure)
         {
             if (this is Failure failureResult)
@@ -26,6 +38,10 @@ namespace Graidex.Application.ResultObjects.NonGeneric
             return false;
         }
 
+        /// <summary>
+        /// Checks whether this is <see cref="Failure"/> result.
+        /// </summary>
+        /// <returns><see langword="true"/> if this is <see cref="Failure{TValue}"/> result, <see langword="false"/> otherwise.</returns>
         public bool IsFailure()
         {
             return this is Failure;

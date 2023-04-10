@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.ResultObjects.NonGeneric
 {
+    /// <summary>
+    /// Success result object.
+    /// </summary>
     public class Success : Result
     {
 
