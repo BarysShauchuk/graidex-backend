@@ -19,7 +19,8 @@ This is a student testing system that provides teachers with an effective evalua
 
 ## Startup
 
-Add `appsettings.json` file to `Graidex.API`. This file should be as follows:
+1. Open Visual Studio 2022 or later and clone this project.
+2. Add `appsettings.json` file to `Graidex.API`. This file should be as follows:
 ```json
 {
   "AppSettings": {
@@ -39,6 +40,8 @@ Add `appsettings.json` file to `Graidex.API`. This file should be as follows:
   }
 }
 ```
+
+3. Run the app (`Ctrl+F5`).
 
 ## Base functionality
 
