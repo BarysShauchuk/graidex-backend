@@ -10,13 +10,6 @@ namespace Graidex.Domain.Interfaces
     public interface IRepository<TEntity>
     {
         /// <summary>
-        /// Gets an entity by its id.
-        /// </summary>
-        /// <param name="id">The id of the entity to retrieve.</param>
-        /// <returns>A task that represents the asynchronous operation to find the <see cref="TEntity"/> object with the specified id.</returns>
-        public Task<TEntity?> GetById(int id);
-
-        /// <summary>
         /// Gets a list of all entities.
         /// </summary>
         /// <returns>A result of the query of all <see cref="TEntity"/> objects in the database.</returns>

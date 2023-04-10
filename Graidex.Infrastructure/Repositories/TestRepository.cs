@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 namespace Graidex.Infrastructure.Repositories
 {
     /// <summary>
-    /// Repository class that implements the <see cref="IRepository{TEntity}"/> interface for the <see cref="Test"/> model.
+    /// Repository class that implements the <see cref="ITestRepository"/> interface for the <see cref="Test"/> model.
     /// </summary>
-    public class TestRepository : IRepository<Test>
+    public class TestRepository : ITestRepository
     {
         private readonly GraidexDbContext context;
 
@@ -24,7 +24,7 @@ namespace Graidex.Infrastructure.Repositories
         /// <summary>
         /// Gets a <see cref="Test"/> object from the database with a specified id.
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">The unique identifier of the <see cref="Test"/> object to be returned.</param>
         /// <returns>A task that represents the asynchronous operation to find the <see cref="Test"/> with the specified id.</returns>
         public async Task<Test?> GetById(int id)
         {

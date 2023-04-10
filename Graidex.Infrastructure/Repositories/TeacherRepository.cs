@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Graidex.Infrastructure.Repositories
 {   
     /// <summary>
-    /// Repository class that implements the <see cref="IRepository{TEntity}"/> interface for the <see cref="Teacher"/> model.
+    /// Repository class that implements the <see cref="ITeacherRepository"/> interface for the <see cref="Teacher"/> model.
     /// </summary>
     public class TeacherRepository : ITeacherRepository
     {

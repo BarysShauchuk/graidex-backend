@@ -21,10 +21,10 @@ builder.Services.AddDbContext<GraidexDbContext>(options =>
     .UseSqlServer(builder.Configuration.GetConnectionString("GraidexDb")));
 
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
-builder.Services.AddScoped<IRepository<Subject>, SubjectRepository>();
+builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
-builder.Services.AddScoped<IRepository<Test>, TestRepository>();
-builder.Services.AddScoped<IRepository<TestResult>, TestResultRepository>();
+builder.Services.AddScoped<ITestRepository, TestRepository>();
+builder.Services.AddScoped<ITestResultRepository, TestResultRepository>();
 
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
