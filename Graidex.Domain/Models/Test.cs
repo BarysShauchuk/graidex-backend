@@ -69,7 +69,7 @@ namespace Graidex.Domain.Models
         public int MaxPoints => Questions.Sum(question => question.MaxPoints);
 
         /// <summary>
-        /// Gets or sets the minimum grage to pass this test.
+        /// Gets or sets the minimum grade to pass this test.
         /// </summary>
         public int GradeToPass { get; set; }
 
