@@ -28,6 +28,7 @@ namespace Graidex.Application.Tests.Fakes
             return this.Entities.AsQueryable();
         }
 
+        // TODO: Remove this method
         public virtual Task<TEntity?> GetById(int id)
         {
             throw new NotImplementedException();

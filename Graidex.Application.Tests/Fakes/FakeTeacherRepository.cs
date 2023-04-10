@@ -10,7 +10,7 @@ namespace Graidex.Application.Tests.Fakes
 {
     internal class FakeTeacherRepository : FakeRepository<Teacher>, ITeacherRepository
     {
-        public override Task<Teacher?> GetById(int id)
+        public Task<Teacher?> GetById(int id)
         {
             return Task.FromResult(this.Entities.SingleOrDefault(x => x.Id == id));
         }
