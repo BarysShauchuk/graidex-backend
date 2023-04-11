@@ -24,7 +24,8 @@ This is a student testing system that provides teachers with an effective evalua
 ```json
 {
   "AppSettings": {
-    "Token":  "[The key token string]"
+    "Token":  "[The key token string]",
+    "FrontendUrl": "[Url for frontend]"
   },
   "Logging": {
     "LogLevel": {

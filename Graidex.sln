@@ -9,9 +9,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Graidex.Infrastructure", "G
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Graidex.API", "Graidex.API\Graidex.API.csproj", "{F0F69CD8-DB82-472A-832C-035E74BCCBFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graidex.Application", "Graidex.Application\Graidex.Application.csproj", "{F20B2D86-8BAB-4C65-A866-03E9BC1D7632}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Graidex.Application", "Graidex.Application\Graidex.Application.csproj", "{F20B2D86-8BAB-4C65-A866-03E9BC1D7632}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graidex.Application.Tests", "Graidex.Application.Tests\Graidex.Application.Tests.csproj", "{35500173-8620-41FD-8CBB-060E74EC5AFE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Graidex.Application.Tests", "Graidex.Application.Tests\Graidex.Application.Tests.csproj", "{35500173-8620-41FD-8CBB-060E74EC5AFE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D587D851-2680-415B-AF93-624CCA0F6C83}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

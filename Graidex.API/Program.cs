@@ -65,6 +65,7 @@ builder.Services
             ValidateIssuer = false,
             ValidateAudience = false,
         });
+builder.Services.AddCors();
 
 var app = builder.Build();
 
@@ -78,6 +79,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins(
+    builder.Configuration.GetSection("AppSettings:FrontendUrl").Value!));
 
 app.UseAuthentication();
 
