@@ -1,4 +1,5 @@
 using Graidex.Application.Services.Authentication;
+using Graidex.Application.Services.Users.Student;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models;
 using Graidex.Domain.Models.Users;
@@ -37,7 +38,10 @@ builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
 builder.Services.AddScoped<ITestRepository, TestRepository>();
 builder.Services.AddScoped<ITestResultRepository, TestResultRepository>();
 
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IStudentAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<ITeacherAuthenticationService, AuthenticationService>();
+
+builder.Services.AddScoped<IStudentService, StudentService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

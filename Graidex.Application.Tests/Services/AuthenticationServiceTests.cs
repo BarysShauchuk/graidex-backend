@@ -15,7 +15,7 @@ namespace Graidex.Application.Tests.Services
     {
         private FakeStudentRepository studentRepository;
         private FakeTeacherRepository teacherRepository;
-        private IAuthenticationService authenticationService;
+        private AuthenticationService authenticationService;
 
         [SetUp]
         public void Setup()

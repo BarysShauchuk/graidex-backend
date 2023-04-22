@@ -18,7 +18,7 @@ namespace Graidex.Application.Services.Authentication
     /// <summary>
     /// Authentication Service.
     /// </summary>
-    public class AuthenticationService : IAuthenticationService
+    public class AuthenticationService : IStudentAuthenticationService, ITeacherAuthenticationService
     {
         private readonly IStudentRepository studentRepository;
         private readonly ITeacherRepository teacherRepository;
