@@ -27,14 +27,14 @@ namespace Graidex.Domain.Models
         public DateTime EndTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the test the result belongs to.
+        /// Gets or sets id of the test the result belongs to.
         /// </summary>
-        public required virtual Test Test { get; set; }
+        public required int TestId { get; set; }
 
         /// <summary>
-        /// Gets or sets the student who took the test.
+        /// Gets or sets id of the student who took the test.
         /// </summary>
-        public required virtual Student Student { get; set; }
+        public required int StudentId { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of answers to the questions in the test.

@@ -36,19 +36,53 @@ namespace Graidex.Infrastructure.Data
         /// <param name="modelBuilder">The ModelBuilder used to configure entities, relationships and connect them to the database.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Student>().HasIndex(student => student.Email).IsUnique();
-            modelBuilder.Entity<Teacher>().HasIndex(teacher => teacher.Email).IsUnique();
+            modelBuilder.Entity<Teacher>()
+                .HasIndex(teacher => teacher.Email)
+                .IsUnique();
+
+            modelBuilder.Entity<Teacher>()
+                .HasMany<Subject>()
+                .WithOne()
+                .HasForeignKey(subject => subject.TeacherId);
+
+
+            modelBuilder.Entity<Student>()
+                .HasIndex(student => student.Email)
+                .IsUnique();
+
+            modelBuilder.Entity<Student>()
+                .HasMany<Subject>()
+                .WithMany(subject => subject.Students);
+
+
+            modelBuilder.Entity<Subject>()
+                .HasMany<Test>()
+                .WithOne()
+                .HasForeignKey(test => test.SubjectId);
+
+
+            modelBuilder.Entity<Test>()
+                .HasMany(test => test.AllowedStudents)
+                .WithMany();
 
             modelBuilder.Entity<Test>()
                 .Property(x => x.Questions)
                 .HasConversion(JsonExtensions.CreateJsonConverter<List<Question>>());
 
+            modelBuilder.Entity<Test>()
+                .HasMany<TestResult>()
+                .WithOne()
+                .HasForeignKey(testResult => testResult.TestId);
+
+
+            modelBuilder.Entity<TestResult>()
+                .HasOne<Student>()
+                .WithMany()
+                .HasForeignKey(testResult => testResult.StudentId);
+
             modelBuilder.Entity<TestResult>()
                 .Property(x => x.Answers)
                 .HasConversion(JsonExtensions.CreateJsonConverter<List<Answer>>());
-            modelBuilder.Entity<Test>()
-                .HasMany(test => test.AllowedStudents)
-                .WithMany();
         }
 
         /// <summary>

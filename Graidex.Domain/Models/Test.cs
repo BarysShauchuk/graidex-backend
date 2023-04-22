@@ -48,9 +48,9 @@ namespace Graidex.Domain.Models
         public TimeSpan TimeLimit { get; set; }
 
         /// <summary>
-        /// Gets or sets the subject the test is created for.
+        /// Gets or sets id of the subject the test is created for.
         /// </summary>
-        public required virtual Subject Subject { get; set; }
+        public required int SubjectId { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of students that are allowed to take the test.
@@ -72,10 +72,5 @@ namespace Graidex.Domain.Models
         /// Gets or sets the minimum grade to pass this test.
         /// </summary>
         public int GradeToPass { get; set; }
-
-        /// <summary>
-        /// Gets or sets the collection of results of the test.
-        /// </summary>
-        public virtual ICollection<TestResult> Results { get; set; } = new List<TestResult>();
     }
 }

@@ -30,18 +30,13 @@ namespace Graidex.Domain.Models
         public required string Title { get; set; }
 
         /// <summary>
-        /// Gets or sets the teacher that manages the subject.                                                              
+        /// Gets or sets id of the teacher that manages the subject.                                                              
         /// </summary>
-        public required virtual Teacher Teacher { get; set; }
+        public required int TeacherId { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of students that are assigned to the subject.
         /// </summary>
         public virtual ICollection<Student> Students { get; set; } = new List<Student>();
-
-        /// <summary>
-        /// Gets or sets the collection of tests created for the subject.
-        /// </summary>
-        public virtual ICollection<Test> Tests { get; set; } = new List<Test>();
     }
 }

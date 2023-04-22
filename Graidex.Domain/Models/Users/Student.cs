@@ -20,10 +20,5 @@ namespace Graidex.Domain.Models.Users
         /// </remarks>
         [MaxLength(15)]
         public string? CustomId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the collection of subjects that the student is assigned to.
-        /// </summary>
-        public virtual ICollection<Subject> Subjects { get; set; } = new List<Subject>();
     }
 }

@@ -9,6 +9,7 @@ using Graidex.Domain.Models.Users;
 using Graidex.Domain.Models.Questions;
 using Graidex.Domain.Models.Answers;
 using Graidex.Domain.Models.ChoiceOptions;
+using System.Runtime.CompilerServices;
 
 namespace Graidex.Infrastructure.Data
 {   
@@ -16,7 +17,7 @@ namespace Graidex.Infrastructure.Data
     /// Static class with methods used to populate the database with seed data.
     /// </summary>
     public static class SeedData
-    {   
+    {
         /// <summary>
         /// Applies pending migration to database.
         /// </summary>
@@ -36,12 +37,11 @@ namespace Graidex.Infrastructure.Data
 
             if (!context.Teachers.Any())
             {
-                context.Teachers.AddRange(GetSeedTeachers());
-                context.SaveChanges();
+                Populate(context);
             }
         }
 
-        private static List<Teacher> GetSeedTeachers()
+        private static void Populate(GraidexDbContext context)
         {
             #region Users
             var teacher1 = new Teacher
@@ -50,7 +50,6 @@ namespace Graidex.Infrastructure.Data
                 Name = "Walter",
                 Surname = "White",
                 Password = "12341234",
-                Subjects = new List<Subject>()
             };
 
             var teacher2 = new Teacher
@@ -59,7 +58,6 @@ namespace Graidex.Infrastructure.Data
                 Name = "Some",
                 Surname = "Teacher",
                 Password = "pass word",
-                Subjects = new List<Subject>()
             };
 
             var teacher3 = new Teacher
@@ -68,7 +66,6 @@ namespace Graidex.Infrastructure.Data
                 Name = "Butch",
                 Surname = "Cassidy",
                 Password = "weak$passWo_rd",
-                Subjects = new List<Subject>()
             };
 
             var student1 = new Student
@@ -78,7 +75,6 @@ namespace Graidex.Infrastructure.Data
                 Surname = "Pinkman",
                 Password = "jessepassword",
                 CustomId = "IF_200001",
-                Subjects = new List<Subject>(),
             };
 
             var student2 = new Student
@@ -88,7 +84,6 @@ namespace Graidex.Infrastructure.Data
                 Surname = "Student",
                 Password = "carelesspassword",
                 CustomId = "NS_200002",
-                Subjects = new List<Subject>(),
             };
 
             var student3 = new Student
@@ -98,9 +93,41 @@ namespace Graidex.Infrastructure.Data
                 Surname = "Kid",
                 Password = "Str0Ng-Pa$sW0rD",
                 CustomId = "NS_200003",
-                Subjects = new List<Subject>(),
             };
             #endregion Users
+
+            context.Teachers.AddRange(teacher1, teacher2, teacher3);
+            context.Students.AddRange(student1, student2, student3);
+            context.SaveChanges();
+
+            #region Subjects
+            var subject1 = new Subject
+            {
+                CustomId = "INF_123",
+                Title = "Mathematics",
+                TeacherId = teacher1.Id,
+                Students = new List<Student> { student1, student2 },
+            };
+
+            var subject2 = new Subject
+            {
+                CustomId = "INF_456",
+                Title = "Physics",
+                TeacherId = teacher2.Id,
+                Students = new List<Student> { student2, student3 },
+            };
+
+            var subject3 = new Subject
+            {
+                CustomId = "INF_789",
+                Title = "Chemistry",
+                TeacherId = teacher3.Id,
+                Students = new List<Student> { student1, student3 },
+            };
+            #endregion Subjects
+
+            context.Subjects.AddRange(subject1, subject2, subject3);
+            context.SaveChanges();
 
             #region ChoiceOptions
             var choiceOption1 = new ChoiceOption
@@ -270,35 +297,6 @@ namespace Graidex.Infrastructure.Data
             };
             #endregion Answers
 
-            #region Subjects
-            var subject1 = new Subject
-            {
-                CustomId = "INF_123",
-                Title = "Mathematics",
-                Teacher = teacher1,
-                Students = new List<Student> { student1, student2 },
-                Tests = new List<Test>()
-            };
-
-            var subject2 = new Subject
-            {
-                CustomId = "INF_456",
-                Title = "Physics",
-                Teacher = teacher2,
-                Students = new List<Student> { student2, student3},
-                Tests = new List<Test>()
-            };
-
-            var subject3 = new Subject
-            {
-                CustomId = "INF_789",
-                Title = "Chemistry",
-                Teacher = teacher3,
-                Students = new List<Student> { student1, student3},
-                Tests = new List<Test>()
-            };
-            #endregion Subjects
-
             #region Tests
             var test1 = new Test
             {
@@ -308,11 +306,10 @@ namespace Graidex.Infrastructure.Data
                 StartTime = new DateTime(2023, 7, 10, 12, 0, 0),
                 EndTime = new DateTime(2023, 7, 10, 13, 0, 0),
                 TimeLimit = new TimeSpan(1, 0, 0),
-                Subject = subject1,
+                SubjectId = subject1.Id,
                 AllowedStudents = new List<Student> { student1, student2 },
                 Questions = new List<Question> { multQuestion1, openQuestion1, singleQuestion1 },
                 GradeToPass = 6,
-                Results = new List<TestResult>(),
             };
 
             var test2 = new Test
@@ -323,11 +320,10 @@ namespace Graidex.Infrastructure.Data
                 StartTime = new DateTime(2023, 6, 10, 12, 0, 0),
                 EndTime = new DateTime(2023, 6, 10, 13, 0, 0),
                 TimeLimit = new TimeSpan(1, 0, 0),
-                Subject = subject2,
+                SubjectId = subject2.Id,
                 AllowedStudents = new List<Student> { student2, student3 },
                 Questions = new List<Question> { multQuestion2, openQuestion2, singleQuestion2, singleQuestion1},
                 GradeToPass = 7,
-                Results = new List<TestResult>()
             };
 
             var test3 = new Test
@@ -338,21 +334,23 @@ namespace Graidex.Infrastructure.Data
                 StartTime = new DateTime(2023, 5, 10, 12, 0, 0),
                 EndTime = new DateTime(2023, 5, 10, 13, 0, 0),
                 TimeLimit = new TimeSpan(1, 0, 0),
-                Subject = subject3,
+                SubjectId = subject3.Id,
                 AllowedStudents = new List<Student> { student1, student3 },
                 Questions = new List<Question> { multQuestion3, openQuestion3, singleQuestion3, multQuestion2},
                 GradeToPass = 8,
-                Results = new List<TestResult>()
             };
             #endregion Tests
+
+            context.Tests.AddRange(test1, test2, test3);
+            context.SaveChanges();
 
             #region TestResults
             var testResult1 = new TestResult
             {
                 StartTime = new DateTime(2023, 7, 10, 12, 0, 0),
                 EndTime = new DateTime(2023, 7, 10, 12, 55, 0),
-                Test = test1,
-                Student = student1,
+                TestId = test1.Id,
+                StudentId = student1.Id,
                 Answers = new List<Answer> {multAnswer1, openAnswer1, singleAnswer1},
             };
 
@@ -360,8 +358,8 @@ namespace Graidex.Infrastructure.Data
             {
                 StartTime = new DateTime(2023, 6, 10, 12, 0, 0),
                 EndTime = new DateTime(2023, 6, 10, 12, 55, 0),
-                Test = test2,
-                Student = student2,
+                TestId = test2.Id,
+                StudentId = student2.Id,
                 Answers = new List<Answer>  {multAnswer2, openAnswer2, singleAnswer2, singleAnswer1},
             };
 
@@ -369,35 +367,14 @@ namespace Graidex.Infrastructure.Data
             {
                 StartTime = new DateTime(2023, 5, 10, 12, 0, 0),
                 EndTime = new DateTime(2023, 5, 10, 12, 55, 0),
-                Test = test3,
-                Student = student3,
+                TestId = test3.Id,
+                StudentId = student3.Id,
                 Answers = new List<Answer> { multAnswer3, openAnswer3, singleAnswer3, multAnswer2},
             };
             #endregion TestResults
 
-            student1.Subjects.Add(subject1);
-            student1.Subjects.Add(subject3);
-
-            student2.Subjects.Add(subject1);
-            student2.Subjects.Add(subject2);
-
-            student3.Subjects.Add(subject2);
-            student3.Subjects.Add(subject3);
-
-            teacher1.Subjects.Add(subject1);
-            teacher1.Subjects.Add(subject3);
-            teacher2.Subjects.Add(subject2);
-            teacher3.Subjects.Add(subject3);
-            
-            subject1.Tests.Add(test1);
-            subject2.Tests.Add(test2);
-            subject3.Tests.Add(test3);
-
-            test1.Results.Add(testResult1);
-            test2.Results.Add(testResult2);
-            test3.Results.Add(testResult3);
-
-            return new List<Teacher> { teacher1, teacher2, teacher3 };
+            context.TestResults.AddRange(testResult1, testResult2, testResult3);
+            context.SaveChanges();
         }
     }
 }
