@@ -1,4 +1,5 @@
 ﻿using Graidex.Application.DTOs.Authentication;
+using Graidex.Application.DTOs.Users;
 using Graidex.Application.ResultObjects;
 using Graidex.Application.ResultObjects.Generic;
 using Graidex.Application.ResultObjects.NonGeneric;
@@ -37,26 +38,27 @@ namespace Graidex.Application.Services.Authentication
         }
 
         /// <inheritdoc/>
-        public async Task<Result> RegisterStudent(StudentAuthDto student)
+        public async Task<Result> RegisterStudent(StudentDto student)
         {
             var result = new ResultFactory();
 
             bool studentExists = this.studentRepository
                 .GetAll()
-                .Any(x => x.Email == student.Email);
+                .Any(x => x.Email == student.AuthInfo.Email);
 
             if (studentExists)
             {
-                return result.Failure($"Student with email \"{student.Email}\" already exists.");
+                return result.Failure(
+                    $"Student with email \"{student.AuthInfo.Email}\" already exists.");
             }
 
             Student dbStudent = new Student
             {
-                Email = student.Email,
-                Password = student.Password,
-                Name = student.Name,
-                Surname = student.Surname,
-                CustomId = student.CustomId
+                Email = student.AuthInfo.Email,
+                Password = student.AuthInfo.Password,
+                Name = student.StudentInfo.Name,
+                Surname = student.StudentInfo.Surname,
+                CustomId = student.StudentInfo.CustomId
             };
 
             await this.studentRepository.Add(dbStudent);
@@ -89,25 +91,26 @@ namespace Graidex.Application.Services.Authentication
         }
 
         /// <inheritdoc/>
-        public async Task<Result> RegisterTeacher(TeacherAuthDto teacher)
+        public async Task<Result> RegisterTeacher(TeacherDto teacher)
         {
             var result = new ResultFactory();
 
             bool teacherExists = this.teacherRepository
                 .GetAll()
-                .Any(x => x.Email == teacher.Email);
+                .Any(x => x.Email == teacher.AuthInfo.Email);
 
             if (teacherExists)
             {
-                return result.Failure($"Teacher with email \"{teacher.Email}\" already exists.");
+                return result.Failure(
+                    $"Teacher with email \"{teacher.AuthInfo.Email}\" already exists.");
             }
 
             Teacher dbTeacher = new Teacher
             {
-                Email = teacher.Email,
-                Password = teacher.Password,
-                Name = teacher.Name,
-                Surname = teacher.Surname
+                Email = teacher.AuthInfo.Email,
+                Password = teacher.AuthInfo.Password,
+                Name = teacher.TeacherInfo.Name,
+                Surname = teacher.TeacherInfo.Surname
             };
 
             await this.teacherRepository.Add(dbTeacher);

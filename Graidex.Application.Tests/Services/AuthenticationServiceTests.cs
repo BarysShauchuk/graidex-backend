@@ -1,4 +1,5 @@
 ﻿using Graidex.Application.DTOs.Authentication;
+using Graidex.Application.DTOs.Users;
 using Graidex.Application.Services.Authentication;
 using Graidex.Application.Tests.Fakes;
 using Graidex.Domain.Interfaces;
@@ -31,13 +32,20 @@ namespace Graidex.Application.Tests.Services
         public async Task RegisterStudent_WithValidData_ShouldReturnSuccess()
         {
             this.studentRepository.Entities.Clear();
-            var student = new StudentAuthDto
+            var student = new StudentDto
             {
-                Email = "email",
-                Password = "password",
-                Name = "name",
-                Surname = "surname",
-                CustomId = "customId"
+                AuthInfo = new UserAuthDto
+                {
+                    Email = "email",
+                    Password = "password",
+                },
+
+                StudentInfo = new StudentInfoDto
+                {
+                    Name = "name",
+                    Surname = "surname",
+                    CustomId = "customId"
+                },
             };
 
             var result = await this.authenticationService.RegisterStudent(student);
@@ -48,13 +56,20 @@ namespace Graidex.Application.Tests.Services
         public async Task RegisterStudent_WithValidData_ShouldAddStudent()
         {
             this.studentRepository.Entities.Clear();
-            var student = new StudentAuthDto
+            var student = new StudentDto
             {
-                Email = "email",
-                Password = "password",
-                Name = "name",
-                Surname = "surname",
-                CustomId = "customId"
+                AuthInfo = new UserAuthDto
+                {
+                    Email = "email",
+                    Password = "password",
+                },
+
+                StudentInfo = new StudentInfoDto
+                {
+                    Name = "name",
+                    Surname = "surname",
+                    CustomId = "customId"
+                },
             };
 
             await this.authenticationService.RegisterStudent(student);
@@ -63,11 +78,11 @@ namespace Graidex.Application.Tests.Services
             Assert.That(dbStudent, Is.Not.Null);
             Assert.Multiple(() =>
             {
-                Assert.That(dbStudent.Email, Is.EqualTo(student.Email));
-                Assert.That(dbStudent.Password, Is.EqualTo(student.Password));
-                Assert.That(dbStudent.Name, Is.EqualTo(student.Name));
-                Assert.That(dbStudent.Surname, Is.EqualTo(student.Surname));
-                Assert.That(dbStudent.CustomId, Is.EqualTo(student.CustomId));
+                Assert.That(dbStudent.Email, Is.EqualTo(student.AuthInfo.Email));
+                Assert.That(dbStudent.Password, Is.EqualTo(student.AuthInfo.Password));
+                Assert.That(dbStudent.Name, Is.EqualTo(student.StudentInfo.Name));
+                Assert.That(dbStudent.Surname, Is.EqualTo(student.StudentInfo.Surname));
+                Assert.That(dbStudent.CustomId, Is.EqualTo(student.StudentInfo.CustomId));
             });
         }
 
@@ -75,13 +90,20 @@ namespace Graidex.Application.Tests.Services
         public async Task RegisterStudent_WithExistingEmail_ShouldReturnFailure()
         {
             this.studentRepository.Entities.Clear();
-            var student = new StudentAuthDto
+            var student = new StudentDto
             {
-                Email = "email",
-                Password = "password",
-                Name = "name",
-                Surname = "surname",
-                CustomId = "customId"
+                AuthInfo = new UserAuthDto
+                {
+                    Email = "email",
+                    Password = "password",
+                },
+
+                StudentInfo = new StudentInfoDto
+                {
+                    Name = "name",
+                    Surname = "surname",
+                    CustomId = "customId"
+                },
             };
 
             await this.authenticationService.RegisterStudent(student);
@@ -93,13 +115,20 @@ namespace Graidex.Application.Tests.Services
         public async Task RegisterStudent_WithExistingEmail_ShouldNotAddStudent()
         {
             this.studentRepository.Entities.Clear();
-            var student = new StudentAuthDto
+            var student = new StudentDto
             {
-                Email = "email",
-                Password = "password",
-                Name = "name",
-                Surname = "surname",
-                CustomId = "customId"
+                AuthInfo = new UserAuthDto
+                {
+                    Email = "email",
+                    Password = "password",
+                },
+
+                StudentInfo = new StudentInfoDto
+                {
+                    Name = "name",
+                    Surname = "surname",
+                    CustomId = "customId"
+                },
             };
 
             await this.authenticationService.RegisterStudent(student);
@@ -155,12 +184,19 @@ namespace Graidex.Application.Tests.Services
         public async Task RegisterTeacher_WithValidData_ShouldReturnSuccess()
         {
             this.teacherRepository.Entities.Clear();
-            var teacher = new TeacherAuthDto
+            var teacher = new TeacherDto
             {
-                Email = "email",
-                Password = "password",
-                Name = "name",
-                Surname = "surname",
+                AuthInfo = new UserAuthDto
+                {
+                    Email = "email",
+                    Password = "password",
+                },
+
+                TeacherInfo = new TeacherInfoDto
+                {
+                    Name = "name",
+                    Surname = "surname",
+                },
             };
 
             var result = await this.authenticationService.RegisterTeacher(teacher);
@@ -171,12 +207,19 @@ namespace Graidex.Application.Tests.Services
         public async Task RegisterTeacher_WithValidData_ShouldAddTeacher()
         {
             this.teacherRepository.Entities.Clear();
-            var teacher = new TeacherAuthDto
+            var teacher = new TeacherDto
             {
-                Email = "email",
-                Password = "password",
-                Name = "name",
-                Surname = "surname",
+                AuthInfo = new UserAuthDto
+                {
+                    Email = "email",
+                    Password = "password",
+                },
+
+                TeacherInfo = new TeacherInfoDto
+                {
+                    Name = "name",
+                    Surname = "surname",
+                },
             };
 
             await this.authenticationService.RegisterTeacher(teacher);
@@ -184,10 +227,10 @@ namespace Graidex.Application.Tests.Services
             Assert.That(dbTeacher, Is.Not.Null);
             Assert.Multiple(() =>
             {
-                Assert.That(dbTeacher.Email, Is.EqualTo(teacher.Email));
-                Assert.That(dbTeacher.Password, Is.EqualTo(teacher.Password));
-                Assert.That(dbTeacher.Name, Is.EqualTo(teacher.Name));
-                Assert.That(dbTeacher.Surname, Is.EqualTo(teacher.Surname));
+                Assert.That(dbTeacher.Email, Is.EqualTo(teacher.AuthInfo.Email));
+                Assert.That(dbTeacher.Password, Is.EqualTo(teacher.AuthInfo.Password));
+                Assert.That(dbTeacher.Name, Is.EqualTo(teacher.TeacherInfo.Name));
+                Assert.That(dbTeacher.Surname, Is.EqualTo(teacher.TeacherInfo.Surname));
             });
         }
 
@@ -195,12 +238,19 @@ namespace Graidex.Application.Tests.Services
         public async Task RegisterTeacher_WithExistingEmail_ShouldReturnFailure()
         {
             this.teacherRepository.Entities.Clear();
-            var teacher = new TeacherAuthDto
+            var teacher = new TeacherDto
             {
-                Email = "email",
-                Password = "password",
-                Name = "name",
-                Surname = "surname",
+                AuthInfo = new UserAuthDto
+                {
+                    Email = "email",
+                    Password = "password",
+                },
+
+                TeacherInfo = new TeacherInfoDto
+                {
+                    Name = "name",
+                    Surname = "surname",
+                },
             };
 
             await this.authenticationService.RegisterTeacher(teacher);
@@ -212,12 +262,19 @@ namespace Graidex.Application.Tests.Services
         public async Task RegisterTeacher_WithExistingEmail_ShouldNotAddTeacher()
         {
             this.teacherRepository.Entities.Clear();
-            var teacher = new TeacherAuthDto
+            var teacher = new TeacherDto
             {
-                Email = "email",
-                Password = "password",
-                Name = "name",
-                Surname = "surname",
+                AuthInfo = new UserAuthDto
+                {
+                    Email = "email",
+                    Password = "password",
+                },
+
+                TeacherInfo = new TeacherInfoDto
+                {
+                    Name = "name",
+                    Surname = "surname",
+                },
             };
 
             await this.authenticationService.RegisterTeacher(teacher);

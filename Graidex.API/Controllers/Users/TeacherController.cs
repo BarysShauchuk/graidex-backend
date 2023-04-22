@@ -1,4 +1,5 @@
 ﻿using Graidex.Application.DTOs.Authentication;
+using Graidex.Application.DTOs.Users;
 using Graidex.Application.Services.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +25,7 @@ namespace Graidex.API.Controllers.Users
 
         [HttpPost("create")]
         [AllowAnonymous]
-        public async Task<ActionResult> Create(TeacherAuthDto request)
+        public async Task<ActionResult> Create(TeacherDto request)
         {
             // TODO: Check ModelState
 
@@ -45,7 +46,7 @@ namespace Graidex.API.Controllers.Users
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<ActionResult> Login(UserAuthDto request)
+        public async Task<ActionResult<string>> Login(UserAuthDto request)
         {
             // TODO: Check ModelState
 
@@ -67,25 +68,25 @@ namespace Graidex.API.Controllers.Users
 
         [HttpGet("{email}")]
         [Authorize(Roles = "Student, Teacher")]
-        public async Task<ActionResult> GetByEmail(string email)
+        public async Task<ActionResult<TeacherInfoDto>> GetByEmail(string email)
         {
             throw new NotImplementedException();
         }
 
         [HttpPut("update-info")]
-        public async Task<ActionResult> UpdateInfo()
+        public async Task<ActionResult> UpdateInfo(TeacherInfoDto teacher)
         {
             throw new NotImplementedException();
         }
 
-        [HttpPut("update-password")]
-        public async Task<ActionResult> UpdatePassword()
+        [HttpPut("change-password")]
+        public async Task<ActionResult> ChangePassword(ChangePasswordDto passwords)
         {
             throw new NotImplementedException();
         }
 
         [HttpDelete("delete")]
-        public async Task<ActionResult> Delete()
+        public async Task<ActionResult> Delete(string password)
         {
             throw new NotImplementedException();
         }

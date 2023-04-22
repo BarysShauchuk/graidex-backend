@@ -5,18 +5,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.DTOs.Authentication
+namespace Graidex.Application.DTOs.Users
 {
-    public class TeacherAuthDto : UserAuthDto
+    /// <summary>
+    /// Represents information about teacher.
+    /// </summary>
+    public class TeacherInfoDto
     {
         /// <summary>
-        /// Gets or sets the name(first name) of the user.
+        /// Gets or sets the name(first name) of the teacher.
         /// </summary>
         [MaxLength(50)]
         public required string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the surname(last name) of the user.
+        /// Gets or sets the surname(last name) of the teacher.
         /// </summary>
         [MaxLength(50)]
         public required string Surname { get; set; }

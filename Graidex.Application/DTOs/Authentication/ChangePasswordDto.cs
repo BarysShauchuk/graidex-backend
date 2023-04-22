@@ -8,20 +8,20 @@ using System.Threading.Tasks;
 namespace Graidex.Application.DTOs.Authentication
 {
     /// <summary>
-    /// Represents an object containing user authentication data.
+    /// Represents a data transfer object for changing the password of a user.
     /// </summary>
-    public class UserAuthDto
+    public class ChangePasswordDto
     {
         /// <summary>
-        /// Gets or sets the email address of the user.
-        /// </summary>
-        [EmailAddress]
-        public required string Email { get; set; }
-
-        /// <summary>
-        /// Gets or sets the password of the user.
+        /// Gets or sets the current password of the user.
         /// </summary>
         [DataType(DataType.Password)]
-        public required string Password { get; set; }
+        public required string CurrentPassword { get; set; }
+
+        /// <summary>
+        /// Gets or sets the new password of the user.
+        /// </summary>
+        [DataType(DataType.Password)]
+        public required string NewPassword { get; set; }
     }
 }

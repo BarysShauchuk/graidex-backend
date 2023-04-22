@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using Graidex.Application.DTOs.Authentication;
+using Graidex.Application.DTOs.Users;
 using Graidex.Application.Services.Authentication;
 using Graidex.Application.Services.Users.Student;
 using Microsoft.AspNetCore.Authorization;
@@ -28,7 +29,7 @@ namespace Graidex.API.Controllers.Users
 
         [HttpPost("create")]
         [AllowAnonymous]
-        public async Task<ActionResult> Create(StudentAuthDto request)
+        public async Task<ActionResult> Create(StudentDto request)
         {
             // TODO: Check ModelState
 
@@ -49,7 +50,7 @@ namespace Graidex.API.Controllers.Users
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<ActionResult> Login(UserAuthDto request)
+        public async Task<ActionResult<string>> Login(UserAuthDto request)
         {
             // TODO: Check ModelState
 
@@ -71,19 +72,19 @@ namespace Graidex.API.Controllers.Users
 
         [HttpGet("{email}")]
         [Authorize(Roles = "Student, Teacher")]
-        public async Task<ActionResult> GetByEmail(string email)
+        public async Task<ActionResult<StudentInfoDto>> GetByEmail(string email)
         {
             throw new NotImplementedException();
         }
 
         [HttpPut("update-info")]
-        public async Task<ActionResult> UpdateInfo()
+        public async Task<ActionResult> UpdateInfo(StudentInfoDto student)
         {
             throw new NotImplementedException();
         }
 
-        [HttpPut("update-password")]
-        public async Task<ActionResult> UpdatePassword()
+        [HttpPut("change-password")]
+        public async Task<ActionResult> ChangePassword(ChangePasswordDto passwords)
         {
             throw new NotImplementedException();
         }

@@ -1,4 +1,5 @@
 ﻿using Graidex.Application.DTOs.Authentication;
+using Graidex.Application.DTOs.Users;
 using Graidex.Application.ResultObjects.Generic;
 using Graidex.Application.ResultObjects.NonGeneric;
 using System;
@@ -17,12 +18,12 @@ namespace Graidex.Application.Services.Authentication
         /// <summary>
         /// Register teacher.
         /// </summary>
-        /// <param name="teacher"><see cref="TeacherAuthDto"/> object with teacher data for registration.</param>
+        /// <param name="teacher"><see cref="TeacherDto"/> object with teacher data for registration.</param>
         /// <returns>
         /// A task that represents the asynchronous operation to get <see cref="Result"/>
         /// of teacher registration.
         /// </returns>
-        public Task<Result> RegisterTeacher(TeacherAuthDto teacher);
+        public Task<Result> RegisterTeacher(TeacherDto teacher);
 
         /// <summary>
         /// Login teacher.
