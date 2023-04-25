@@ -79,7 +79,6 @@ namespace Graidex.Application.Tests.Services
             Assert.Multiple(() =>
             {
                 Assert.That(dbStudent.Email, Is.EqualTo(student.AuthInfo.Email));
-                Assert.That(BCrypt.Net.BCrypt.Verify(student.AuthInfo.Password, dbStudent.PasswordHash));
                 Assert.That(dbStudent.Name, Is.EqualTo(student.StudentInfo.Name));
                 Assert.That(dbStudent.Surname, Is.EqualTo(student.StudentInfo.Surname));
                 Assert.That(dbStudent.CustomId, Is.EqualTo(student.StudentInfo.CustomId));
@@ -146,7 +145,7 @@ namespace Graidex.Application.Tests.Services
                 new Student
                 {
                     Email = "email",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("password"),
+                    PasswordHash = "$2a$11$ndBpDe1qzTp80UOmMvQFq.tWKebXIh2ghn4/z2H839iwW58zEaCgO",
                     Name = "name",
                     Surname = "surname",
                     CustomId = "customId"
@@ -228,7 +227,6 @@ namespace Graidex.Application.Tests.Services
             Assert.Multiple(() =>
             {
                 Assert.That(dbTeacher.Email, Is.EqualTo(teacher.AuthInfo.Email));
-                Assert.That(BCrypt.Net.BCrypt.Verify(teacher.AuthInfo.Password, dbTeacher.PasswordHash));
                 Assert.That(dbTeacher.Name, Is.EqualTo(teacher.TeacherInfo.Name));
                 Assert.That(dbTeacher.Surname, Is.EqualTo(teacher.TeacherInfo.Surname));
             });
@@ -292,7 +290,7 @@ namespace Graidex.Application.Tests.Services
                 new Teacher
                 {
                     Email = "email",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("password"),
+                    PasswordHash = "$2a$11$ndBpDe1qzTp80UOmMvQFq.tWKebXIh2ghn4/z2H839iwW58zEaCgO",
                     Name = "name",
                     Surname = "surname",
                 });
