@@ -49,7 +49,7 @@ namespace Graidex.Infrastructure.Data
                 Email = "walterwhite@email.com",
                 Name = "Walter",
                 Surname = "White",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("12341234"),
+                PasswordHash = "$2a$11$AmeWLP0hM2OqRMzE8KRx.eplUn7zyE7789lJZd2wbBBshpADhoUZi",
             };
 
             var teacher2 = new Teacher
@@ -57,7 +57,7 @@ namespace Graidex.Infrastructure.Data
                 Email = "someteacher@email.com",
                 Name = "Some",
                 Surname = "Teacher",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("pass word"),
+                PasswordHash = "$2a$11$AjhDRXCcP7UybpqURvtudeu.TC8FAQGKmRWogQ9RwraDsrypcTlx2",
             };
 
             var teacher3 = new Teacher
@@ -65,7 +65,7 @@ namespace Graidex.Infrastructure.Data
                 Email = "butchcassidy@email.com",
                 Name = "Butch",
                 Surname = "Cassidy",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("weak$passWo_rd"),
+                PasswordHash = "$2a$11$xIFDRYzdBhKmLskY7KmYhu0RdVAMh6kU5viph0jcDLKB3RfMAHFiK",
             };
 
             var student1 = new Student
@@ -73,7 +73,7 @@ namespace Graidex.Infrastructure.Data
                 Email = "jessepinkman@gmail.com",
                 Name = "Jesse",
                 Surname = "Pinkman",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("jessepassword"),
+                PasswordHash = "$2a$11$wGKTZXD4gZNZufgDH/3Q9e15G/vs/ZwTFTlMXGYZtM92bvOsIEcxm",
                 CustomId = "IF_200001",
             };
 
@@ -82,7 +82,7 @@ namespace Graidex.Infrastructure.Data
                 Email = "carelessstudent@gmail.com",
                 Name = "Careless",
                 Surname = "Student",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("carelesspassword"),
+                PasswordHash = "$2a$11$PMkVZDDIXhBmNTy3TAQJJ.DSw2MEGD2CdVmM/B85rqnyCEKmJWuCO",
                 CustomId = "NS_200002",
             };
 
@@ -91,7 +91,7 @@ namespace Graidex.Infrastructure.Data
                 Email = "sundancekid@gmail.com",
                 Name = "Sundance",
                 Surname = "Kid",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Str0Ng-Pa$sW0rD"),
+                PasswordHash = "$2a$11$DulaYDjK.U3usLkkUcAbYeodOiMdYhFePjI6drE.0nsKkLQuvk7uC",
                 CustomId = "NS_200003",
             };
             #endregion Users
