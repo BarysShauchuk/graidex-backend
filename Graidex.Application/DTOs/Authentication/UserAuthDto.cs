@@ -15,13 +15,11 @@ namespace Graidex.Application.DTOs.Authentication
         /// <summary>
         /// Gets or sets the email address of the user.
         /// </summary>
-        [EmailAddress]
         public required string Email { get; set; }
 
         /// <summary>
         /// Gets or sets the password of the user.
         /// </summary>
-        [DataType(DataType.Password)]
         public required string Password { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using FluentValidation;
 using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Users;
 using Graidex.Application.Services.Authentication;
@@ -16,15 +17,18 @@ namespace Graidex.API.Controllers.Users
         private readonly IStudentAuthenticationService authenticationService;
         private readonly IStudentService studentService;
         private readonly IConfiguration configuration;
+        private readonly IValidator<UserAuthDto> userAuthDtoValidator;
 
         public StudentController(
             IStudentAuthenticationService authenticationService,
             IStudentService studentService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IValidator<UserAuthDto> userAuthDtoValidator)
         {
             this.authenticationService = authenticationService;
             this.studentService = studentService;
             this.configuration = configuration;
+            this.userAuthDtoValidator = userAuthDtoValidator;
         }
 
         [HttpPost("create")]
@@ -52,7 +56,11 @@ namespace Graidex.API.Controllers.Users
         [AllowAnonymous]
         public async Task<ActionResult<string>> Login(UserAuthDto request)
         {
-            // TODO: Check ModelState
+            var validationResult = await this.userAuthDtoValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
 
             var keyToken = this.configuration.GetSection("AppSettings:Token").Value!;
             var result = await this.authenticationService.LoginStudent(request, keyToken);

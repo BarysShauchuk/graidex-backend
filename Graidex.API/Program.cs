@@ -1,3 +1,5 @@
+using FluentValidation;
+using Graidex.Application;
 using Graidex.Application.AutoMapperProfiles;
 using Graidex.Application.Services.Authentication;
 using Graidex.Application.Services.Users;
@@ -70,7 +72,8 @@ builder.Services
             ValidateIssuer = false,
             ValidateAudience = false,
         });
-builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
+builder.Services.AddValidatorsFromAssemblyContaining<IApplicationAssemblyMarker>();
+builder.Services.AddAutoMapper(typeof(IApplicationAssemblyMarker).Assembly);
 builder.Services.AddCors();
 
 var app = builder.Build();
