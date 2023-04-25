@@ -11,6 +11,5 @@ namespace Graidex.Application.Services.Users
 {
     public interface IStudentService
     {
-        public Task<Result<Student>> CreateStudent(StudentDto student);
     }
 }

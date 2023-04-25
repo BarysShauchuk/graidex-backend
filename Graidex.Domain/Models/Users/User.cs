@@ -31,9 +31,8 @@ namespace Graidex.Domain.Models.Users
         public required string Surname { get; set; }
 
         /// <summary>
-        /// Gets or sets the password of the user.
+        /// Gets or sets the password hash of the user.
         /// </summary>
-        [DataType(DataType.Password)]
         public required string PasswordHash { get; set; }
     }
 }

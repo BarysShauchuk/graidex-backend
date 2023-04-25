@@ -18,10 +18,5 @@ namespace Graidex.Application.Services.Users
         {
             this.studentRepository = studentRepository;
         }
-
-        public Task<Result<Student>> CreateStudent(StudentDto student)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

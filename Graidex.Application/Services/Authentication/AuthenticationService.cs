@@ -1,8 +1,10 @@
-﻿using Graidex.Application.DTOs.Authentication;
+﻿using AutoMapper;
+using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Users;
 using Graidex.Application.ResultObjects;
 using Graidex.Application.ResultObjects.Generic;
 using Graidex.Application.ResultObjects.NonGeneric;
+using Graidex.Application.Services.Users;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Users;
 using Microsoft.IdentityModel.Tokens;
@@ -23,6 +25,7 @@ namespace Graidex.Application.Services.Authentication
     {
         private readonly IStudentRepository studentRepository;
         private readonly ITeacherRepository teacherRepository;
+        private readonly IMapper mapper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationService"/> class.
@@ -31,10 +34,12 @@ namespace Graidex.Application.Services.Authentication
         /// <param name="teacherRepository">Repository for <see cref="Teacher"/>.</param>
         public AuthenticationService(
             IStudentRepository studentRepository,
-            ITeacherRepository teacherRepository)
+            ITeacherRepository teacherRepository,
+            IMapper mapper)
         {
             this.studentRepository = studentRepository;
             this.teacherRepository = teacherRepository;
+            this.mapper = mapper;
         }
 
         /// <inheritdoc/>
@@ -52,17 +57,8 @@ namespace Graidex.Application.Services.Authentication
                     $"Student with email \"{student.AuthInfo.Email}\" already exists.");
             }
 
-            string passwordHash = BCrypt.Net.BCrypt.HashPassword(student.AuthInfo.Password);
-
-            Student dbStudent = new Student
-            {
-                Email = student.AuthInfo.Email,
-                PasswordHash = passwordHash,
-                Name = student.StudentInfo.Name,
-                Surname = student.StudentInfo.Surname,
-                CustomId = student.StudentInfo.CustomId
-            };
-
+            var dbStudent = this.mapper.Map<Student>(student);
+            dbStudent.PasswordHash = BCrypt.Net.BCrypt.HashPassword(student.AuthInfo.Password);
             await this.studentRepository.Add(dbStudent);
 
             return result.Success();
@@ -107,16 +103,8 @@ namespace Graidex.Application.Services.Authentication
                     $"Teacher with email \"{teacher.AuthInfo.Email}\" already exists.");
             }
 
-            string passwordHash = BCrypt.Net.BCrypt.HashPassword(teacher.AuthInfo.Password);
-
-            Teacher dbTeacher = new Teacher
-            {
-                Email = teacher.AuthInfo.Email,
-                PasswordHash = passwordHash,
-                Name = teacher.TeacherInfo.Name,
-                Surname = teacher.TeacherInfo.Surname
-            };
-
+            var dbTeacher = this.mapper.Map<Teacher>(teacher);
+            dbTeacher.PasswordHash = BCrypt.Net.BCrypt.HashPassword(teacher.AuthInfo.Password);
             await this.teacherRepository.Add(dbTeacher);
 
             return result.Success();

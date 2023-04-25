@@ -69,6 +69,7 @@ builder.Services
             ValidateIssuer = false,
             ValidateAudience = false,
         });
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddCors();
 
 var app = builder.Build();
