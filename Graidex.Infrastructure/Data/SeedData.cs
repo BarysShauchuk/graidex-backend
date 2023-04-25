@@ -49,7 +49,7 @@ namespace Graidex.Infrastructure.Data
                 Email = "walterwhite@email.com",
                 Name = "Walter",
                 Surname = "White",
-                Password = "12341234",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("12341234"),
             };
 
             var teacher2 = new Teacher
@@ -57,7 +57,7 @@ namespace Graidex.Infrastructure.Data
                 Email = "someteacher@email.com",
                 Name = "Some",
                 Surname = "Teacher",
-                Password = "pass word",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("pass word"),
             };
 
             var teacher3 = new Teacher
@@ -65,7 +65,7 @@ namespace Graidex.Infrastructure.Data
                 Email = "butchcassidy@email.com",
                 Name = "Butch",
                 Surname = "Cassidy",
-                Password = "weak$passWo_rd",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("weak$passWo_rd"),
             };
 
             var student1 = new Student
@@ -73,7 +73,7 @@ namespace Graidex.Infrastructure.Data
                 Email = "jessepinkman@gmail.com",
                 Name = "Jesse",
                 Surname = "Pinkman",
-                Password = "jessepassword",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("jessepassword"),
                 CustomId = "IF_200001",
             };
 
@@ -82,7 +82,7 @@ namespace Graidex.Infrastructure.Data
                 Email = "carelessstudent@gmail.com",
                 Name = "Careless",
                 Surname = "Student",
-                Password = "carelesspassword",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("carelesspassword"),
                 CustomId = "NS_200002",
             };
 
@@ -91,7 +91,7 @@ namespace Graidex.Infrastructure.Data
                 Email = "sundancekid@gmail.com",
                 Name = "Sundance",
                 Surname = "Kid",
-                Password = "Str0Ng-Pa$sW0rD",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Str0Ng-Pa$sW0rD"),
                 CustomId = "NS_200003",
             };
             #endregion Users

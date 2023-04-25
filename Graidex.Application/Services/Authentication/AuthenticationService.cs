@@ -52,10 +52,12 @@ namespace Graidex.Application.Services.Authentication
                     $"Student with email \"{student.AuthInfo.Email}\" already exists.");
             }
 
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(student.AuthInfo.Password);
+
             Student dbStudent = new Student
             {
                 Email = student.AuthInfo.Email,
-                Password = student.AuthInfo.Password,
+                PasswordHash = passwordHash,
                 Name = student.StudentInfo.Name,
                 Surname = student.StudentInfo.Surname,
                 CustomId = student.StudentInfo.CustomId
@@ -73,7 +75,7 @@ namespace Graidex.Application.Services.Authentication
 
             var dbStudent = this.studentRepository
                 .GetAll()
-                .Select(x => new { x.Email, x.Password })
+                .Select(x => new { x.Email, x.PasswordHash })
                 .SingleOrDefault(x => x.Email == student.Email);
 
             if (dbStudent is null)
@@ -81,7 +83,7 @@ namespace Graidex.Application.Services.Authentication
                 return Task.FromResult(result.Failure("Student not found."));
             }
 
-            if (dbStudent.Password != student.Password)
+            if (!BCrypt.Net.BCrypt.Verify(student.Password, dbStudent.PasswordHash))
             {
                 return Task.FromResult(result.Failure("Wrong password."));
             }
@@ -105,10 +107,12 @@ namespace Graidex.Application.Services.Authentication
                     $"Teacher with email \"{teacher.AuthInfo.Email}\" already exists.");
             }
 
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(teacher.AuthInfo.Password);
+
             Teacher dbTeacher = new Teacher
             {
                 Email = teacher.AuthInfo.Email,
-                Password = teacher.AuthInfo.Password,
+                PasswordHash = passwordHash,
                 Name = teacher.TeacherInfo.Name,
                 Surname = teacher.TeacherInfo.Surname
             };
@@ -125,7 +129,7 @@ namespace Graidex.Application.Services.Authentication
 
             var dbTeacher = this.teacherRepository
                 .GetAll()
-                .Select(x => new { x.Email, x.Password })
+                .Select(x => new { x.Email, x.PasswordHash })
                 .SingleOrDefault(x => x.Email == teacher.Email);
 
             if (dbTeacher is null)
@@ -133,7 +137,7 @@ namespace Graidex.Application.Services.Authentication
                 return Task.FromResult(result.Failure("Teacher not found."));
             }
 
-            if (dbTeacher.Password != teacher.Password)
+            if (!BCrypt.Net.BCrypt.Verify(teacher.Password, dbTeacher.PasswordHash))
             {
                 return Task.FromResult(result.Failure("Wrong password."));
             }
