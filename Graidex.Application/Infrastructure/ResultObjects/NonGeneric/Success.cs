@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.ResultObjects.NonGeneric
+namespace Graidex.Application.Infrastructure.ResultObjects.NonGeneric
 {
     /// <summary>
     /// Success result object.

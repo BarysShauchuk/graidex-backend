@@ -1,11 +1,10 @@
-﻿using Graidex.Application.ResultObjects.Generic;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.ResultObjects.NonGeneric
+namespace Graidex.Application.Infrastructure.ResultObjects.NonGeneric
 {
     /// <summary>
     /// Factory for creating <see cref="Result"/> objects.

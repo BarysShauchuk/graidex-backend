@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
 using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Users;
-using Graidex.Application.ResultObjects;
-using Graidex.Application.ResultObjects.Generic;
-using Graidex.Application.ResultObjects.NonGeneric;
-using Graidex.Application.Services.Users;
+using Graidex.Application.Infrastructure.ResultObjects.Generic;
+using Graidex.Application.Infrastructure.ResultObjects.NonGeneric;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Users;
 using Microsoft.IdentityModel.Tokens;

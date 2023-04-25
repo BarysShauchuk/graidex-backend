@@ -1,4 +1,4 @@
-﻿using Graidex.Application.ResultObjects.Generic;
+﻿using Graidex.Application.Infrastructure.ResultObjects.Generic;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.ResultObjects.NonGeneric
+namespace Graidex.Application.Infrastructure.ResultObjects.NonGeneric
 {
     /// <summary>
     /// Base class for all result objects.

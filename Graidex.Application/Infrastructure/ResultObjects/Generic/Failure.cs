@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Graidex.Application.ResultObjects.NonGeneric
+﻿namespace Graidex.Application.Infrastructure.ResultObjects.Generic
 {
     /// <summary>
     /// Failure result object.
     /// </summary>
-    public class Failure : Result
+    /// <typeparam name="T">Type of the value object in case of result success.</typeparam>
+    public class Failure<T> : Result<T>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Failure"/> class.
+        /// Initializes a new instance of the <see cref="Failure{T}"/> class.
         /// </summary>
         /// <param name="justification">Justification of the failure.</param>
         public Failure(string justification)

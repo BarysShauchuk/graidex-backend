@@ -8,14 +8,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application
+namespace Graidex.Application.AutoMapperProfiles
 {
-    public class AutoMapperProfile : Profile
+    public class UsersProfile : Profile
     {
-        public AutoMapperProfile()
+        public UsersProfile()
         {
-            this.MapStudent();
-            this.MapTeacher();
+            MapStudent();
+            MapTeacher();
         }
 
         private void MapStudent()

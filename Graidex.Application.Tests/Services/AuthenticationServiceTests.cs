@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Graidex.Application.AutoMapperProfiles;
 using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Users;
 using Graidex.Application.Services.Authentication;
@@ -25,7 +26,7 @@ namespace Graidex.Application.Tests.Services
             this.studentRepository = new FakeStudentRepository();
             this.teacherRepository = new FakeTeacherRepository();
 
-            var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<AutoMapperProfile>());
+            var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<UsersProfile>());
             var mapper = mapperConfig.CreateMapper();
 
             this.authenticationService =

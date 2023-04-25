@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.ResultObjects.Generic
+namespace Graidex.Application.Infrastructure.ResultObjects.Generic
 {
     /// <summary>
     /// Base class for all result objects.

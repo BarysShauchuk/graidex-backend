@@ -1,3 +1,4 @@
+using Graidex.Application.AutoMapperProfiles;
 using Graidex.Application.Services.Authentication;
 using Graidex.Application.Services.Users;
 using Graidex.Domain.Interfaces;
@@ -69,7 +70,7 @@ builder.Services
             ValidateIssuer = false,
             ValidateAudience = false,
         });
-builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 builder.Services.AddCors();
 
 var app = builder.Build();

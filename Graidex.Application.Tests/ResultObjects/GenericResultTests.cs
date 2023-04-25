@@ -1,4 +1,4 @@
-﻿using Graidex.Application.ResultObjects.Generic;
+﻿using Graidex.Application.Infrastructure.ResultObjects.Generic;
 
 namespace Graidex.Application.Tests.ResultObjects
 {

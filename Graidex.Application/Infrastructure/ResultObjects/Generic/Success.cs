@@ -1,4 +1,4 @@
-﻿namespace Graidex.Application.ResultObjects.Generic
+﻿namespace Graidex.Application.Infrastructure.ResultObjects.Generic
 {
     /// <summary>
     /// Success result object.

@@ -1,6 +1,4 @@
-﻿using Graidex.Application.DTOs.Users;
-using Graidex.Application.ResultObjects.Generic;
-using Graidex.Domain.Interfaces;
+﻿using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Users;
 using System;
 using System.Collections.Generic;

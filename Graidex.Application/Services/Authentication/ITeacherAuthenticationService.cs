@@ -1,7 +1,7 @@
 ﻿using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Users;
-using Graidex.Application.ResultObjects.Generic;
-using Graidex.Application.ResultObjects.NonGeneric;
+using Graidex.Application.Infrastructure.ResultObjects.Generic;
+using Graidex.Application.Infrastructure.ResultObjects.NonGeneric;
 using System;
 using System.Collections.Generic;
 using System.Linq;
