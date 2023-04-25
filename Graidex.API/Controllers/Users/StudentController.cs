@@ -2,7 +2,7 @@
 using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Users;
 using Graidex.Application.Services.Authentication;
-using Graidex.Application.Services.Users.Student;
+using Graidex.Application.Services.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

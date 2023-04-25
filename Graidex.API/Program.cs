@@ -1,5 +1,5 @@
 using Graidex.Application.Services.Authentication;
-using Graidex.Application.Services.Users.Student;
+using Graidex.Application.Services.Users;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models;
 using Graidex.Domain.Models.Users;
