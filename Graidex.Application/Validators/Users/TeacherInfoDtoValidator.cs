@@ -6,11 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.Validators.Authentication
+namespace Graidex.Application.Validators.Users
 {
-    public class StudentInfoDtoValidator : AbstractValidator<StudentInfoDto>
+    public class TeacherInfoDtoValidator : AbstractValidator<TeacherInfoDto>
     {
-        public StudentInfoDtoValidator()
+        public TeacherInfoDtoValidator()
         {
             RuleFor(x => x.Name)
                 .NotEmpty()
@@ -22,11 +22,7 @@ namespace Graidex.Application.Validators.Authentication
                 .NotEmpty()
                 .Length(1, 50)
                 .Matches(@"^[\p{L}-]+$")
-                .WithMessage(x => $"'{nameof(x.Name)}' must contain only letters");
-
-            // TODO: Add a rule for a specific format of the custom id?
-            RuleFor(x => x.CustomId)
-                .Length(0, 15);
+                .WithMessage(x => $"'{nameof(x.Surname)}' must contain only letters");
         }
     }
 }
