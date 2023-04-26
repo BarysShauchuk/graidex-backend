@@ -15,13 +15,11 @@ namespace Graidex.Application.DTOs.Users
         /// <summary>
         /// Gets or sets the name(first name) of the teacher.
         /// </summary>
-        [MaxLength(50)]
         public required string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the surname(last name) of the teacher.
         /// </summary>
-        [MaxLength(50)]
         public required string Surname { get; set; }
     }
 }

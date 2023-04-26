@@ -15,13 +15,11 @@ namespace Graidex.Application.DTOs.Users
         /// <summary>
         /// Gets or sets the name(first name) of the student.
         /// </summary>
-        [MaxLength(50)]
         public required string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the surname(last name) of the student.
         /// </summary>
-        [MaxLength(50)]
         public required string Surname { get; set; }
 
         /// <summary>
@@ -30,7 +28,6 @@ namespace Graidex.Application.DTOs.Users
         /// <remarks>
         /// The custom ID is used for easy search of students, without the need to use database id or name.
         /// </remarks>
-        [MaxLength(15)]
         public string? CustomId { get; set; }
     }
 }

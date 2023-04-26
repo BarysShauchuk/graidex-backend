@@ -18,17 +18,20 @@ namespace Graidex.API.Controllers.Users
         private readonly IStudentService studentService;
         private readonly IConfiguration configuration;
         private readonly IValidator<UserAuthDto> userAuthDtoValidator;
+        private readonly IValidator<StudentDto> studentDtoValidator;
 
         public StudentController(
             IStudentAuthenticationService authenticationService,
             IStudentService studentService,
             IConfiguration configuration,
-            IValidator<UserAuthDto> userAuthDtoValidator)
+            IValidator<UserAuthDto> userAuthDtoValidator,
+            IValidator<StudentDto> studentDtoValidator)
         {
             this.authenticationService = authenticationService;
             this.studentService = studentService;
             this.configuration = configuration;
             this.userAuthDtoValidator = userAuthDtoValidator;
+            this.studentDtoValidator = studentDtoValidator;
         }
 
         [HttpPost("create")]
@@ -36,6 +39,12 @@ namespace Graidex.API.Controllers.Users
         public async Task<ActionResult> Create(StudentDto request)
         {
             // TODO: Check ModelState
+            var validationResult = await this.studentDtoValidator.ValidateAsync(request);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
 
             var result = await this.authenticationService.RegisterStudent(request);
 
@@ -56,12 +65,6 @@ namespace Graidex.API.Controllers.Users
         [AllowAnonymous]
         public async Task<ActionResult<string>> Login(UserAuthDto request)
         {
-            var validationResult = await this.userAuthDtoValidator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-            {
-                return BadRequest(validationResult.Errors);
-            }
-
             var keyToken = this.configuration.GetSection("AppSettings:Token").Value!;
             var result = await this.authenticationService.LoginStudent(request, keyToken);
 

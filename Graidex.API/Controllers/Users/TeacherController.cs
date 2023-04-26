@@ -16,15 +16,18 @@ namespace Graidex.API.Controllers.Users
         private readonly ITeacherAuthenticationService authenticationService;
         private readonly IConfiguration configuration;
         private readonly IValidator<UserAuthDto> userAuthDtoValidator;
+        private readonly IValidator<TeacherDto> teacherDtoValidator;
 
         public TeacherController(
             ITeacherAuthenticationService authenticationService,
             IConfiguration configuration,
-            IValidator<UserAuthDto> userAuthDtoValidator)
+            IValidator<UserAuthDto> userAuthDtoValidator,
+            IValidator<TeacherDto> teacherDtoValidator)
         {
             this.authenticationService = authenticationService;
             this.configuration = configuration;
             this.userAuthDtoValidator = userAuthDtoValidator;
+            this.teacherDtoValidator = teacherDtoValidator;
         }
 
         [HttpPost("create")]
@@ -32,6 +35,11 @@ namespace Graidex.API.Controllers.Users
         public async Task<ActionResult> Create(TeacherDto request)
         {
             // TODO: Check ModelState
+            var validationResult = await this.teacherDtoValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
 
             var result = await this.authenticationService.RegisterTeacher(request);
 
@@ -52,12 +60,6 @@ namespace Graidex.API.Controllers.Users
         [AllowAnonymous]
         public async Task<ActionResult<string>> Login(UserAuthDto request)
         {
-            var validationResult = await this.userAuthDtoValidator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-            {
-                return BadRequest(validationResult.Errors);
-            }
-
             var keyToken = this.configuration.GetSection("AppSettings:Token").Value!;
             var result = await this.authenticationService.LoginTeacher(request, keyToken);
 
