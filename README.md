@@ -11,9 +11,11 @@ This is a student testing system that provides teachers with an effective evalua
 - Entity Framework Core
 - MS SQL Server
 - JWT tokens
+- BCrypt
+- AutoMapper
+- FluentValidation
 - Swagger UI
 - NUnit
-- BCrypt
 
 ## Startup
 
