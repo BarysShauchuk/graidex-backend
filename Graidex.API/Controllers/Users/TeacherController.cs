@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Users;
+using Graidex.Application.Infrastructure.ValidationFailure;
 using Graidex.Application.Services.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,34 +15,23 @@ namespace Graidex.API.Controllers.Users
     public class TeacherController : ControllerBase
     {
         private readonly ITeacherAuthenticationService authenticationService;
-        private readonly IConfiguration configuration;
-        private readonly IValidator<UserAuthDto> userAuthDtoValidator;
-        private readonly IValidator<TeacherDto> teacherDtoValidator;
 
         public TeacherController(
-            ITeacherAuthenticationService authenticationService,
-            IConfiguration configuration,
-            IValidator<UserAuthDto> userAuthDtoValidator,
-            IValidator<TeacherDto> teacherDtoValidator)
+            ITeacherAuthenticationService authenticationService)
         {
             this.authenticationService = authenticationService;
-            this.configuration = configuration;
-            this.userAuthDtoValidator = userAuthDtoValidator;
-            this.teacherDtoValidator = teacherDtoValidator;
         }
 
         [HttpPost("create")]
         [AllowAnonymous]
         public async Task<ActionResult> Create(TeacherDto request)
         {
-            // TODO: Check ModelState
-            var validationResult = await this.teacherDtoValidator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-            {
-                return BadRequest(validationResult.Errors);
-            }
-
             var result = await this.authenticationService.RegisterTeacher(request);
+
+            if (result.IsValidationFailure(out var validationFailure))
+            {
+                return BadRequest(validationFailure.Errors);
+            }
 
             if (result.IsFailure(out var failure))
             {
@@ -60,8 +50,7 @@ namespace Graidex.API.Controllers.Users
         [AllowAnonymous]
         public async Task<ActionResult<string>> Login(UserAuthDto request)
         {
-            var keyToken = this.configuration.GetSection("AppSettings:Token").Value!;
-            var result = await this.authenticationService.LoginTeacher(request, keyToken);
+            var result = await this.authenticationService.LoginTeacher(request);
 
             if (result.IsFailure(out var failure))
             {

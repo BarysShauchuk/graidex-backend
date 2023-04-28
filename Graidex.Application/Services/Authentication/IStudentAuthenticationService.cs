@@ -30,11 +30,10 @@ namespace Graidex.Application.Services.Authentication
         /// Login student.
         /// </summary>
         /// <param name="student"><see cref="UserAuthDto"/> object with student credentials for login.</param>
-        /// <param name="keyToken">Secret key for generating token.</param>
         /// <returns>
         /// A task that represents the asynchronous operation to get <see cref="Result"/>
         /// of student login with student token in case of success.
         /// </returns>
-        public Task<Result<string>> LoginStudent(UserAuthDto student, string keyToken);
+        public Task<Result<string>> LoginStudent(UserAuthDto student);
     }
 }

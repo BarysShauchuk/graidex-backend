@@ -14,10 +14,10 @@ namespace Graidex.Application.Infrastructure.ResultObjects.Generic
     public abstract class Result<T>
     {
         /// <summary>
-        /// Checks whether this is <see cref="Success{TValue}"/> result.
+        /// Checks whether this is <see cref="Success{T}"/> result.
         /// </summary>
-        /// <param name="success">Output parameter to hold the <see cref="Success{TValue}"/> object, if available.</param>
-        /// <returns><see langword="true"/> if this is <see cref="Success{TValue}"/> result, <see langword="false"/> otherwise.</returns>
+        /// <param name="success">Output parameter to hold the <see cref="Success{T}"/> object, if available.</param>
+        /// <returns><see langword="true"/> if this is <see cref="Success{T}"/> result, <see langword="false"/> otherwise.</returns>
         public bool IsSuccess([NotNullWhen(true)] out Success<T>? success)
         {
             if (this is Success<T> successResult)
@@ -31,19 +31,19 @@ namespace Graidex.Application.Infrastructure.ResultObjects.Generic
         }
 
         /// <summary>
-        /// Checks whether this is <see cref="Success{TValue}"/> result.
+        /// Checks whether this is <see cref="Success{T}"/> result.
         /// </summary>
-        /// <returns><see langword="true"/> if this is <see cref="Success{TValue}"/> result, <see langword="false"/> otherwise.</returns>
+        /// <returns><see langword="true"/> if this is <see cref="Success{T}"/> result, <see langword="false"/> otherwise.</returns>
         public bool IsSuccess()
         {
             return this is Success<T>;
         }
 
         /// <summary>
-        /// Checks whether this is <see cref="Failure{TValue}"/> result.
+        /// Checks whether this is <see cref="Failure{T}"/> result.
         /// </summary>
-        /// <param name="failure">Output parameter to hold the <see cref="Failure{TValue}"/> object, if available.</param>
-        /// <returns><see langword="true"/> if this is <see cref="Failure{TValue}"/> result, <see langword="false"/> otherwise.</returns>
+        /// <param name="failure">Output parameter to hold the <see cref="Failure{T}"/> object, if available.</param>
+        /// <returns><see langword="true"/> if this is <see cref="Failure{T}"/> result, <see langword="false"/> otherwise.</returns>
         public bool IsFailure([NotNullWhen(true)] out Failure<T>? failure)
         {
             if (this is Failure<T> failureResult)
@@ -57,9 +57,9 @@ namespace Graidex.Application.Infrastructure.ResultObjects.Generic
         }
 
         /// <summary>
-        /// Checks whether this is <see cref="Failure{TValue}"/> result.
+        /// Checks whether this is <see cref="Failure{T}"/> result.
         /// </summary>
-        /// <returns><see langword="true"/> if this is <see cref="Failure{T}{TValue}"/> result, <see langword="false"/> otherwise.</returns>
+        /// <returns><see langword="true"/> if this is <see cref="Failure{T}"/> result, <see langword="false"/> otherwise.</returns>
         public bool IsFailure()
         {
             return this is Failure<T>;

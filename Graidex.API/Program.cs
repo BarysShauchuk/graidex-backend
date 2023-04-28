@@ -60,6 +60,7 @@ builder.Services.AddSwaggerGen(options =>
 
         options.OperationFilter<SecurityRequirementsOperationFilter>();
     });
+builder.Services.AddHttpContextAccessor();
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

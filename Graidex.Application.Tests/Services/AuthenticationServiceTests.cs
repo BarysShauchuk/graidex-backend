@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Graidex.Application.AutoMapperProfiles;
 using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Users;
@@ -6,6 +7,8 @@ using Graidex.Application.Services.Authentication;
 using Graidex.Application.Tests.Fakes;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Users;
+using Microsoft.Extensions.Configuration;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,11 +29,32 @@ namespace Graidex.Application.Tests.Services
             this.studentRepository = new FakeStudentRepository();
             this.teacherRepository = new FakeTeacherRepository();
 
-            var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<UsersProfile>());
-            var mapper = mapperConfig.CreateMapper();
+            var configurationMock = new Mock<IConfiguration>();
+            configurationMock
+                .Setup(x => x["AppSettings:Token"])
+                .Returns("Secret key token");
 
-            this.authenticationService =
-                new AuthenticationService(this.studentRepository, this.teacherRepository, mapper);
+            var studentDtoValidatorMock = new Mock<IValidator<StudentDto>>();
+            studentDtoValidatorMock
+                .Setup(x => x.ValidateAsync(It.IsAny<StudentDto>(), default))
+                .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+
+            var teacherDtoValidatorMock = new Mock<IValidator<TeacherDto>>();
+            teacherDtoValidatorMock
+                .Setup(x => x.ValidateAsync(It.IsAny<TeacherDto>(), default))
+                .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+
+            var mapper = new MapperConfiguration(
+                cfg => cfg.AddProfile<UsersProfile>())
+                .CreateMapper();
+
+            this.authenticationService = new AuthenticationService(
+                this.studentRepository,
+                this.teacherRepository,
+                configurationMock.Object,
+                mapper,
+                studentDtoValidatorMock.Object,
+                teacherDtoValidatorMock.Object);
         }
 
         [Test]
@@ -162,7 +186,7 @@ namespace Graidex.Application.Tests.Services
                 Password = "password",
             };
 
-            var result = await this.authenticationService.LoginStudent(student, "Secret key token");
+            var result = await this.authenticationService.LoginStudent(student);
             Assert.Multiple(() =>
             {
                 Assert.That(result.IsSuccess(out var token), Is.True);
@@ -180,7 +204,7 @@ namespace Graidex.Application.Tests.Services
                 Password = "password",
             };
 
-            var result = await this.authenticationService.LoginStudent(student, "Secret key token");
+            var result = await this.authenticationService.LoginStudent(student);
             Assert.That(result.IsFailure(), Is.True);
         }
 
@@ -306,7 +330,7 @@ namespace Graidex.Application.Tests.Services
                 Password = "password",
             };
 
-            var result = await this.authenticationService.LoginTeacher(teacher, "Secret key token");
+            var result = await this.authenticationService.LoginTeacher(teacher);
             Assert.Multiple(() =>
             {
                 Assert.That(result.IsSuccess(out var token), Is.True);
@@ -324,7 +348,7 @@ namespace Graidex.Application.Tests.Services
                 Password = "password",
             };
 
-            var result = await this.authenticationService.LoginTeacher(teacher, "Secret key token");
+            var result = await this.authenticationService.LoginTeacher(teacher);
             Assert.That(result.IsFailure(), Is.True);
         }
     }

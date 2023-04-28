@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Users;
 using Graidex.Application.Infrastructure.ResultObjects.Generic;
 using Graidex.Application.Infrastructure.ResultObjects.NonGeneric;
+using Graidex.Application.Infrastructure.ValidationFailure;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Users;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -23,27 +26,46 @@ namespace Graidex.Application.Services.Authentication
     {
         private readonly IStudentRepository studentRepository;
         private readonly ITeacherRepository teacherRepository;
+        private readonly IConfiguration configuration;
         private readonly IMapper mapper;
+        private readonly IValidator<StudentDto> studentDtoValidator;
+        private readonly IValidator<TeacherDto> teacherValidator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationService"/> class.
         /// </summary>
         /// <param name="studentRepository">Repository for <see cref="Student"/>.</param>
         /// <param name="teacherRepository">Repository for <see cref="Teacher"/>.</param>
+        /// <param name="configuration"><see cref="IConfiguration"/> instance for getting configuration values.</param>
+        /// <param name="mapper"><see cref="IMapper"/> instance for mapping DTOs and domain models.</param>
+        /// <param name="studentDtoValidator"><see cref="IValidator{T}"/> instance for <see cref="StudentDto"/> validation.</param>
+        /// <param name="teacherValidator"><see cref="IValidator{T}"/> instance for <see cref="TeacherDto"/> validation.</param>
         public AuthenticationService(
             IStudentRepository studentRepository,
             ITeacherRepository teacherRepository,
-            IMapper mapper)
+            IConfiguration configuration,
+            IMapper mapper,
+            IValidator<StudentDto> studentDtoValidator,
+            IValidator<TeacherDto> teacherValidator)
         {
             this.studentRepository = studentRepository;
             this.teacherRepository = teacherRepository;
+            this.configuration = configuration;
             this.mapper = mapper;
+            this.studentDtoValidator = studentDtoValidator;
+            this.teacherValidator = teacherValidator;
         }
 
         /// <inheritdoc/>
         public async Task<Result> RegisterStudent(StudentDto student)
         {
             var result = new ResultFactory();
+
+            var validationResult = await this.studentDtoValidator.ValidateAsync(student);
+            if (!validationResult.IsValid)
+            {
+                return result.ValidationFailure(validationResult.Errors);
+            }
 
             bool studentExists = this.studentRepository
                 .GetAll()
@@ -63,9 +85,15 @@ namespace Graidex.Application.Services.Authentication
         }
 
         /// <inheritdoc/>
-        public Task<Result<string>> LoginStudent(UserAuthDto student, string keyToken)
+        public Task<Result<string>> LoginStudent(UserAuthDto student)
         {
             var result = new ResultFactory<string>();
+
+            var keyToken = this.configuration["AppSettings:Token"];
+            if (keyToken is null)
+            {
+                throw new InvalidOperationException("Key token configuration string isn't found.");
+            }
 
             var dbStudent = this.studentRepository
                 .GetAll()
@@ -91,6 +119,12 @@ namespace Graidex.Application.Services.Authentication
         {
             var result = new ResultFactory();
 
+            var validationResult = await this.teacherValidator.ValidateAsync(teacher);
+            if (!validationResult.IsValid)
+            {
+                return result.ValidationFailure(validationResult.Errors);
+            }
+
             bool teacherExists = this.teacherRepository
                 .GetAll()
                 .Any(x => x.Email == teacher.AuthInfo.Email);
@@ -109,9 +143,15 @@ namespace Graidex.Application.Services.Authentication
         }
 
         /// <inheritdoc/>
-        public Task<Result<string>> LoginTeacher(UserAuthDto teacher, string keyToken)
+        public Task<Result<string>> LoginTeacher(UserAuthDto teacher)
         {
             var result = new ResultFactory<string>();
+
+            var keyToken = this.configuration["AppSettings:Token"];
+            if (keyToken is null)
+            {
+                throw new InvalidOperationException("Key token configuration string isn't found.");
+            }
 
             var dbTeacher = this.teacherRepository
                 .GetAll()

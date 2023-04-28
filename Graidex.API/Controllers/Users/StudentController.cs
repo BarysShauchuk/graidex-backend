@@ -2,6 +2,7 @@
 using FluentValidation;
 using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Users;
+using Graidex.Application.Infrastructure.ValidationFailure;
 using Graidex.Application.Services.Authentication;
 using Graidex.Application.Services.Users;
 using Microsoft.AspNetCore.Authorization;
@@ -16,37 +17,25 @@ namespace Graidex.API.Controllers.Users
     {
         private readonly IStudentAuthenticationService authenticationService;
         private readonly IStudentService studentService;
-        private readonly IConfiguration configuration;
-        private readonly IValidator<UserAuthDto> userAuthDtoValidator;
-        private readonly IValidator<StudentDto> studentDtoValidator;
 
         public StudentController(
             IStudentAuthenticationService authenticationService,
-            IStudentService studentService,
-            IConfiguration configuration,
-            IValidator<UserAuthDto> userAuthDtoValidator,
-            IValidator<StudentDto> studentDtoValidator)
+            IStudentService studentService)
         {
             this.authenticationService = authenticationService;
             this.studentService = studentService;
-            this.configuration = configuration;
-            this.userAuthDtoValidator = userAuthDtoValidator;
-            this.studentDtoValidator = studentDtoValidator;
         }
 
         [HttpPost("create")]
         [AllowAnonymous]
         public async Task<ActionResult> Create(StudentDto request)
         {
-            // TODO: Check ModelState
-            var validationResult = await this.studentDtoValidator.ValidateAsync(request);
-
-            if (!validationResult.IsValid)
-            {
-                return BadRequest(validationResult.Errors);
-            }
-
             var result = await this.authenticationService.RegisterStudent(request);
+
+            if (result.IsValidationFailure(out var validationFailure))
+            {
+                return BadRequest(validationFailure.Errors);
+            }
 
             if (result.IsFailure(out var failure))
             {
@@ -65,8 +54,7 @@ namespace Graidex.API.Controllers.Users
         [AllowAnonymous]
         public async Task<ActionResult<string>> Login(UserAuthDto request)
         {
-            var keyToken = this.configuration.GetSection("AppSettings:Token").Value!;
-            var result = await this.authenticationService.LoginStudent(request, keyToken);
+            var result = await this.authenticationService.LoginStudent(request);
 
             if (result.IsFailure(out var failure))
             {
