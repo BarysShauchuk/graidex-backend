@@ -65,8 +65,15 @@ namespace Graidex.API.Controllers.Users
             return StatusCode(500);
         }
 
+        [HttpGet("me")]
+        public async Task<ActionResult<TeacherInfoDto>> GetMe()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)] // TODO: Implement method and remove this attribute
         [HttpGet("{email}")]
-        [Authorize(Roles = "Student, Teacher")]
+        [Authorize(Roles = "Student")] // TODO: Remove student role
         public async Task<ActionResult<TeacherInfoDto>> GetByEmail(string email)
         {
             throw new NotImplementedException();

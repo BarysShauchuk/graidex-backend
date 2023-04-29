@@ -186,7 +186,7 @@ namespace Graidex.Application.Services.Authentication
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Name, user.Email),
             };
 
             if (roles is not null)
