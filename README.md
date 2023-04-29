@@ -16,6 +16,7 @@ This is a student testing system that provides teachers with an effective evalua
 - FluentValidation
 - Swagger UI
 - NUnit
+- Moq
 
 ## Startup
 
