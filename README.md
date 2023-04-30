@@ -14,6 +14,7 @@ This is a student testing system that provides teachers with an effective evalua
 - BCrypt
 - AutoMapper
 - FluentValidation
+- OneOf
 - Swagger UI
 - NUnit
 - Moq
