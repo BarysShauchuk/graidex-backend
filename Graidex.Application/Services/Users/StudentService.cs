@@ -2,12 +2,12 @@
 using FluentValidation;
 using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Users;
-using Graidex.Application.Infrastructure.ResultObjects.Generic;
-using Graidex.Application.Infrastructure.ResultObjects.NonGeneric;
-using Graidex.Application.Infrastructure.ValidationFailure;
+using Graidex.Application.OneOfCustomTypes;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Users;
 using Microsoft.AspNetCore.Http;
+using OneOf.Types;
+using OneOf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,96 +44,88 @@ namespace Graidex.Application.Services.Users
             //this.changePasswordDtoValidator = changePasswordDtoValidator;
         }
 
-        public async Task<Result> DeleteCurrent(string password)
+        public async Task<OneOf<Success, NotFound, WrongPassword>> DeleteCurrent(string password)
         {
-            var result = new ResultFactory();
-
             string email = GetCurrentUserEmail();
             var student = await this.studentRepository.GetByEmail(email);
             if (student is null)
             {
-                throw new Exception(); // TODO: Add custom exception or return NotFound
+                return new NotFound();
             }
 
             if (!BCrypt.Net.BCrypt.Verify(password, student.PasswordHash))
             {
-                return result.Failure("Wrong password.");
+                return new WrongPassword();
             }
 
             await this.studentRepository.Delete(student);
-            return result.Success();
+            return new Success();
         }
 
-        public Task<Result<StudentInfoDto>> GetByEmail(string email)
+        public Task<OneOf<StudentInfoDto>> GetByEmailAsync(string email)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<Result<StudentInfoDto>> GetCurrent()
+        public async Task<OneOf<StudentInfoDto, NotFound>> GetCurrentAsync()
         {
-            var result = new ResultFactory<StudentInfoDto>();
-
             string email = GetCurrentUserEmail();
             var student = await this.studentRepository.GetByEmail(email);
             if (student is null)
             {
-                throw new Exception(); // TODO: Add custom exception or return NotFound
+                return new NotFound();
             }
 
             var studentInfo = this.mapper.Map<StudentInfoDto>(student);
-            return result.Success(studentInfo);
+            return studentInfo;
         }
 
-        public async Task<Result> UpdateCurrentInfo(StudentInfoDto studentInfo)
+        public async Task<OneOf<Success, ValidationFailed, NotFound>> UpdateCurrentInfoAsync(StudentInfoDto studentInfo)
         {
-            var result = new ResultFactory();
-
             var validationResult = await this.studentInfoDtoValidator.ValidateAsync(studentInfo);
             if (!validationResult.IsValid)
             {
-                return result.ValidationFailure(validationResult.Errors);
+                return new ValidationFailed(validationResult.Errors);
             }
 
             string email = GetCurrentUserEmail();
             var student = await this.studentRepository.GetByEmail(email);
             if (student is null)
             {
-                throw new Exception(); // TODO: Add custom exception or return NotFound
+                return new NotFound();
             }
 
             this.mapper.Map(studentInfo, student);
             await this.studentRepository.Update(student);
 
-            return result.Success();
+            return new Success();
         }
 
-        public async Task<Result> UpdateCurrentPassword(ChangePasswordDto passwords)
+        public async Task<OneOf<Success, ValidationFailed, NotFound, WrongPassword>> UpdateCurrentPasswordAsync(ChangePasswordDto passwords)
         {
-            var result = new ResultFactory();
-
             // TODO: Uncomment when the validation is ready
-            //var validationResult = await this.changePasswordDtoValidator.ValidateAsync(passwords);
+            // var validationResult = await this.changePasswordDtoValidator.ValidateAsync(passwords);
             //if (!validationResult.IsValid)
             //{
-            //    return result.ValidationFailure(validationResult.Errors);
+            //    return new ValidationFailed(validationResult.Errors);
             //}
 
             string email = GetCurrentUserEmail();
             var student = await this.studentRepository.GetByEmail(email);
             if (student is null)
             {
-                throw new Exception(); // TODO: Add custom exception or return NotFound
+                return new NotFound();
             }
 
             if (!BCrypt.Net.BCrypt.Verify(passwords.CurrentPassword, student.PasswordHash))
             {
-                return result.Failure("Wrong current password.");
+                return new WrongPassword();
             }
 
             student.PasswordHash = BCrypt.Net.BCrypt.HashPassword(passwords.NewPassword);
             await this.studentRepository.Update(student);
 
-            return result.Success();
+            return new Success();
         }
 
         private string GetCurrentUserEmail()

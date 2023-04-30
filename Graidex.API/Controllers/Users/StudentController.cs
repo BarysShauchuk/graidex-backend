@@ -2,7 +2,7 @@
 using FluentValidation;
 using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Users;
-using Graidex.Application.Infrastructure.ValidationFailure;
+using Graidex.Application.OneOfCustomTypes;
 using Graidex.Application.Services.Authentication;
 using Graidex.Application.Services.Users;
 using Graidex.Domain.Models.Users;
@@ -31,66 +31,34 @@ namespace Graidex.API.Controllers.Users
         [AllowAnonymous]
         public async Task<ActionResult> Create(StudentDto request)
         {
-            var result = await this.authenticationService.RegisterStudent(request);
+            var result = await this.authenticationService.RegisterStudentAsync(request);
 
-            if (result.IsValidationFailure(out var validationFailure))
-            {
-                return BadRequest(validationFailure.Errors);
-            }
-
-            if (result.IsFailure(out var failure))
-            {
-                return BadRequest(failure.Justification);
-            }
-
-            if (result.IsSuccess())
-            {
-                return Ok();
-            }
-
-            return StatusCode(500);
+            return result.Match<ActionResult>(
+                success => Ok(),
+                validationFailed => BadRequest(validationFailed.Errors),
+                userAlreadyExists => Conflict(userAlreadyExists.Comment));
         }
 
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<ActionResult<string>> Login(UserAuthDto request)
         {
-            var result = await this.authenticationService.LoginStudent(request);
+            var result = await this.authenticationService.LoginStudentAsync(request);
 
-            if (result.IsFailure(out var failure))
-            {
-                return BadRequest(failure.Justification);
-            }
-
-            if (result.IsSuccess(out var success))
-            {
-                return Ok(success.Value);
-            }
-
-            return StatusCode(500);
+            return result.Match<ActionResult<string>>(
+                token => Ok(token),
+                notFound => NotFound(),
+                wrongPassword => Unauthorized("Wrong password."));
         }
 
         [HttpGet("me")]
         public async Task<ActionResult<StudentInfoDto>> GetMe()
         {
-            var result = await this.studentService.GetCurrent();
+            var result = await this.studentService.GetCurrentAsync();
 
-            if (result.IsValidationFailure(out var validationFailure))
-            {
-                return BadRequest(validationFailure.Errors);
-            }
-
-            if (result.IsFailure(out var failure))
-            {
-                return BadRequest(failure.Justification);
-            }
-
-            if (result.IsSuccess(out var success))
-            {
-                return Ok(success.Value);
-            }
-
-            return StatusCode(500);
+            return result.Match<ActionResult<StudentInfoDto>>(
+                studentInfo => Ok(studentInfo),
+                notFound => NotFound());
         }
 
         [ApiExplorerSettings(IgnoreApi = true)] // TODO: Implement method and remove this attribute
@@ -104,47 +72,24 @@ namespace Graidex.API.Controllers.Users
         [HttpPut("update-info")]
         public async Task<ActionResult> UpdateInfo(StudentInfoDto student)
         {
-            var result = await this.studentService.UpdateCurrentInfo(student);
+            var result = await this.studentService.UpdateCurrentInfoAsync(student);
 
-            if (result.IsValidationFailure(out var validationFailure))
-            {
-                return BadRequest(validationFailure.Errors);
-            }
-
-            if (result.IsFailure(out var failure))
-            {
-                return BadRequest(failure.Justification);
-            }
-
-            if (result.IsSuccess())
-            {
-                return Ok();
-            }
-
-            return StatusCode(500);
+            return result.Match<ActionResult>(
+                success => Ok(),
+                validationFailed => BadRequest(validationFailed.Errors),
+                notFound => NotFound());
         }
 
         [HttpPut("change-password")]
         public async Task<ActionResult> ChangePassword(ChangePasswordDto passwords)
         {
-            var result = await this.studentService.UpdateCurrentPassword(passwords);
+            var result = await this.studentService.UpdateCurrentPasswordAsync(passwords);
 
-            if (result.IsValidationFailure(out var validationFailure))
-            {
-                return BadRequest(validationFailure.Errors);
-            }
-
-            if (result.IsFailure(out var failure))
-            {
-                return BadRequest(failure.Justification);
-            }
-
-            if (result.IsSuccess())
-            {
-                return Ok();
-            }
-
-            return StatusCode(500);
+            return result.Match<ActionResult>(
+                success => Ok(),
+                validationFailed => BadRequest(validationFailed.Errors),
+                notFound => NotFound(),
+                wrongPassword => Unauthorized("Wrong current password."));
         }
 
         [HttpDelete("delete")]
@@ -152,22 +97,10 @@ namespace Graidex.API.Controllers.Users
         {
             var result = await this.studentService.DeleteCurrent(password);
 
-            if (result.IsValidationFailure(out var validationFailure))
-            {
-                return BadRequest(validationFailure.Errors);
-            }
-
-            if (result.IsFailure(out var failure))
-            {
-                return BadRequest(failure.Justification);
-            }
-
-            if (result.IsSuccess())
-            {
-                return Ok();
-            }
-
-            return StatusCode(500);
+            return result.Match<ActionResult>(
+                success => Ok(),
+                notFound => NotFound(),
+                wrongPassword => Unauthorized("Wrong password."));
         }
     }
 }

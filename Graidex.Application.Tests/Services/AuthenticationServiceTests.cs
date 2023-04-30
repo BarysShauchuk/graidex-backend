@@ -77,8 +77,8 @@ namespace Graidex.Application.Tests.Services
                 },
             };
 
-            var result = await this.authenticationService.RegisterStudent(student);
-            Assert.That(result.IsSuccess(), Is.True);
+            var result = await this.authenticationService.RegisterStudentAsync(student);
+            Assert.That(result.IsT0);
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace Graidex.Application.Tests.Services
                 },
             };
 
-            await this.authenticationService.RegisterStudent(student);
+            await this.authenticationService.RegisterStudentAsync(student);
             var dbStudent = this.studentRepository.GetAll().FirstOrDefault();
 
             Assert.That(dbStudent, Is.Not.Null);
@@ -115,7 +115,7 @@ namespace Graidex.Application.Tests.Services
         }
 
         [Test]
-        public async Task RegisterStudent_WithExistingEmail_ShouldReturnFailure()
+        public async Task RegisterStudent_WithExistingEmail_ShouldReturnUserAlreadyExists()
         {
             this.studentRepository.Entities.Clear();
             var student = new StudentDto
@@ -134,9 +134,9 @@ namespace Graidex.Application.Tests.Services
                 },
             };
 
-            await this.authenticationService.RegisterStudent(student);
-            var result = await this.authenticationService.RegisterStudent(student);
-            Assert.That(result.IsFailure(), Is.True);
+            await this.authenticationService.RegisterStudentAsync(student);
+            var result = await this.authenticationService.RegisterStudentAsync(student);
+            Assert.That(result.IsT2);
         }
 
         [Test]
@@ -159,15 +159,15 @@ namespace Graidex.Application.Tests.Services
                 },
             };
 
-            await this.authenticationService.RegisterStudent(student);
-            await this.authenticationService.RegisterStudent(student);
+            await this.authenticationService.RegisterStudentAsync(student);
+            await this.authenticationService.RegisterStudentAsync(student);
 
             var studentsCount = this.studentRepository.GetAll().Count();
             Assert.That(studentsCount, Is.EqualTo(1));
         }
 
         [Test]
-        public async Task LoginStudent_WithValidData_ShouldReturnSuccess()
+        public async Task LoginStudent_WithValidData_ShouldReturnToken()
         {
             this.studentRepository.Entities.Clear();
             this.studentRepository.Entities.Add(
@@ -186,16 +186,16 @@ namespace Graidex.Application.Tests.Services
                 Password = "password",
             };
 
-            var result = await this.authenticationService.LoginStudent(student);
+            var result = await this.authenticationService.LoginStudentAsync(student);
             Assert.Multiple(() =>
             {
-                Assert.That(result.IsSuccess(out var token), Is.True);
-                Assert.That(token, Is.Not.Null);
+                Assert.That(result.IsT0);
+                Assert.That(result.AsT0, Is.Not.Null.And.Not.Empty);
             });
         }
 
         [Test]
-        public async Task LoginStudent_WithInvalidData_ShouldReturnFailure()
+        public async Task LoginStudent_WithInvalidData_ShouldReturnNotFound()
         {
             this.studentRepository.Entities.Clear();
             var student = new UserAuthDto
@@ -204,8 +204,8 @@ namespace Graidex.Application.Tests.Services
                 Password = "password",
             };
 
-            var result = await this.authenticationService.LoginStudent(student);
-            Assert.That(result.IsFailure(), Is.True);
+            var result = await this.authenticationService.LoginStudentAsync(student);
+            Assert.That(result.IsT1);
         }
 
         [Test]
@@ -227,8 +227,8 @@ namespace Graidex.Application.Tests.Services
                 },
             };
 
-            var result = await this.authenticationService.RegisterTeacher(teacher);
-            Assert.That(result.IsSuccess(), Is.True);
+            var result = await this.authenticationService.RegisterTeacherAsync(teacher);
+            Assert.That(result.IsT0);
         }
 
         [Test]
@@ -250,7 +250,7 @@ namespace Graidex.Application.Tests.Services
                 },
             };
 
-            await this.authenticationService.RegisterTeacher(teacher);
+            await this.authenticationService.RegisterTeacherAsync(teacher);
             var dbTeacher = this.teacherRepository.GetAll().FirstOrDefault();
             Assert.That(dbTeacher, Is.Not.Null);
             Assert.Multiple(() =>
@@ -262,7 +262,7 @@ namespace Graidex.Application.Tests.Services
         }
 
         [Test]
-        public async Task RegisterTeacher_WithExistingEmail_ShouldReturnFailure()
+        public async Task RegisterTeacher_WithExistingEmail_ShouldReturnUserAlreadyExists()
         {
             this.teacherRepository.Entities.Clear();
             var teacher = new TeacherDto
@@ -280,9 +280,9 @@ namespace Graidex.Application.Tests.Services
                 },
             };
 
-            await this.authenticationService.RegisterTeacher(teacher);
-            var result = await this.authenticationService.RegisterTeacher(teacher);
-            Assert.That(result.IsFailure());
+            await this.authenticationService.RegisterTeacherAsync(teacher);
+            var result = await this.authenticationService.RegisterTeacherAsync(teacher);
+            Assert.That(result.IsT2);
         }
 
         [Test]
@@ -304,15 +304,15 @@ namespace Graidex.Application.Tests.Services
                 },
             };
 
-            await this.authenticationService.RegisterTeacher(teacher);
-            await this.authenticationService.RegisterTeacher(teacher);
+            await this.authenticationService.RegisterTeacherAsync(teacher);
+            await this.authenticationService.RegisterTeacherAsync(teacher);
 
             var teachersCount = this.teacherRepository.GetAll().Count();
             Assert.That(teachersCount, Is.EqualTo(1));
         }
 
         [Test]
-        public async Task LoginTeacher_WithValidData_ShouldReturnSuccess()
+        public async Task LoginTeacher_WithValidData_ShouldReturnToken()
         {
             this.teacherRepository.Entities.Clear();
             this.teacherRepository.Entities.Add(
@@ -330,16 +330,16 @@ namespace Graidex.Application.Tests.Services
                 Password = "password",
             };
 
-            var result = await this.authenticationService.LoginTeacher(teacher);
+            var result = await this.authenticationService.LoginTeacherAsync(teacher);
             Assert.Multiple(() =>
             {
-                Assert.That(result.IsSuccess(out var token), Is.True);
-                Assert.That(token, Is.Not.Null);
+                Assert.That(result.IsT0);
+                Assert.That(result.AsT0, Is.Not.Null.And.Not.Empty);
             });
         }
 
         [Test]
-        public async Task LoginTeacher_WithInvalidData_ShouldReturnFailure()
+        public async Task LoginTeacher_WithInvalidData_ShouldReturnNotFound()
         {
             this.teacherRepository.Entities.Clear();
             var teacher = new UserAuthDto
@@ -348,8 +348,8 @@ namespace Graidex.Application.Tests.Services
                 Password = "password",
             };
 
-            var result = await this.authenticationService.LoginTeacher(teacher);
-            Assert.That(result.IsFailure(), Is.True);
+            var result = await this.authenticationService.LoginTeacherAsync(teacher);
+            Assert.That(result.IsT1);
         }
     }
 }

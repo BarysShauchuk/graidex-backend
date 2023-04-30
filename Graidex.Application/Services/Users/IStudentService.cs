@@ -1,7 +1,8 @@
 ﻿using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Users;
-using Graidex.Application.Infrastructure.ResultObjects.Generic;
-using Graidex.Application.Infrastructure.ResultObjects.NonGeneric;
+using Graidex.Application.OneOfCustomTypes;
+using OneOf;
+using OneOf.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +13,14 @@ namespace Graidex.Application.Services.Users
 {
     public interface IStudentService
     {
-        public Task<Result<StudentInfoDto>> GetByEmail(string email);
+        public Task<OneOf<StudentInfoDto>> GetByEmailAsync(string email);
 
-        public Task<Result<StudentInfoDto>> GetCurrent();
+        public Task<OneOf<StudentInfoDto, NotFound>> GetCurrentAsync();
 
-        public Task<Result> UpdateCurrentInfo(StudentInfoDto studentInfo);
+        public Task<OneOf<Success, ValidationFailed, NotFound>> UpdateCurrentInfoAsync(StudentInfoDto studentInfo);
 
-        public Task<Result> UpdateCurrentPassword(ChangePasswordDto passwords);
+        public Task<OneOf<Success, ValidationFailed, NotFound, WrongPassword>> UpdateCurrentPasswordAsync(ChangePasswordDto passwords);
 
-        public Task<Result> DeleteCurrent(string password);
+        public Task<OneOf<Success, NotFound, WrongPassword>> DeleteCurrent(string password);
     }
 }

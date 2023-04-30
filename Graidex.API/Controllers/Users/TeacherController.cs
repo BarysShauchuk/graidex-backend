@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Users;
-using Graidex.Application.Infrastructure.ValidationFailure;
 using Graidex.Application.Services.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,43 +25,24 @@ namespace Graidex.API.Controllers.Users
         [AllowAnonymous]
         public async Task<ActionResult> Create(TeacherDto request)
         {
-            var result = await this.authenticationService.RegisterTeacher(request);
+            var result = await this.authenticationService.RegisterTeacherAsync(request);
 
-            if (result.IsValidationFailure(out var validationFailure))
-            {
-                return BadRequest(validationFailure.Errors);
-            }
-
-            if (result.IsFailure(out var failure))
-            {
-                return BadRequest(failure.Justification);
-            }
-
-            if (result.IsSuccess())
-            {
-                return Ok();
-            }
-
-            return StatusCode(500);
+            return result.Match<ActionResult>(
+                success => Ok(),
+                validationFailed => BadRequest(validationFailed.Errors),
+                userAlreadyExists => Conflict(userAlreadyExists.Comment));
         }
 
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<ActionResult<string>> Login(UserAuthDto request)
         {
-            var result = await this.authenticationService.LoginTeacher(request);
+            var result = await this.authenticationService.LoginTeacherAsync(request);
 
-            if (result.IsFailure(out var failure))
-            {
-                return BadRequest(failure.Justification);
-            }
-
-            if (result.IsSuccess(out var success))
-            {
-                return Ok(success.Value);
-            }
-
-            return StatusCode(500);
+            return result.Match<ActionResult<string>>(
+                token => Ok(token),
+                notFound => NotFound(),
+                wrongPassword => Unauthorized("Wrong password."));
         }
 
         [HttpGet("me")]

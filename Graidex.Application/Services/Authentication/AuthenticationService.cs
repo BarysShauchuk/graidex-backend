@@ -2,13 +2,13 @@
 using FluentValidation;
 using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Users;
-using Graidex.Application.Infrastructure.ResultObjects.Generic;
-using Graidex.Application.Infrastructure.ResultObjects.NonGeneric;
-using Graidex.Application.Infrastructure.ValidationFailure;
+using Graidex.Application.OneOfCustomTypes;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Users;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using OneOf.Types;
+using OneOf;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -57,14 +57,12 @@ namespace Graidex.Application.Services.Authentication
         }
 
         /// <inheritdoc/>
-        public async Task<Result> RegisterStudent(StudentDto student)
+        public async Task<OneOf<Success, ValidationFailed, UserAlreadyExists>> RegisterStudentAsync(StudentDto student)
         {
-            var result = new ResultFactory();
-
             var validationResult = await this.studentDtoValidator.ValidateAsync(student);
             if (!validationResult.IsValid)
             {
-                return result.ValidationFailure(validationResult.Errors);
+                return new ValidationFailed(validationResult.Errors);
             }
 
             bool studentExists = this.studentRepository
@@ -73,7 +71,7 @@ namespace Graidex.Application.Services.Authentication
 
             if (studentExists)
             {
-                return result.Failure(
+                return new UserAlreadyExists(
                     $"Student with email \"{student.AuthInfo.Email}\" already exists.");
             }
 
@@ -81,14 +79,12 @@ namespace Graidex.Application.Services.Authentication
             dbStudent.PasswordHash = BCrypt.Net.BCrypt.HashPassword(student.AuthInfo.Password);
             await this.studentRepository.Add(dbStudent);
 
-            return result.Success();
+            return new Success();
         }
 
         /// <inheritdoc/>
-        public Task<Result<string>> LoginStudent(UserAuthDto student)
+        public async Task<OneOf<string, NotFound, WrongPassword>> LoginStudentAsync(UserAuthDto student)
         {
-            var result = new ResultFactory<string>();
-
             var keyToken = this.configuration["AppSettings:Token"];
             if (keyToken is null)
             {
@@ -102,27 +98,25 @@ namespace Graidex.Application.Services.Authentication
 
             if (dbStudent is null)
             {
-                return Task.FromResult(result.Failure("Student not found."));
+                return new NotFound();
             }
 
             if (!BCrypt.Net.BCrypt.Verify(student.Password, dbStudent.PasswordHash))
             {
-                return Task.FromResult(result.Failure("Wrong password."));
+                return new WrongPassword();
             }
 
-            var token = CreateStudentToken(student, keyToken);
-            return Task.FromResult(result.Success(token));
+            var token = await Task.Run(() => CreateStudentToken(student, keyToken));
+            return token;
         }
 
         /// <inheritdoc/>
-        public async Task<Result> RegisterTeacher(TeacherDto teacher)
+        public async Task<OneOf<Success, ValidationFailed, UserAlreadyExists>> RegisterTeacherAsync(TeacherDto teacher)
         {
-            var result = new ResultFactory();
-
             var validationResult = await this.teacherValidator.ValidateAsync(teacher);
             if (!validationResult.IsValid)
             {
-                return result.ValidationFailure(validationResult.Errors);
+                return new ValidationFailed(validationResult.Errors);
             }
 
             bool teacherExists = this.teacherRepository
@@ -131,7 +125,7 @@ namespace Graidex.Application.Services.Authentication
 
             if (teacherExists)
             {
-                return result.Failure(
+                return new UserAlreadyExists(
                     $"Teacher with email \"{teacher.AuthInfo.Email}\" already exists.");
             }
 
@@ -139,14 +133,12 @@ namespace Graidex.Application.Services.Authentication
             dbTeacher.PasswordHash = BCrypt.Net.BCrypt.HashPassword(teacher.AuthInfo.Password);
             await this.teacherRepository.Add(dbTeacher);
 
-            return result.Success();
+            return new Success();
         }
 
         /// <inheritdoc/>
-        public Task<Result<string>> LoginTeacher(UserAuthDto teacher)
+        public async Task<OneOf<string, NotFound, WrongPassword>> LoginTeacherAsync(UserAuthDto teacher)
         {
-            var result = new ResultFactory<string>();
-
             var keyToken = this.configuration["AppSettings:Token"];
             if (keyToken is null)
             {
@@ -160,16 +152,16 @@ namespace Graidex.Application.Services.Authentication
 
             if (dbTeacher is null)
             {
-                return Task.FromResult(result.Failure("Teacher not found."));
+                return new NotFound();
             }
 
             if (!BCrypt.Net.BCrypt.Verify(teacher.Password, dbTeacher.PasswordHash))
             {
-                return Task.FromResult(result.Failure("Wrong password."));
+                return new WrongPassword();
             }
 
-            var token = CreateTeacherToken(teacher, keyToken);
-            return Task.FromResult(result.Success(token));
+            var token = await Task.Run(() => CreateTeacherToken(teacher, keyToken));
+            return token;
         }
 
         private static string CreateStudentToken(UserAuthDto student, string keyToken)
