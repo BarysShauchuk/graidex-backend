@@ -10,9 +10,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Graidex.Application.AutoMapperProfiles
-{
+{   
+    /// <summary>
+    /// Represents a class that contains mapping profiles for users.
+    /// </summary>
     public class UsersProfile : Profile
-    {
+    {   
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UsersProfile"/> class.
+        /// </summary>
         public UsersProfile()
         {
             MapStudent();
