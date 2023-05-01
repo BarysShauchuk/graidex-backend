@@ -45,6 +45,7 @@ builder.Services.AddScoped<IStudentAuthenticationService, AuthenticationService>
 builder.Services.AddScoped<ITeacherAuthenticationService, AuthenticationService>();
 
 builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<ITeacherService, TeacherService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

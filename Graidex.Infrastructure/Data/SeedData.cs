@@ -46,10 +46,10 @@ namespace Graidex.Infrastructure.Data
             #region Users
             var teacher1 = new Teacher
             {
-                Email = "walterwhite@email.com",
+                Email = "string",
                 Name = "Walter",
                 Surname = "White",
-                PasswordHash = "$2a$11$AmeWLP0hM2OqRMzE8KRx.eplUn7zyE7789lJZd2wbBBshpADhoUZi",
+                PasswordHash = "$2a$11$OkN9AGlMY8557q9Kv8DuG.UFAnzTkN2jXi2sXwMDPfkrxa3S4Faie",
             };
 
             var teacher2 = new Teacher
@@ -70,10 +70,10 @@ namespace Graidex.Infrastructure.Data
 
             var student1 = new Student
             {
-                Email = "jessepinkman@gmail.com",
+                Email = "string",
                 Name = "Jesse",
                 Surname = "Pinkman",
-                PasswordHash = "$2a$11$wGKTZXD4gZNZufgDH/3Q9e15G/vs/ZwTFTlMXGYZtM92bvOsIEcxm",
+                PasswordHash = "$2a$11$1/6Tr.9D.6uQHOtMPc4Plu85UzTsvbhJJpLt.PiPLMsL3Ctq1fuK2",
                 CustomId = "IF_200001",
             };
 

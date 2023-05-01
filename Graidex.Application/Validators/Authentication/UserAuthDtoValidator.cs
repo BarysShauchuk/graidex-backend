@@ -16,13 +16,7 @@ namespace Graidex.Application.Validators.Authentication
                 .NotEmpty()
                 .EmailAddress();
 
-            RuleFor(x => x.Password)
-                .NotEmpty()
-                .Length(8, 16)
-                .Matches(@"[A-Z]+").WithMessage(x => $"'{nameof(x.Password)}' must contain at least one uppercase letter.")
-                .Matches(@"[a-z]+").WithMessage(x => $"'{nameof(x.Password)}' must contain at least one lowercase letter.")
-                .Matches(@"[0-9]+").WithMessage(x => $"'{nameof(x.Password)}' must contain at least one number.")
-                .Matches(@"[\!\?\*\.\$]+").WithMessage(x => $"'{nameof(x.Password)}' must contain at least one of [!?*.$].");
+            RuleFor(x => x.Password).SetValidator(new UserPasswordValidator());
         }
     }
 }

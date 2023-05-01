@@ -1,10 +1,13 @@
-﻿using FluentValidation;
+﻿using Azure.Core;
+using FluentValidation;
 using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Users;
+using Graidex.Application.OneOfCustomTypes;
 using Graidex.Application.Services.Authentication;
+using Graidex.Application.Services.Users;
+using Graidex.Domain.Models.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 
 namespace Graidex.API.Controllers.Users
 {
@@ -14,11 +17,14 @@ namespace Graidex.API.Controllers.Users
     public class TeacherController : ControllerBase
     {
         private readonly ITeacherAuthenticationService authenticationService;
+        private readonly ITeacherService teacherService;
 
         public TeacherController(
-            ITeacherAuthenticationService authenticationService)
+            ITeacherAuthenticationService authenticationService,
+            ITeacherService teacherService)
         {
             this.authenticationService = authenticationService;
+            this.teacherService = teacherService;
         }
 
         [HttpPost("create")]
@@ -48,7 +54,11 @@ namespace Graidex.API.Controllers.Users
         [HttpGet("me")]
         public async Task<ActionResult<TeacherInfoDto>> GetMe()
         {
-            throw new NotImplementedException();
+            var result = await this.teacherService.GetCurrentAsync();
+
+            return result.Match<ActionResult<TeacherInfoDto>>(
+                teacherInfo => Ok(teacherInfo),
+                notFound => NotFound());
         }
 
         [ApiExplorerSettings(IgnoreApi = true)] // TODO: Implement method and remove this attribute
@@ -62,19 +72,35 @@ namespace Graidex.API.Controllers.Users
         [HttpPut("update-info")]
         public async Task<ActionResult> UpdateInfo(TeacherInfoDto teacher)
         {
-            throw new NotImplementedException();
+            var result = await this.teacherService.UpdateCurrentInfoAsync(teacher);
+
+            return result.Match<ActionResult>(
+                success => Ok(),
+                validationFailed => BadRequest(validationFailed.Errors),
+                notFound => NotFound());
         }
 
         [HttpPut("change-password")]
         public async Task<ActionResult> ChangePassword(ChangePasswordDto passwords)
         {
-            throw new NotImplementedException();
+            var result = await this.teacherService.UpdateCurrentPasswordAsync(passwords);
+
+            return result.Match<ActionResult>(
+                success => Ok(),
+                validationFailed => BadRequest(validationFailed.Errors),
+                notFound => NotFound(),
+                wrongPassword => Unauthorized("Wrong current password."));
         }
 
         [HttpDelete("delete")]
         public async Task<ActionResult> Delete(string password)
         {
-            throw new NotImplementedException();
+            var result = await this.teacherService.DeleteCurrent(password);
+
+            return result.Match<ActionResult>(
+                success => Ok(),
+                notFound => NotFound(),
+                wrongPassword => Unauthorized("Wrong password."));
         }
     }
 }

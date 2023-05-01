@@ -34,6 +34,8 @@ namespace Graidex.Application.AutoMapperProfiles
                 .IncludeMembers(x => x.AuthInfo, x => x.TeacherInfo);
             CreateMap<UserAuthDto, Teacher>();
             CreateMap<TeacherInfoDto, Teacher>();
+
+            CreateMap<Teacher, TeacherInfoDto>();
         }
     }
 }

@@ -15,13 +15,11 @@ namespace Graidex.Application.DTOs.Authentication
         /// <summary>
         /// Gets or sets the current password of the user.
         /// </summary>
-        [DataType(DataType.Password)]
         public required string CurrentPassword { get; set; }
 
         /// <summary>
         /// Gets or sets the new password of the user.
         /// </summary>
-        [DataType(DataType.Password)]
         public required string NewPassword { get; set; }
     }
 }

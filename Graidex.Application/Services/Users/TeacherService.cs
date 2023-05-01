@@ -16,23 +16,23 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.Services.Users
 {
-    public class StudentService : IStudentService
+    public class TeacherService : ITeacherService
     {
         private readonly IStudentRepository studentRepository;
         private readonly ITeacherRepository teacherRepository;
         private readonly ISubjectRepository subjectRepository;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IMapper mapper;
-        private readonly IValidator<StudentInfoDto> studentInfoDtoValidator;
+        private readonly IValidator<TeacherInfoDto> teacherInfoDtoValidator;
         private readonly IValidator<ChangePasswordDto> changePasswordDtoValidator;
 
-        public StudentService(
+        public TeacherService(
             IStudentRepository studentRepository,
             ITeacherRepository teacherRepository,
             ISubjectRepository subjectRepository,
             IHttpContextAccessor httpContextAccessor,
             IMapper mapper,
-            IValidator<StudentInfoDto> studentInfoDtoValidator,
+            IValidator<TeacherInfoDto> teacherInfoDtoValidator,
             IValidator<ChangePasswordDto> changePasswordDtoValidator)
         {
             this.studentRepository = studentRepository;
@@ -40,63 +40,63 @@ namespace Graidex.Application.Services.Users
             this.subjectRepository = subjectRepository;
             this.httpContextAccessor = httpContextAccessor;
             this.mapper = mapper;
-            this.studentInfoDtoValidator = studentInfoDtoValidator;
+            this.teacherInfoDtoValidator = teacherInfoDtoValidator;
             this.changePasswordDtoValidator = changePasswordDtoValidator;
         }
 
         public async Task<OneOf<Success, NotFound, WrongPassword>> DeleteCurrent(string password)
         {
             string email = GetCurrentUserEmail();
-            var student = await this.studentRepository.GetByEmail(email);
-            if (student is null)
+            var teacher = await this.teacherRepository.GetByEmail(email);
+            if (teacher is null)
             {
                 return new NotFound();
             }
 
-            if (!BCrypt.Net.BCrypt.Verify(password, student.PasswordHash))
+            if (!BCrypt.Net.BCrypt.Verify(password, teacher.PasswordHash))
             {
                 return new WrongPassword();
             }
 
-            await this.studentRepository.Delete(student);
+            await this.teacherRepository.Delete(teacher);
             return new Success();
         }
 
-        public Task<OneOf<StudentInfoDto>> GetByEmailAsync(string email)
+        public Task<OneOf<TeacherInfoDto>> GetByEmailAsync(string email)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<OneOf<StudentInfoDto, NotFound>> GetCurrentAsync()
+        public async Task<OneOf<TeacherInfoDto, NotFound>> GetCurrentAsync()
         {
             string email = GetCurrentUserEmail();
-            var student = await this.studentRepository.GetByEmail(email);
-            if (student is null)
+            var teacher = await this.teacherRepository.GetByEmail(email);
+            if (teacher is null)
             {
                 return new NotFound();
             }
 
-            var studentInfo = this.mapper.Map<StudentInfoDto>(student);
-            return studentInfo;
+            var teacherInfo = this.mapper.Map<TeacherInfoDto>(teacher);
+            return teacherInfo;
         }
 
-        public async Task<OneOf<Success, ValidationFailed, NotFound>> UpdateCurrentInfoAsync(StudentInfoDto studentInfo)
+        public async Task<OneOf<Success, ValidationFailed, NotFound>> UpdateCurrentInfoAsync(TeacherInfoDto teacherInfo)
         {
-            var validationResult = await this.studentInfoDtoValidator.ValidateAsync(studentInfo);
+            var validationResult = await this.teacherInfoDtoValidator.ValidateAsync(teacherInfo);
             if (!validationResult.IsValid)
             {
                 return new ValidationFailed(validationResult.Errors);
             }
 
             string email = GetCurrentUserEmail();
-            var student = await this.studentRepository.GetByEmail(email);
-            if (student is null)
+            var teacher = await this.teacherRepository.GetByEmail(email);
+            if (teacher is null)
             {
                 return new NotFound();
             }
 
-            this.mapper.Map(studentInfo, student);
-            await this.studentRepository.Update(student);
+            this.mapper.Map(teacherInfo, teacher);
+            await this.teacherRepository.Update(teacher);
 
             return new Success();
         }
@@ -110,19 +110,19 @@ namespace Graidex.Application.Services.Users
             }
 
             string email = GetCurrentUserEmail();
-            var student = await this.studentRepository.GetByEmail(email);
-            if (student is null)
+            var teacher = await this.teacherRepository.GetByEmail(email);
+            if (teacher is null)
             {
                 return new NotFound();
             }
 
-            if (!BCrypt.Net.BCrypt.Verify(passwords.CurrentPassword, student.PasswordHash))
+            if (!BCrypt.Net.BCrypt.Verify(passwords.CurrentPassword, teacher.PasswordHash))
             {
                 return new WrongPassword();
             }
 
-            student.PasswordHash = BCrypt.Net.BCrypt.HashPassword(passwords.NewPassword);
-            await this.studentRepository.Update(student);
+            teacher.PasswordHash = BCrypt.Net.BCrypt.HashPassword(passwords.NewPassword);
+            await this.teacherRepository.Update(teacher);
 
             return new Success();
         }
