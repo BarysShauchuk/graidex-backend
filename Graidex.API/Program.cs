@@ -2,7 +2,10 @@ using FluentValidation;
 using Graidex.Application;
 using Graidex.Application.AutoMapperProfiles;
 using Graidex.Application.Services.Authentication;
+using Graidex.Application.Services.Subjects;
 using Graidex.Application.Services.Users;
+using Graidex.Application.Services.Users.Students;
+using Graidex.Application.Services.Users.Teachers;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models;
 using Graidex.Domain.Models.Users;
@@ -44,8 +47,11 @@ builder.Services.AddScoped<ITestResultRepository, TestResultRepository>();
 builder.Services.AddScoped<IStudentAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<ITeacherAuthenticationService, AuthenticationService>();
 
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ITeacherService, TeacherService>();
+
+builder.Services.AddScoped<ISubjectService, SubjectService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

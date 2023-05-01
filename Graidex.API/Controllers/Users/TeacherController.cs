@@ -1,10 +1,10 @@
 ﻿using Azure.Core;
 using FluentValidation;
 using Graidex.Application.DTOs.Authentication;
-using Graidex.Application.DTOs.Users;
+using Graidex.Application.DTOs.Users.Teachers;
 using Graidex.Application.OneOfCustomTypes;
 using Graidex.Application.Services.Authentication;
-using Graidex.Application.Services.Users;
+using Graidex.Application.Services.Users.Teachers;
 using Graidex.Domain.Models.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,7 +29,7 @@ namespace Graidex.API.Controllers.Users
 
         [HttpPost("create")]
         [AllowAnonymous]
-        public async Task<ActionResult> Create(TeacherDto request)
+        public async Task<ActionResult> Create(CreateTeacherDto request)
         {
             var result = await this.authenticationService.RegisterTeacherAsync(request);
 
@@ -47,7 +47,7 @@ namespace Graidex.API.Controllers.Users
 
             return result.Match<ActionResult<string>>(
                 token => Ok(token),
-                notFound => NotFound(),
+                userNotFound => NotFound(userNotFound.Comment),
                 wrongPassword => Unauthorized("Wrong password."));
         }
 
@@ -58,7 +58,7 @@ namespace Graidex.API.Controllers.Users
 
             return result.Match<ActionResult<TeacherInfoDto>>(
                 teacherInfo => Ok(teacherInfo),
-                notFound => NotFound());
+                userNotFound => NotFound(userNotFound.Comment));
         }
 
         [ApiExplorerSettings(IgnoreApi = true)] // TODO: Implement method and remove this attribute
@@ -77,7 +77,7 @@ namespace Graidex.API.Controllers.Users
             return result.Match<ActionResult>(
                 success => Ok(),
                 validationFailed => BadRequest(validationFailed.Errors),
-                notFound => NotFound());
+                userNotFound => NotFound(userNotFound.Comment));
         }
 
         [HttpPut("change-password")]
@@ -88,7 +88,7 @@ namespace Graidex.API.Controllers.Users
             return result.Match<ActionResult>(
                 success => Ok(),
                 validationFailed => BadRequest(validationFailed.Errors),
-                notFound => NotFound(),
+                userNotFound => NotFound(userNotFound.Comment),
                 wrongPassword => Unauthorized("Wrong current password."));
         }
 
@@ -99,7 +99,7 @@ namespace Graidex.API.Controllers.Users
 
             return result.Match<ActionResult>(
                 success => Ok(),
-                notFound => NotFound(),
+                userNotFound => NotFound(userNotFound.Comment),
                 wrongPassword => Unauthorized("Wrong password."));
         }
     }

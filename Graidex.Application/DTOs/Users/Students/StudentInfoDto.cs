@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.DTOs.Users
+namespace Graidex.Application.DTOs.Users.Students
 {
     /// <summary>
     /// Represents information about student.

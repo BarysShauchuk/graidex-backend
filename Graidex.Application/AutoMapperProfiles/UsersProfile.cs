@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Graidex.Application.DTOs.Authentication;
-using Graidex.Application.DTOs.Users;
+using Graidex.Application.DTOs.Users.Students;
+using Graidex.Application.DTOs.Users.Teachers;
 using Graidex.Domain.Models.Users;
 using System;
 using System.Collections.Generic;
@@ -20,8 +21,7 @@ namespace Graidex.Application.AutoMapperProfiles
 
         private void MapStudent()
         {
-            CreateMap<StudentDto, Student>()
-                .IncludeMembers(x => x.AuthInfo, x => x.StudentInfo);
+            CreateMap<CreateStudentDto, Student>();
             CreateMap<UserAuthDto, Student>();
             CreateMap<StudentInfoDto, Student>();
 
@@ -30,8 +30,7 @@ namespace Graidex.Application.AutoMapperProfiles
 
         private void MapTeacher()
         {
-            CreateMap<TeacherDto, Teacher>()
-                .IncludeMembers(x => x.AuthInfo, x => x.TeacherInfo);
+            CreateMap<CreateTeacherDto, Teacher>();
             CreateMap<UserAuthDto, Teacher>();
             CreateMap<TeacherInfoDto, Teacher>();
 

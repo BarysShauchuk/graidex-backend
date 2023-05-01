@@ -1,5 +1,5 @@
 ﻿using Graidex.Application.DTOs.Authentication;
-using Graidex.Application.DTOs.Users;
+using Graidex.Application.DTOs.Users.Students;
 using Graidex.Application.OneOfCustomTypes;
 using OneOf;
 using OneOf.Types;
@@ -20,12 +20,12 @@ namespace Graidex.Application.Services.Authentication
         /// <summary>
         /// Register student.
         /// </summary>
-        /// <param name="student"><see cref="StudentDto"/> object with student data for registration.</param>
+        /// <param name="student"><see cref="CreateStudentDto"/> object with student data for registration.</param>
         /// <returns>
         /// A task that represents the asynchronous operation to get one of:
         /// <see cref="Success"/>, <see cref="ValidationFailed"/>, <see cref="UserAlreadyExists"/>.
         /// </returns>
-        public Task<OneOf<Success, ValidationFailed, UserAlreadyExists>> RegisterStudentAsync(StudentDto student);
+        public Task<OneOf<Success, ValidationFailed, UserAlreadyExists>> RegisterStudentAsync(CreateStudentDto student);
 
         /// <summary>
         /// Login student.
@@ -35,6 +35,6 @@ namespace Graidex.Application.Services.Authentication
         /// A task that represents the asynchronous operation to get one of:
         /// token string, <see cref="NotFound"/>, <see cref="WrongPassword"/>.
         /// </returns>
-        public Task<OneOf<string, NotFound, WrongPassword>> LoginStudentAsync(UserAuthDto student);
+        public Task<OneOf<string, UserNotFound, WrongPassword>> LoginStudentAsync(UserAuthDto student);
     }
 }

@@ -1,12 +1,12 @@
 ﻿using FluentValidation;
-using Graidex.Application.DTOs.Users;
+using Graidex.Application.DTOs.Users.Students;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.Validators.Users
+namespace Graidex.Application.Validators.Users.Students
 {
     public class StudentInfoDtoValidator : AbstractValidator<StudentInfoDto>
     {
