@@ -25,7 +25,7 @@ namespace Graidex.Domain.Models
         /// <summary>
         /// Gets or sets the time of the last update of the test.
         /// </summary>
-        public DateTime LastUpdate { get; set; }
+        public DateTime LastUpdate { get; set; } // TODO: DateTime -> DateOnly
 
         /// <summary>
         /// Gets or sets a value indicating whether the test is hidden or not.

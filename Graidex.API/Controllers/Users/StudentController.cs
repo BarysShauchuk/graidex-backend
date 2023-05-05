@@ -63,7 +63,7 @@ namespace Graidex.API.Controllers.Users
 
         [ApiExplorerSettings(IgnoreApi = true)] // TODO: Implement method and remove this attribute
         [HttpGet("{email}")]
-        [Authorize(Roles = "Teacher")] // TODO: Remove student role
+        [Authorize(Roles = "Teacher", Policy = "")] // TODO: Remove student role
         public async Task<ActionResult<StudentInfoDto>> GetByEmail(string email)
         {
             throw new NotImplementedException();

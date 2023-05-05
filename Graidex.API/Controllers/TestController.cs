@@ -14,10 +14,10 @@ namespace Graidex.API.Controllers
             return Ok("Hello, Student!");
         }
 
-        [HttpGet("test-teacher"), Authorize(Roles = "Teacher")]
-        public async Task<ActionResult<string>> TestTeacherLogin()
+        [HttpGet("test-teacher/{subjectId}"), Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]
+        public async Task<ActionResult<string>> TestTeacherLogin(string subjectId)
         {
-            return Ok("Hello, Teacher!");
+            return Ok($"Hello, Teacher! Subject ID is {subjectId}");
         }
     }
 }

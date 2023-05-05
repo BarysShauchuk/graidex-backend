@@ -4,7 +4,6 @@ using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.OneOfCustomTypes;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Users;
-using Microsoft.AspNetCore.Http;
 using OneOf.Types;
 using OneOf;
 using System;

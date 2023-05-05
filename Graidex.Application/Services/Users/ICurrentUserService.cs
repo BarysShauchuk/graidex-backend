@@ -6,5 +6,6 @@ namespace Graidex.Application.Services.Users
     {
         public string GetEmail();
         public UserNotFound UserNotFound(string role = "User");
+        public string GetRole();
     }
 }
