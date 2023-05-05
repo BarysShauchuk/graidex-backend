@@ -24,7 +24,6 @@ namespace Graidex.Application.Services.Users
         public string GetEmail()
         {
             var user = this.httpContextAccessor.HttpContext.User;
-
             var identity = user.Identity;
             if (identity is null)
             {
@@ -44,6 +43,24 @@ namespace Graidex.Application.Services.Users
         {
             string email = this.GetEmail();
             return new UserNotFound($"{role} with email \"{email}\" is not found.");
+        }
+
+        public string GetRole()
+        {
+            if (this.httpContextAccessor.HttpContext.User.IsInRole("Student"))
+            {
+                return "Student";
+            }
+
+            if (this.httpContextAccessor.HttpContext.User.IsInRole("Teacher"))
+            {
+                return "Teacher";
+            }
+
+            else
+            {
+                return String.Empty;
+            }
         }
     }
 }

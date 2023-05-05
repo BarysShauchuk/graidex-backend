@@ -21,6 +21,8 @@ namespace Graidex.Application.AutoMapperProfiles
         {
             CreateMap<CreateSubjectDto, Subject>();
             CreateMap<Subject, SubjectDto>();
+            CreateMap<Subject, SubjectInfoDto>();
+            CreateMap<UpdateSubjectDto, Subject>();
         }
     }
 }
