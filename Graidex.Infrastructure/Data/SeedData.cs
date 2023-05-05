@@ -107,6 +107,7 @@ namespace Graidex.Infrastructure.Data
                 Title = "Mathematics",
                 TeacherId = teacher1.Id,
                 Students = new List<Student> { student1, student2 },
+                ImageUrl = "https://www.mathsisfun.com/images/geometry.svg",
             };
 
             var subject2 = new Subject
@@ -115,6 +116,7 @@ namespace Graidex.Infrastructure.Data
                 Title = "Physics",
                 TeacherId = teacher2.Id,
                 Students = new List<Student> { student2, student3 },
+                ImageUrl = "SomeURL",
             };
 
             var subject3 = new Subject

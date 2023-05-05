@@ -38,5 +38,10 @@ namespace Graidex.Domain.Models
         /// Gets or sets the collection of students that are assigned to the subject.
         /// </summary>
         public virtual ICollection<Student> Students { get; set; } = new List<Student>();
+
+        /// <summary>
+        /// Gets or sets the image url for the subject.
+        /// </summary>
+        public string? ImageUrl { get; set; }
     }
 }
