@@ -7,15 +7,10 @@ using System.Threading.Tasks;
 namespace Graidex.Application.DTOs.Subject
 {   
     /// <summary>
-    /// Represents dto for getting a subject.
+    /// Represents dto for updating a subject.
     /// </summary>
-    public class SubjectDto
+    public class UpdateSubjectDto
     {   
-        /// <summary>
-        /// Gets or sets the ID for the subject.
-        /// </summary>
-        public int Id { get; set; }
-
         /// <summary>
         /// Gets or sets the custom ID for the subject.
         /// </summary>
