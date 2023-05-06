@@ -23,10 +23,10 @@ namespace Graidex.Application.Services.Users.Students
 
         public Task<OneOf<Success, UserNotFound, WrongPassword>> DeleteCurrent(string password);
 
-        public Task<OneOf<Success, UserNotFound>> AddCurrentToSubjectAsync(int subjectId);
+        public Task<OneOf<Success, UserNotFound, NotFound>> AddCurrentToSubjectAsync(int subjectId, string studentEmail);
 
-        public Task<OneOf<IEnumerable<StudentDto>, UserNotFound>> GetAllOfSubjectAsync(int subjectId);
+        public Task<OneOf<List<StudentDto>, NotFound>> GetAllOfSubjectAsync(int subjectId);
 
-        public Task<OneOf<Success, UserNotFound>> RemoveCurrentFromSubjectAsync(int subjectId);
+        public Task<OneOf<Success, UserNotFound, NotFound>> RemoveCurrentFromSubjectAsync(int subjectId, string studentEmail);
     }
 }

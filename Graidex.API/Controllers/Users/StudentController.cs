@@ -107,35 +107,37 @@ namespace Graidex.API.Controllers.Users
         }
 
         [HttpPost("add-to-subject/{subjectId}")]
-        [Authorize(Roles = "Teacher")]
-        public async Task<ActionResult> AddToSubject(int subjectId)
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]
+        public async Task<ActionResult> AddToSubject(int subjectId, string studentEmail)
         {
-            var result = await this.studentService.AddCurrentToSubjectAsync(subjectId);
+            var result = await this.studentService.AddCurrentToSubjectAsync(subjectId, studentEmail);
 
             return result.Match<ActionResult>(
                 success => Ok(),
-                userNotFound => NotFound(userNotFound.Comment));
+                userNotFound => NotFound(userNotFound.Comment),
+                notFound => NotFound("Subject not found."));
         }
 
-        [HttpGet("all-of-subject")]
-        [Authorize(Roles = "Teacher")]
-        public async Task<ActionResult<IEnumerable<StudentDto>>> GetAllOfSubject(int subjectId)
+        [HttpGet("all-of-subject/{subjectId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]
+        public async Task<ActionResult<List<StudentDto>>> GetAllOfSubject(int subjectId)
         {
             var result = await this.studentService.GetAllOfSubjectAsync(subjectId);
 
-            return result.Match<ActionResult<IEnumerable<StudentDto>>>(
+            return result.Match<ActionResult<List<StudentDto>>>(
                 students => Ok(students),
-                userNotFound => NotFound(userNotFound.Comment));
+                notFound => NotFound("Subject not found."));
         }
 
         [HttpDelete("remove-from-subject/{subjectId}")]
-        [Authorize(Roles = "Teacher")]
-        public async Task<ActionResult> RemoveFromSubject(int subjectId)
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]
+        public async Task<ActionResult> RemoveFromSubject(int subjectId, string studentEmail)
         {
-            var result = await this.studentService.RemoveCurrentFromSubjectAsync(subjectId);
+            var result = await this.studentService.RemoveCurrentFromSubjectAsync(subjectId, studentEmail);
             return result.Match<ActionResult>(
                 success => Ok(),
-                userNotFound => NotFound(userNotFound.Comment));
+                userNotFound => NotFound(userNotFound.Comment),
+                notFound => NotFound("Subject not found."));
         }
     }
 }

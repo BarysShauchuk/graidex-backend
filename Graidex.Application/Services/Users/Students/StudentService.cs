@@ -44,9 +44,27 @@ namespace Graidex.Application.Services.Users.Students
             this.changePasswordDtoValidator = changePasswordDtoValidator;
         }
 
-        public Task<OneOf<Success, UserNotFound>> AddCurrentToSubjectAsync(int subjectId)
+        public async Task<OneOf<Success, UserNotFound, NotFound>> AddCurrentToSubjectAsync(int subjectId, string studentEmail)
         {
-            throw new NotImplementedException();
+            var student = await studentRepository.GetByEmail(studentEmail);
+            if (student is null)
+            {
+                return new UserNotFound($"Student with email \"{studentEmail}\" is not found.");
+            }
+
+            var subject = await subjectRepository.GetById(subjectId);
+            if (subject is null)
+            {
+                return new NotFound();
+            }
+
+            if (!subject.Students.Any(s => s.Id == student.Id))
+            {
+                subject.Students.Add(student);
+                await this.subjectRepository.Update(subject);
+            }
+
+            return new Success();
         }
 
         public async Task<OneOf<Success, UserNotFound, WrongPassword>> DeleteCurrent(string password)
@@ -67,9 +85,17 @@ namespace Graidex.Application.Services.Users.Students
             return new Success();
         }
 
-        public Task<OneOf<IEnumerable<StudentDto>, UserNotFound>> GetAllOfSubjectAsync(int subjectId)
+        public async Task<OneOf<List<StudentDto>, NotFound>> GetAllOfSubjectAsync(int subjectId)
         {
-            throw new NotImplementedException();
+            var subject = await subjectRepository.GetById(subjectId);
+            if (subject is null)
+            {
+                return new NotFound();
+            }
+
+            var students = subject.Students;
+            var studentDtos = this.mapper.Map<List<StudentDto>>(students);
+            return studentDtos;
         }
 
         public Task<OneOf<StudentInfoDto>> GetByEmailAsync(string email)
@@ -90,9 +116,29 @@ namespace Graidex.Application.Services.Users.Students
             return studentInfo;
         }
 
-        public Task<OneOf<Success, UserNotFound>> RemoveCurrentFromSubjectAsync(int subjectId)
+        public async Task<OneOf<Success, UserNotFound, NotFound>> RemoveCurrentFromSubjectAsync(int subjectId, string studentEmail)
         {
-            throw new NotImplementedException();
+            var student = await studentRepository.GetByEmail(studentEmail);
+            if (student is null)
+            {
+                return new UserNotFound($"Student with email \"{studentEmail}\" is not found.");
+            }
+
+            var subject = await subjectRepository.GetById(subjectId);
+            if (subject is null)
+            {
+                return new NotFound();
+            }
+
+            if (!subject.Students.Any(s => s.Id == student.Id))
+            {
+                return new UserNotFound(
+                    $"Student with email \"{studentEmail}\" is not on the subject with id \"{subjectId}\"");
+            }
+
+            subject.Students.Remove(student);
+            await this.subjectRepository.Update(subject);
+            return new Success();
         }
 
         public async Task<OneOf<Success, ValidationFailed, UserNotFound>> UpdateCurrentInfoAsync(StudentInfoDto studentInfo)

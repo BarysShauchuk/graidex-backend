@@ -32,6 +32,7 @@ namespace Graidex.Application.AutoMapperProfiles
             CreateMap<StudentInfoDto, Student>();
 
             CreateMap<Student, StudentInfoDto>();
+            CreateMap<Student, StudentDto>();
         }
 
         private void MapTeacher()
