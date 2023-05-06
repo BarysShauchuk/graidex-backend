@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace Graidex.API.Controllers.Users
 {
     [Route("api/[controller]")]
-    [Authorize(Roles = "Student")]
     [ApiController]
     public class StudentController : ControllerBase
     {
@@ -52,6 +51,7 @@ namespace Graidex.API.Controllers.Users
         }
 
         [HttpGet("me")]
+        [Authorize(Roles = "Student")]
         public async Task<ActionResult<StudentInfoDto>> GetMe()
         {
             var result = await this.studentService.GetCurrentAsync();
@@ -63,13 +63,14 @@ namespace Graidex.API.Controllers.Users
 
         [ApiExplorerSettings(IgnoreApi = true)] // TODO: Implement method and remove this attribute
         [HttpGet("{email}")]
-        [Authorize(Roles = "Teacher", Policy = "")] // TODO: Remove student role
+        [Authorize(Roles = "Teacher", Policy = "")]
         public async Task<ActionResult<StudentInfoDto>> GetByEmail(string email)
         {
             throw new NotImplementedException();
         }
 
         [HttpPut("update-info")]
+        [Authorize(Roles = "Student")]
         public async Task<ActionResult> UpdateInfo(StudentInfoDto student)
         {
             var result = await this.studentService.UpdateCurrentInfoAsync(student);
@@ -81,6 +82,7 @@ namespace Graidex.API.Controllers.Users
         }
 
         [HttpPut("change-password")]
+        [Authorize(Roles = "Student")]
         public async Task<ActionResult> ChangePassword(ChangePasswordDto passwords)
         {
             var result = await this.studentService.UpdateCurrentPasswordAsync(passwords);
@@ -93,6 +95,7 @@ namespace Graidex.API.Controllers.Users
         }
 
         [HttpDelete("delete")]
+        [Authorize(Roles = "Student")]
         public async Task<ActionResult> Delete(string password)
         {
             var result = await this.studentService.DeleteCurrent(password);
@@ -101,6 +104,38 @@ namespace Graidex.API.Controllers.Users
                 success => Ok(),
                 userNotFound => NotFound(userNotFound.Comment),
                 wrongPassword => Unauthorized("Wrong password."));
+        }
+
+        [HttpPost("add-to-subject/{subjectId}")]
+        [Authorize(Roles = "Teacher")]
+        public async Task<ActionResult> AddToSubject(int subjectId)
+        {
+            var result = await this.studentService.AddCurrentToSubjectAsync(subjectId);
+
+            return result.Match<ActionResult>(
+                success => Ok(),
+                userNotFound => NotFound(userNotFound.Comment));
+        }
+
+        [HttpGet("all-of-subject")]
+        [Authorize(Roles = "Teacher")]
+        public async Task<ActionResult<IEnumerable<StudentDto>>> GetAllOfSubject(int subjectId)
+        {
+            var result = await this.studentService.GetAllOfSubjectAsync(subjectId);
+
+            return result.Match<ActionResult<IEnumerable<StudentDto>>>(
+                students => Ok(students),
+                userNotFound => NotFound(userNotFound.Comment));
+        }
+
+        [HttpDelete("remove-from-subject/{subjectId}")]
+        [Authorize(Roles = "Teacher")]
+        public async Task<ActionResult> RemoveFromSubject(int subjectId)
+        {
+            var result = await this.studentService.RemoveCurrentFromSubjectAsync(subjectId);
+            return result.Match<ActionResult>(
+                success => Ok(),
+                userNotFound => NotFound(userNotFound.Comment));
         }
     }
 }

@@ -22,5 +22,11 @@ namespace Graidex.Application.Services.Users.Students
         public Task<OneOf<Success, ValidationFailed, UserNotFound, WrongPassword>> UpdateCurrentPasswordAsync(ChangePasswordDto passwords);
 
         public Task<OneOf<Success, UserNotFound, WrongPassword>> DeleteCurrent(string password);
+
+        public Task<OneOf<Success, UserNotFound>> AddCurrentToSubjectAsync(int subjectId);
+
+        public Task<OneOf<IEnumerable<StudentDto>, UserNotFound>> GetAllOfSubjectAsync(int subjectId);
+
+        public Task<OneOf<Success, UserNotFound>> RemoveCurrentFromSubjectAsync(int subjectId);
     }
 }

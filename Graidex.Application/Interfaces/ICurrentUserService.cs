@@ -1,6 +1,6 @@
 ﻿using Graidex.Application.OneOfCustomTypes;
 
-namespace Graidex.Application.Services.Users
+namespace Graidex.Application.Interfaces
 {
     public interface ICurrentUserService
     {

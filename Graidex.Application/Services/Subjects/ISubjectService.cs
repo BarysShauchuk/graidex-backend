@@ -14,7 +14,7 @@ namespace Graidex.Application.Services.Subjects
     public interface ISubjectService
     {
         public Task<OneOf<SubjectDto, ValidationFailed, UserNotFound>> CreateForCurrentAsync(CreateSubjectDto subjectDto);
-        public Task<OneOf<List<SubjectDto>, UserNotFound>> GetAll();
+        public Task<OneOf<List<SubjectDto>, UserNotFound>> GetAllOfCurrentAsync();
         public Task<OneOf<SubjectInfoDto, UserNotFound, NotFound>> GetByIdAsync(int id);
         public Task<OneOf<Success, ValidationFailed, UserNotFound, NotFound>> UpdateSubjectInfoAsync(int id, UpdateSubjectDto updateSubjectDto);
         public Task<OneOf<Success, UserNotFound, NotFound>> DeleteByIdAsync(int id);

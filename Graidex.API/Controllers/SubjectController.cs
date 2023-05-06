@@ -34,29 +34,31 @@ namespace Graidex.API.Controllers
         [Authorize(Roles = "Student, Teacher")]
         public async Task<ActionResult> GetAll()
         {
-            var result = await this.subjectService.GetAll();
+            var result = await this.subjectService.GetAllOfCurrentAsync();
 
             return result.Match<ActionResult>(
                 subjectDtos => Ok(subjectDtos),
                 userNotFound => NotFound(userNotFound.Comment));
         }
 
-        [HttpGet("{id}")]
-        [Authorize(Roles = "Student, Teacher", Policy = "")]
+        [HttpGet("{subjectId}")]
+        [Authorize(Roles = "Student, Teacher", Policy = "")] // TODO: Add policy
         public async Task<ActionResult> GetById(int subjectId)
         {
-           var result = await this.subjectService.GetByIdAsync(subjectId);
+            var result = await this.subjectService.GetByIdAsync(subjectId);
+
             return result.Match<ActionResult>(
                 subjectInfoDto => Ok(subjectInfoDto),
                 userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound(notFound));
         }
 
-        [HttpPut("update")]
-        [Authorize(Roles = "Teacher", Policy = "")]
+        [HttpPut("update/{subjectId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]
         public async Task<ActionResult> Update(int subjectId, UpdateSubjectDto updateSubjectDto)
         {
             var result = await this.subjectService.UpdateSubjectInfoAsync(subjectId, updateSubjectDto);
+
             return result.Match<ActionResult>(
                 success => Ok(),
                 validationFailed => BadRequest(validationFailed.Errors),
@@ -64,11 +66,12 @@ namespace Graidex.API.Controllers
                 notFound => NotFound(notFound));
         }
 
-        [HttpDelete("{id}")]
-        [Authorize(Roles = "Teacher", Policy = "")]
+        [HttpDelete("delete/{subjectId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]
         public async Task<ActionResult> Delete(int subjectId)
         {
             var result = await this.subjectService.DeleteByIdAsync(subjectId);
+
             return result.Match<ActionResult>(
                 success => Ok(),
                 userNotFound => NotFound(userNotFound.Comment),

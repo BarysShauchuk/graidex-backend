@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Graidex.Application.DTOs.Users.Teachers;
+using Graidex.Application.Interfaces;
 
 namespace Graidex.Application.Services.Users.Teachers
 {

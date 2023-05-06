@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Graidex.Application.DTOs.Subject;
+using Graidex.Application.Interfaces;
 using Graidex.Application.OneOfCustomTypes;
 using Graidex.Application.Services.Users;
 using Graidex.Domain.Interfaces;
@@ -56,7 +57,7 @@ namespace Graidex.Application.Services.Subjects
             return subjectDto;
         }
 
-        public async Task<OneOf<List<SubjectDto>, UserNotFound>> GetAll()
+        public async Task<OneOf<List<SubjectDto>, UserNotFound>> GetAllOfCurrentAsync()
         {
             string email = this.currentUser.GetEmail();
             string role = this.currentUser.GetRole();

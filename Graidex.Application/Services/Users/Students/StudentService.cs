@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Graidex.Application.DTOs.Users.Students;
+using Graidex.Application.Interfaces;
 
 namespace Graidex.Application.Services.Users.Students
 {
@@ -43,6 +44,11 @@ namespace Graidex.Application.Services.Users.Students
             this.changePasswordDtoValidator = changePasswordDtoValidator;
         }
 
+        public Task<OneOf<Success, UserNotFound>> AddCurrentToSubjectAsync(int subjectId)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<OneOf<Success, UserNotFound, WrongPassword>> DeleteCurrent(string password)
         {
             string email = currentUser.GetEmail();
@@ -61,6 +67,11 @@ namespace Graidex.Application.Services.Users.Students
             return new Success();
         }
 
+        public Task<OneOf<IEnumerable<StudentDto>, UserNotFound>> GetAllOfSubjectAsync(int subjectId)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<OneOf<StudentInfoDto>> GetByEmailAsync(string email)
         {
             throw new NotImplementedException();
@@ -77,6 +88,11 @@ namespace Graidex.Application.Services.Users.Students
 
             var studentInfo = mapper.Map<StudentInfoDto>(student);
             return studentInfo;
+        }
+
+        public Task<OneOf<Success, UserNotFound>> RemoveCurrentFromSubjectAsync(int subjectId)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<OneOf<Success, ValidationFailed, UserNotFound>> UpdateCurrentInfoAsync(StudentInfoDto studentInfo)
