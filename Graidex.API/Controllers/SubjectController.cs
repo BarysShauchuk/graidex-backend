@@ -30,44 +30,49 @@ namespace Graidex.API.Controllers
                 userNotFound => NotFound(userNotFound.Comment));
         }
 
-        [ApiExplorerSettings(IgnoreApi = true)] // TODO: Implement method and remove this attribute
         [HttpGet("all")]
         [Authorize(Roles = "Student, Teacher")]
         public async Task<ActionResult> GetAll()
         {
-            throw new NotImplementedException();
+            var result = await this.subjectService.GetAll();
+
+            return result.Match<ActionResult>(
+                subjectDtos => Ok(subjectDtos),
+                userNotFound => NotFound(userNotFound.Comment));
         }
 
-        [ApiExplorerSettings(IgnoreApi = true)] // TODO: Implement method and remove this attribute
         [HttpGet("{id}")]
         [Authorize(Roles = "Student, Teacher", Policy = "")]
-        public async Task<ActionResult> GetById(int id)
+        public async Task<ActionResult> GetById(int subjectId)
         {
-            throw new NotImplementedException();
+           var result = await this.subjectService.GetByIdAsync(subjectId);
+            return result.Match<ActionResult>(
+                subjectInfoDto => Ok(subjectInfoDto),
+                userNotFound => NotFound(userNotFound.Comment),
+                notFound => NotFound(notFound));
         }
 
-        [ApiExplorerSettings(IgnoreApi = true)] // TODO: Implement method and remove this attribute
         [HttpPut("update")]
         [Authorize(Roles = "Teacher", Policy = "")]
-        public async Task<ActionResult> Update(CreateSubjectDto request)
+        public async Task<ActionResult> Update(int subjectId, UpdateSubjectDto updateSubjectDto)
         {
-            throw new NotImplementedException();
+            var result = await this.subjectService.UpdateSubjectInfoAsync(subjectId, updateSubjectDto);
+            return result.Match<ActionResult>(
+                success => Ok(),
+                validationFailed => BadRequest(validationFailed.Errors),
+                userNotFound => NotFound(userNotFound.Comment),
+                notFound => NotFound(notFound));
         }
 
-        [ApiExplorerSettings(IgnoreApi = true)] // TODO: Implement method and remove this attribute
-        [HttpPost("add")]
-        [Authorize(Roles = "Teacher")]
-        public async Task<ActionResult> AddStudents(List<string> studentEmails)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ApiExplorerSettings(IgnoreApi = true)] // TODO: Implement method and remove this attribute
         [HttpDelete("{id}")]
         [Authorize(Roles = "Teacher", Policy = "")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ActionResult> Delete(int subjectId)
         {
-            throw new NotImplementedException();
+            var result = await this.subjectService.DeleteByIdAsync(subjectId);
+            return result.Match<ActionResult>(
+                success => Ok(),
+                userNotFound => NotFound(userNotFound.Comment),
+                notFound => NotFound(notFound));
         }
     }
 }

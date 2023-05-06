@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Graidex.Application.DTOs.Subject
-{   
+{
     /// <summary>
-    /// Represents dto for getting a subject.
+    /// Represents information about subject.
     /// </summary>
-    public class SubjectDto
+    public class SubjectInfoDto
     {   
-        /// <summary>
-        /// Gets or sets the ID for the subject.
-        /// </summary>
-        public int Id { get; set; }
-
         /// <summary>
         /// Gets or sets the custom ID for the subject.
         /// </summary>
@@ -25,6 +21,11 @@ namespace Graidex.Application.DTOs.Subject
         /// Gets or sets the title for the subject.
         /// </summary>
         public required string Title { get; set; }
+
+        /// <summary>
+        /// Gets or sets the email address of the teacher of the subject.
+        /// </summary>
+        public required string TeacherEmail { get; set; }
 
         /// <summary>
         /// Gets or sets the image URL for the subject.
