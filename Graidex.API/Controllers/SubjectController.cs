@@ -41,11 +41,23 @@ namespace Graidex.API.Controllers
                 userNotFound => NotFound(userNotFound.Comment));
         }
 
-        [HttpGet("{subjectId}")]
-        [Authorize(Roles = "Student, Teacher", Policy = "")] // TODO: Add policy
-        public async Task<ActionResult> GetById(int subjectId)
+        [HttpGet("of-teacher/{subjectId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]
+        public async Task<ActionResult> GetSubjectOfTeacherById(int subjectId)
         {
-            var result = await this.subjectService.GetByIdAsync(subjectId);
+            var result = await this.subjectService.GetSubjectOfTeacherByIdAsync(subjectId);
+
+            return result.Match<ActionResult>(
+                subjectInfoDto => Ok(subjectInfoDto),
+                userNotFound => NotFound(userNotFound.Comment),
+                notFound => NotFound(notFound));
+        }
+
+        [HttpGet("of-student/{subjectId}")]
+        [Authorize(Roles = "Student", Policy = "StudentOfSubject")]
+        public async Task<ActionResult> GetSubjectOfStudentById(int subjectId)
+        {
+            var result = await this.subjectService.GetSubjectOfStudentByIdAsync(subjectId);
 
             return result.Match<ActionResult>(
                 subjectInfoDto => Ok(subjectInfoDto),

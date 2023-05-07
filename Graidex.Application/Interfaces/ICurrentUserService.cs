@@ -6,6 +6,6 @@ namespace Graidex.Application.Interfaces
     {
         public string GetEmail();
         public UserNotFound UserNotFound(string role = "User");
-        public string GetRole();
+        public IEnumerable<string> GetRoles();
     }
 }
