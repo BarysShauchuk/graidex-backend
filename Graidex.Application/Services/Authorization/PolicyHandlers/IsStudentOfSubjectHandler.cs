@@ -34,7 +34,17 @@ namespace Graidex.Application.Services.Authorization.PolicyHandlers
             AuthorizationHandlerContext context,
             IsStudentOfSubjectRequirement requirement)
         {
-            string studentEmail = this.currentUser.GetEmail();
+            string studentEmail;
+            try
+            {
+                studentEmail = this.currentUser.GetEmail();
+            }
+            catch (HttpRequestException)
+            {
+                context.Fail();
+                return;
+            }
+
             var student = await this.studentRepository.GetByEmail(studentEmail);
             if (student is null)
             {
