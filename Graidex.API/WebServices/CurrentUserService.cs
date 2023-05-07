@@ -1,7 +1,10 @@
 ﻿using Graidex.Application.Interfaces;
 using Graidex.Application.OneOfCustomTypes;
 using Graidex.Application.Services.Users;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
+using System.Security.Claims;
 
 namespace Graidex.API.WebServices
 {
@@ -45,7 +48,7 @@ namespace Graidex.API.WebServices
             return new UserNotFound($"{role} with email \"{email}\" is not found.");
         }
 
-        public string GetRole()
+        public IEnumerable<string> GetRoles()
         {
             var httpContext = this.httpContextAccessor.HttpContext;
             if (httpContext is null)
@@ -53,20 +56,13 @@ namespace Graidex.API.WebServices
                 throw new HttpRequestException();
             }
 
-            if (httpContext.User.IsInRole("Student"))
+            var roleClaims = httpContext.User.FindAll(ClaimTypes.Role);
+            if (roleClaims.IsNullOrEmpty()) 
             {
-                return "Student";
+                throw new HttpRequestException();
             }
-
-            if (httpContext.User.IsInRole("Teacher"))
-            {
-                return "Teacher";
-            }
-
-            else
-            {
-                return String.Empty;
-            }
+            
+            return roleClaims.Select(roleClaim => roleClaim.Value);
         }
     }
 }

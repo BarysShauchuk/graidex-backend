@@ -60,33 +60,36 @@ namespace Graidex.Application.Services.Subjects
         public async Task<OneOf<List<SubjectDto>, UserNotFound>> GetAllOfCurrentAsync()
         {
             string email = this.currentUser.GetEmail();
-            string role = this.currentUser.GetRole();
-            switch (role)
+            IEnumerable<string> roles = this.currentUser.GetRoles();
+
+            if (roles.Contains("Teacher"))
             {
-                case "Teacher":
-                    var teacher = await this.teacherRepository.GetByEmail(email);
-                    if (teacher is null)
-                    {
-                        return this.currentUser.UserNotFound("Teacher");
-                    }
+                var teacher = await this.teacherRepository.GetByEmail(email);
+                if (teacher is null)
+                {
+                    return this.currentUser.UserNotFound("Teacher");
+                }
 
-                    var subjects = this.subjectRepository.GetAll().Where(x => x.TeacherId == teacher.Id);
-                    var subjectDtos = this.mapper.Map<List<SubjectDto>>(subjects);
+                var subjects = this.subjectRepository.GetAll().Where(x => x.TeacherId == teacher.Id);
+                var subjectDtos = this.mapper.Map<List<SubjectDto>>(subjects);
 
-                    return subjectDtos;
-
-                case "Student":
-                    var student = await this.studentRepository.GetByEmail(email);
-                    if (student is null)
-                    {
-                        return this.currentUser.UserNotFound("Student");
-                    }
-
-                    subjects = this.subjectRepository.GetAll().Where(x => x.Students.Any(y => y.Id == student.Id));
-                    subjectDtos = this.mapper.Map<List<SubjectDto>>(subjects);
-
-                    return subjectDtos;
+                return subjectDtos;
             }
+
+            else if (roles.Contains("Student"))
+            {
+                var student = await this.studentRepository.GetByEmail(email);
+                if (student is null)
+                {
+                    return this.currentUser.UserNotFound("Student");
+                }
+
+                var subjects = this.subjectRepository.GetAll().Where(x => x.Students.Any(y => y.Id == student.Id));
+                var subjectDtos = this.mapper.Map<List<SubjectDto>>(subjects);
+
+                return subjectDtos;
+            }
+            
             return this.currentUser.UserNotFound("User");
         }
 
@@ -157,11 +160,6 @@ namespace Graidex.Application.Services.Subjects
                 return new NotFound();
             }
 
-            if (subject.TeacherId != teacher.Id)
-            {
-                return new NotFound();
-            }
-
             mapper.Map(updateSubjectDto, subject);
             await subjectRepository.Update(subject);
 
@@ -181,11 +179,6 @@ namespace Graidex.Application.Services.Subjects
 
             var subject = await this.subjectRepository.GetById(id);
             if (subject is null)
-            {
-                return new NotFound();
-            }
-
-            if (subject.TeacherId != teacher.Id)
             {
                 return new NotFound();
             }
