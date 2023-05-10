@@ -25,5 +25,8 @@ namespace Graidex.Application.DTOs.Subject
         /// Gets or sets the image URL for the subject.
         /// </summary>
         public string? ImageUrl { get; set; }
+
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set;}
     }
 }
