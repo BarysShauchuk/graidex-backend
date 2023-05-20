@@ -18,6 +18,19 @@ namespace Graidex.Infrastructure.Data
     /// </summary>
     public static class SeedData
     {
+        public static void EnsureMigrated(GraidexDbContext? context)
+        {
+            if (context == null)
+            {
+                throw new ArgumentNullException("context");
+            }
+
+            if (context.Database.GetPendingMigrations().Any())
+            {
+                context.Database.Migrate();
+            }
+        }
+
         /// <summary>
         /// Applies pending migration to database.
         /// </summary>

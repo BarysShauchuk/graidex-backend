@@ -25,23 +25,17 @@ using System.Runtime.InteropServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var frontendUrl = Environment.GetEnvironmentVariable("GRAIDEX_FRONTEND_URL")
+    ?? builder.Configuration.GetSection("AppSettings:FrontendUrl").Value!;
 
-string connectionString = "GraidexDb";
-if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-{
-    connectionString = "GraidexDbMac";
-}
-else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-{
-    connectionString = "GraidexDbLinux";
-}
+var dbConnectionString = Environment.GetEnvironmentVariable("GRAIDEX_DB_CONNECTIONSTRING")
+    ?? builder.Configuration.GetConnectionString("GraidexDb");
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<GraidexDbContext>(options =>
     options
     .UseLazyLoadingProxies()
-    .UseSqlServer(builder.Configuration.GetConnectionString(connectionString)));
+    .UseSqlServer(dbConnectionString));
 
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
@@ -112,6 +106,9 @@ builder.Services.AddCors();
 
 var app = builder.Build();
 
+SeedData.EnsureMigrated(
+    app.Services.CreateScope().ServiceProvider.GetRequiredService<GraidexDbContext>());
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -122,8 +119,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins(
-    builder.Configuration.GetSection("AppSettings:FrontendUrl").Value!));
+app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins(frontendUrl));
 
 app.UseAuthentication();
 
