@@ -6,5 +6,9 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.OneOfCustomTypes
 {
+    /// <summary>
+    /// Class specifying that the user already exists
+    /// </summary>
+    /// <param name="Comment">Comment</param>
     public record UserAlreadyExists(string? Comment);
 }

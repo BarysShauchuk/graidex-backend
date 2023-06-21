@@ -61,12 +61,15 @@ namespace Graidex.API.Controllers.Users
                 userNotFound => NotFound(userNotFound.Comment));
         }
 
-        [ApiExplorerSettings(IgnoreApi = true)] // TODO: Implement method and remove this attribute
-        [HttpGet("{email}")]
-        [Authorize(Roles = "Teacher", Policy = "")]
-        public async Task<ActionResult<StudentInfoDto>> GetByEmail(string email)
+        [HttpGet("{studentEmail}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfStudent")]
+        public async Task<ActionResult<StudentInfoDto>> GetByEmail(string studentEmail)
         {
-            throw new NotImplementedException();
+            var result = await this.studentService.GetByEmailAsync(studentEmail);
+
+            return result.Match<ActionResult<StudentInfoDto>>(
+                studentInfo => Ok(studentInfo),
+                userNotFound => NotFound(userNotFound.Comment));
         }
 
         [HttpPut("update-info")]

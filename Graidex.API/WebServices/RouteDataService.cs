@@ -6,15 +6,23 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Graidex.API.WebServices
 {
+    /// <summary>
+    /// Service to access route data.
+    /// </summary>
     public class RouteDataService : IRouteDataService
     {
         private readonly IHttpContextAccessor httpContextAccessor;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RouteDataService"/> class.
+        /// </summary>
+        /// <param name="httpContextAccessor">The HTTP context accessor.</param>
         public RouteDataService(IHttpContextAccessor httpContextAccessor)
         {
             this.httpContextAccessor = httpContextAccessor;
         }
 
+        /// <inheritdoc/>
         public ImmutableDictionary<string, object?> RouteValues
         {
             get

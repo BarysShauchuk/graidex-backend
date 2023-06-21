@@ -98,9 +98,16 @@ namespace Graidex.Application.Services.Users.Students
             return studentDtos;
         }
 
-        public Task<OneOf<StudentInfoDto>> GetByEmailAsync(string email)
+        public async Task<OneOf<StudentInfoDto, UserNotFound>> GetByEmailAsync(string email)
         {
-            throw new NotImplementedException();
+            var student = await studentRepository.GetByEmail(email);
+            if (student is null)
+            {
+                return new UserNotFound($"Student with email \"{email}\" is not found.");
+            }
+
+            var studentInfo = mapper.Map<StudentInfoDto>(student);
+            return studentInfo;
         }
 
         public async Task<OneOf<StudentInfoDto, UserNotFound>> GetCurrentAsync()

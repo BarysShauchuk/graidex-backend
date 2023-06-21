@@ -91,18 +91,28 @@ builder.Services
 
 builder.Services.AddScoped<IAuthorizationHandler, IsTeacherOfSubjectHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, IsStudentOfSubjectHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, IsTeacherOfStudentHandler>();
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("TeacherOfSubject", policyBuilder =>
     {
+        policyBuilder.RequireAuthenticatedUser();
         policyBuilder.RequireRole("Teacher");
         policyBuilder.AddRequirements(new IsTeacherOfSubjectRequirement());
     });
 
     options.AddPolicy("StudentOfSubject", policyBuilder =>
     {
+        policyBuilder.RequireAuthenticatedUser();
         policyBuilder.RequireRole("Student");
         policyBuilder.AddRequirements(new IsStudentOfSubjectRequirement());
+    });
+
+    options.AddPolicy("TeacherOfStudent", policyBuilder =>
+    {
+        policyBuilder.RequireAuthenticatedUser();
+        policyBuilder.RequireRole("Teacher");
+        policyBuilder.AddRequirements(new IsTeacherOfStudentRequirement());
     });
 });
 

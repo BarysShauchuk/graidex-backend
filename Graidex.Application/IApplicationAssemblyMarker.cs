@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application
 {
+    /// <summary>
+    /// Marker interface for the <see cref="Application"/> assembly
+    /// </summary>
     public interface IApplicationAssemblyMarker
     {
     }

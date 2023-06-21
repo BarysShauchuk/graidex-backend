@@ -8,15 +8,23 @@ using System.Security.Claims;
 
 namespace Graidex.API.WebServices
 {
+    /// <summary>
+    /// Represents a service for retrieving information about the currently authenticated user.
+    /// </summary>
     public class CurrentUserService : ICurrentUserService
     {
         private readonly IHttpContextAccessor httpContextAccessor;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CurrentUserService"/> class.
+        /// </summary>
+        /// <param name="httpContextAccessor">The HTTP context accessor.</param>
         public CurrentUserService(IHttpContextAccessor httpContextAccessor)
         {
             this.httpContextAccessor = httpContextAccessor;
         }
 
+        /// <inheritdoc/>
         public string GetEmail()
         {
             var httpContext = this.httpContextAccessor.HttpContext;
@@ -42,12 +50,14 @@ namespace Graidex.API.WebServices
             return email;
         }
 
+        /// <inheritdoc/>
         public UserNotFound UserNotFound(string role = "User")
         {
             string email = this.GetEmail();
             return new UserNotFound($"{role} with email \"{email}\" is not found.");
         }
 
+        /// <inheritdoc/>
         public IEnumerable<string> GetRoles()
         {
             var httpContext = this.httpContextAccessor.HttpContext;
