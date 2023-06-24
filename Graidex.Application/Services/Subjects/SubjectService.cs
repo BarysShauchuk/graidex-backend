@@ -143,8 +143,8 @@ namespace Graidex.Application.Services.Subjects
         }
 
 
-            public async Task<OneOf<Success, ValidationFailed, UserNotFound, NotFound>> UpdateSubjectInfoAsync(int id, UpdateSubjectDto updateSubjectDto)
-        {
+         public async Task<OneOf<Success, ValidationFailed, UserNotFound, NotFound>> UpdateSubjectInfoAsync(int id, UpdateSubjectDto updateSubjectDto)
+         {
             // TODO: Add validation
             string email = this.currentUser.GetEmail();
 
@@ -159,6 +159,7 @@ namespace Graidex.Application.Services.Subjects
             {
                 return new NotFound();
             }
+
 
             mapper.Map(updateSubjectDto, subject);
             await subjectRepository.Update(subject);

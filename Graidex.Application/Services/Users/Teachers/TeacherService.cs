@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Graidex.Application.DTOs.Users.Teachers;
 using Graidex.Application.Interfaces;
+using Graidex.Application.DTOs.Users.Students;
 
 namespace Graidex.Application.Services.Users.Teachers
 {
@@ -62,9 +63,16 @@ namespace Graidex.Application.Services.Users.Teachers
             return new Success();
         }
 
-        public Task<OneOf<TeacherInfoDto>> GetByEmailAsync(string email)
+        public async Task<OneOf<TeacherInfoDto, UserNotFound>> GetByEmailAsync(string email)
         {
-            throw new NotImplementedException();
+            var teacher = await teacherRepository.GetByEmail(email);
+            if (teacher is null)
+            {
+                return new UserNotFound($"Teacher with email \"{email}\" is not found.");
+            }
+
+            var teacherInfo = mapper.Map<TeacherInfoDto>(teacher);
+            return teacherInfo;
         }
 
         public async Task<OneOf<TeacherInfoDto, UserNotFound>> GetCurrentAsync()
