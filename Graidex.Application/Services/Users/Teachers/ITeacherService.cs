@@ -13,7 +13,7 @@ namespace Graidex.Application.Services.Users.Teachers
 {
     public interface ITeacherService
     {
-        public Task<OneOf<TeacherInfoDto>> GetByEmailAsync(string email);
+        public Task<OneOf<TeacherInfoDto, UserNotFound>> GetByEmailAsync(string email);
 
         public Task<OneOf<TeacherInfoDto, UserNotFound>> GetCurrentAsync();
 

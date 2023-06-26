@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using FluentValidation;
 using Graidex.Application.DTOs.Authentication;
+using Graidex.Application.DTOs.Users.Students;
 using Graidex.Application.DTOs.Users.Teachers;
 using Graidex.Application.OneOfCustomTypes;
 using Graidex.Application.Services.Authentication;
@@ -12,7 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace Graidex.API.Controllers.Users
 {
     [Route("api/[controller]")]
-    [Authorize(Roles = "Teacher")]
     [ApiController]
     public class TeacherController : ControllerBase
     {
@@ -52,6 +52,7 @@ namespace Graidex.API.Controllers.Users
         }
 
         [HttpGet("me")]
+        [Authorize(Roles = "Teacher")]
         public async Task<ActionResult<TeacherInfoDto>> GetMe()
         {
             var result = await this.teacherService.GetCurrentAsync();
@@ -61,15 +62,19 @@ namespace Graidex.API.Controllers.Users
                 userNotFound => NotFound(userNotFound.Comment));
         }
 
-        [ApiExplorerSettings(IgnoreApi = true)] // TODO: Implement method and remove this attribute
-        [HttpGet("{email}")]
-        [Authorize(Roles = "Student")] // TODO: Remove student role
-        public async Task<ActionResult<TeacherInfoDto>> GetByEmail(string email)
+        [HttpGet("{teacherEmail}")]
+        [Authorize(Roles = "Student", Policy = "StudentOfTeacher")]
+        public async Task<ActionResult<TeacherInfoDto>> GetByEmail(string teacherEmail)
         {
-            throw new NotImplementedException();
+            var result = await this.teacherService.GetByEmailAsync(teacherEmail);
+
+            return result.Match<ActionResult<TeacherInfoDto>>(
+                teacherInfo => Ok(teacherInfo),
+                userNotFound => NotFound(userNotFound.Comment));
         }
 
         [HttpPut("update-info")]
+        [Authorize(Roles = "Teacher")]
         public async Task<ActionResult> UpdateInfo(TeacherInfoDto teacher)
         {
             var result = await this.teacherService.UpdateCurrentInfoAsync(teacher);
@@ -81,6 +86,7 @@ namespace Graidex.API.Controllers.Users
         }
 
         [HttpPut("change-password")]
+        [Authorize(Roles = "Teacher")]
         public async Task<ActionResult> ChangePassword(ChangePasswordDto passwords)
         {
             var result = await this.teacherService.UpdateCurrentPasswordAsync(passwords);
@@ -93,6 +99,7 @@ namespace Graidex.API.Controllers.Users
         }
 
         [HttpDelete("delete")]
+        [Authorize(Roles = "Teacher")]
         public async Task<ActionResult> Delete(string password)
         {
             var result = await this.teacherService.DeleteCurrent(password);
