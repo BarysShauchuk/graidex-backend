@@ -44,7 +44,7 @@ namespace Graidex.Application.Services.Users.Students
             this.changePasswordDtoValidator = changePasswordDtoValidator;
         }
 
-        public async Task<OneOf<Success, UserNotFound, NotFound>> AddCurrentToSubjectAsync(int subjectId, string studentEmail)
+        public async Task<OneOf<Success, UserNotFound, NotFound>> AddToSubjectAsync(int subjectId, string studentEmail)
         {
             var student = await studentRepository.GetByEmail(studentEmail);
             if (student is null)
@@ -67,7 +67,7 @@ namespace Graidex.Application.Services.Users.Students
             return new Success();
         }
 
-        public async Task<OneOf<Success, UserNotFound, WrongPassword>> DeleteCurrent(string password)
+        public async Task<OneOf<Success, UserNotFound, WrongPassword>> DeleteCurrentAsync(string password)
         {
             string email = currentUser.GetEmail();
             var student = await studentRepository.GetByEmail(email);
@@ -123,7 +123,7 @@ namespace Graidex.Application.Services.Users.Students
             return studentInfo;
         }
 
-        public async Task<OneOf<Success, UserNotFound, NotFound>> RemoveCurrentFromSubjectAsync(int subjectId, string studentEmail)
+        public async Task<OneOf<Success, UserNotFound, NotFound>> RemoveFromSubjectAsync(int subjectId, string studentEmail)
         {
             var student = await studentRepository.GetByEmail(studentEmail);
             if (student is null)

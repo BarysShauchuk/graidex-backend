@@ -101,7 +101,7 @@ namespace Graidex.API.Controllers.Users
         [Authorize(Roles = "Student")]
         public async Task<ActionResult> Delete(string password)
         {
-            var result = await this.studentService.DeleteCurrent(password);
+            var result = await this.studentService.DeleteCurrentAsync(password);
 
             return result.Match<ActionResult>(
                 success => Ok(),
@@ -113,7 +113,7 @@ namespace Graidex.API.Controllers.Users
         [Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]
         public async Task<ActionResult> AddToSubject(int subjectId, string studentEmail)
         {
-            var result = await this.studentService.AddCurrentToSubjectAsync(subjectId, studentEmail);
+            var result = await this.studentService.AddToSubjectAsync(subjectId, studentEmail);
 
             return result.Match<ActionResult>(
                 success => Ok(),
@@ -136,7 +136,7 @@ namespace Graidex.API.Controllers.Users
         [Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]
         public async Task<ActionResult> RemoveFromSubject(int subjectId, string studentEmail)
         {
-            var result = await this.studentService.RemoveCurrentFromSubjectAsync(subjectId, studentEmail);
+            var result = await this.studentService.RemoveFromSubjectAsync(subjectId, studentEmail);
             return result.Match<ActionResult>(
                 success => Ok(),
                 userNotFound => NotFound(userNotFound.Comment),
