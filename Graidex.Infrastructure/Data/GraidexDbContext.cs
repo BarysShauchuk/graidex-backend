@@ -83,6 +83,17 @@ namespace Graidex.Infrastructure.Data
             modelBuilder.Entity<TestResult>()
                 .Property(x => x.Answers)
                 .HasConversion(JsonExtensions.CreateJsonConverter<List<Answer>>());
+
+
+            modelBuilder.Entity<SubjectRequest>()
+                .HasOne<Student>()
+                .WithMany()
+                .HasForeignKey(subjectRequest => subjectRequest.StudentId);
+
+            modelBuilder.Entity<SubjectRequest>()
+                .HasOne<Subject>()
+                .WithMany()
+                .HasForeignKey(subjectRequest => subjectRequest.SubjectId);
         }
 
         /// <summary>
@@ -109,5 +120,8 @@ namespace Graidex.Infrastructure.Data
         /// Gets or sets the DbSet of <see cref="TestResult"/> objects.
         /// </summary>
         public DbSet<TestResult> TestResults { get; set; }
+
+        // TODO: Add repository for SubjectRequest.
+        public DbSet<SubjectRequest> SubjectRequests { get; set; }
     }
 }
