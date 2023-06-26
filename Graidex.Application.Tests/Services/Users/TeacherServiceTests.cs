@@ -17,7 +17,7 @@ using Graidex.Domain.Models.Users;
 using System.ComponentModel.DataAnnotations;
 using Graidex.Application.DTOs.Subject;
 
-namespace Graidex.Application.Tests.Services
+namespace Graidex.Application.Tests.Services.Users
 {
     internal class TeacherServiceTests
     {
@@ -29,9 +29,9 @@ namespace Graidex.Application.Tests.Services
         [SetUp]
         public void Setup()
         {
-            this.studentRepository = new FakeStudentRepository();
-            this.teacherRepository = new FakeTeacherRepository();
-            this.subjectRepository = new FakeSubjectRepository();
+            studentRepository = new FakeStudentRepository();
+            teacherRepository = new FakeTeacherRepository();
+            subjectRepository = new FakeSubjectRepository();
 
             var currentUserMock = new Mock<ICurrentUserService>();
             currentUserMock
@@ -52,11 +52,11 @@ namespace Graidex.Application.Tests.Services
                 .Setup(x => x.ValidateAsync(It.IsAny<ChangePasswordDto>(), default))
                 .ReturnsAsync(new FluentValidation.Results.ValidationResult());
 
-            this.teacherService = new TeacherService(
+            teacherService = new TeacherService(
                 currentUserMock.Object,
-                this.studentRepository,
-                this.teacherRepository,
-                this.subjectRepository,
+                studentRepository,
+                teacherRepository,
+                subjectRepository,
                 mapper,
                 teacherInfoDtoValidatorMock.Object,
                 changePasswordDtoValidatorMock.Object
@@ -67,7 +67,7 @@ namespace Graidex.Application.Tests.Services
         [Test]
         public async Task DeleteCurrent_WithValidData_ShouldReturnSuccess()
         {
-            this.teacherRepository.Entities.Clear();
+            teacherRepository.Entities.Clear();
 
             var teacher = new Teacher
             {
@@ -77,9 +77,9 @@ namespace Graidex.Application.Tests.Services
                 Surname = "surname",
             };
 
-            this.teacherRepository.Entities.Add(teacher);
+            teacherRepository.Entities.Add(teacher);
 
-            var result = await this.teacherService.DeleteCurrent("password");
+            var result = await teacherService.DeleteCurrent("password");
 
             Assert.That(result.IsT0);
         }
@@ -87,7 +87,7 @@ namespace Graidex.Application.Tests.Services
         [Test]
         public async Task DeleteCurrent_WithValidData_ShouldDeleteCurrentTeacher()
         {
-            this.teacherRepository.Entities.Clear();
+            teacherRepository.Entities.Clear();
 
             var teacher = new Teacher
             {
@@ -97,17 +97,17 @@ namespace Graidex.Application.Tests.Services
                 Surname = "surname",
             };
 
-            this.teacherRepository.Entities.Add(teacher);
+            teacherRepository.Entities.Add(teacher);
 
-            await this.teacherService.DeleteCurrent("password");
+            await teacherService.DeleteCurrent("password");
 
-            Assert.That(this.teacherRepository.GetByEmail("email").Result, Is.Null);
+            Assert.That(teacherRepository.GetByEmail("email").Result, Is.Null);
         }
 
         [Test]
         public async Task DeleteCurrent_WithInvalidEmail_ShouldReturnNotFound()
         {
-            this.teacherRepository.Entities.Clear();
+            teacherRepository.Entities.Clear();
 
             var teacher = new Teacher
             {
@@ -117,9 +117,9 @@ namespace Graidex.Application.Tests.Services
                 Surname = "surname",
             };
 
-            this.teacherRepository.Entities.Add(teacher);
+            teacherRepository.Entities.Add(teacher);
 
-            var result = await this.teacherService.DeleteCurrent("password");
+            var result = await teacherService.DeleteCurrent("password");
 
             Assert.That(result.IsT1);
         }
@@ -127,7 +127,7 @@ namespace Graidex.Application.Tests.Services
         [Test]
         public async Task DeleteCurrent_WithInvalidPassword_ShouldReturnWrongPassword()
         {
-            this.teacherRepository.Entities.Clear();
+            teacherRepository.Entities.Clear();
 
             var teacher = new Teacher
             {
@@ -137,9 +137,9 @@ namespace Graidex.Application.Tests.Services
                 Surname = "surname",
             };
 
-            this.teacherRepository.Entities.Add(teacher);
+            teacherRepository.Entities.Add(teacher);
 
-            var result = await this.teacherService.DeleteCurrent("wrongpassword");
+            var result = await teacherService.DeleteCurrent("wrongpassword");
 
             Assert.That(result.IsT2);
         }
@@ -149,7 +149,7 @@ namespace Graidex.Application.Tests.Services
         [Test]
         public async Task GetByEmail_WithValidData_ShouldReturnTeacherInfoDto()
         {
-            this.teacherRepository.Entities.Clear();
+            teacherRepository.Entities.Clear();
 
             var teacher = new Teacher
             {
@@ -159,9 +159,9 @@ namespace Graidex.Application.Tests.Services
                 Surname = "surname",
             };
 
-            this.teacherRepository.Entities.Add(teacher);
+            teacherRepository.Entities.Add(teacher);
 
-            var result = await this.teacherService.GetByEmailAsync("email");
+            var result = await teacherService.GetByEmailAsync("email");
 
             Assert.Multiple(() =>
             {
@@ -174,7 +174,7 @@ namespace Graidex.Application.Tests.Services
         [Test]
         public async Task GetByEmail_WithNonexistentTeacher_ShouldReturnUserNotFound()
         {
-            this.teacherRepository.Entities.Clear();
+            teacherRepository.Entities.Clear();
 
             var teacher = new Teacher
             {
@@ -184,9 +184,9 @@ namespace Graidex.Application.Tests.Services
                 Surname = "surname",
             };
 
-            this.teacherRepository.Entities.Add(teacher);
+            teacherRepository.Entities.Add(teacher);
 
-            var result = await this.teacherService.GetByEmailAsync("email");
+            var result = await teacherService.GetByEmailAsync("email");
 
             Assert.That(result.IsT1);
         }
@@ -196,7 +196,7 @@ namespace Graidex.Application.Tests.Services
         [Test]
         public async Task GetCurrent_WithValidData_ShouldReturnTeacherInfoDto()
         {
-            this.teacherRepository.Entities.Clear();
+            teacherRepository.Entities.Clear();
 
             var teacher = new Teacher
             {
@@ -206,9 +206,9 @@ namespace Graidex.Application.Tests.Services
                 Surname = "surname",
             };
 
-            this.teacherRepository.Entities.Add(teacher);
+            teacherRepository.Entities.Add(teacher);
 
-            var result = await this.teacherService.GetCurrentAsync();
+            var result = await teacherService.GetCurrentAsync();
 
             Assert.Multiple(() =>
             {
@@ -221,7 +221,7 @@ namespace Graidex.Application.Tests.Services
         [Test]
         public async Task GetCurrent_WithInvalidData_ShouldReturnUserNotFound()
         {
-            this.teacherRepository.Entities.Clear();
+            teacherRepository.Entities.Clear();
 
             var teacher = new Teacher
             {
@@ -231,9 +231,9 @@ namespace Graidex.Application.Tests.Services
                 Surname = "surname",
             };
 
-            this.teacherRepository.Entities.Add(teacher);
+            teacherRepository.Entities.Add(teacher);
 
-            var result = await this.teacherService.GetCurrentAsync();
+            var result = await teacherService.GetCurrentAsync();
 
             Assert.That(result.IsT1);
         }
@@ -244,7 +244,7 @@ namespace Graidex.Application.Tests.Services
         public async Task UpdateCurrentInfo_WithValidData_ShouldReturnSuccess()
         {
 
-            this.teacherRepository.Entities.Clear();
+            teacherRepository.Entities.Clear();
 
             var teacher = new Teacher
             {
@@ -254,7 +254,7 @@ namespace Graidex.Application.Tests.Services
                 Surname = "surname",
             };
 
-            this.teacherRepository.Entities.Add(teacher);
+            teacherRepository.Entities.Add(teacher);
 
             var updateDto = new TeacherInfoDto
             {
@@ -262,7 +262,7 @@ namespace Graidex.Application.Tests.Services
                 Surname = "newsurname"
             };
 
-            var result = await this.teacherService.UpdateCurrentInfoAsync(updateDto);
+            var result = await teacherService.UpdateCurrentInfoAsync(updateDto);
 
             Assert.That(result.IsT0);
         }
@@ -270,7 +270,7 @@ namespace Graidex.Application.Tests.Services
         [Test]
         public async Task UpdateCurrentInfo_WithValidData_ShouldUpdateInfo()
         {
-            this.teacherRepository.Entities.Clear();
+            teacherRepository.Entities.Clear();
 
             var teacher = new Teacher
             {
@@ -280,7 +280,7 @@ namespace Graidex.Application.Tests.Services
                 Surname = "surname",
             };
 
-            this.teacherRepository.Entities.Add(teacher);
+            teacherRepository.Entities.Add(teacher);
 
             var updateDto = new TeacherInfoDto
             {
@@ -288,9 +288,9 @@ namespace Graidex.Application.Tests.Services
                 Surname = "newsurname"
             };
 
-            await this.teacherService.UpdateCurrentInfoAsync(updateDto);
+            await teacherService.UpdateCurrentInfoAsync(updateDto);
 
-            var dbTeacher = this.teacherRepository.GetByEmail("email").Result;
+            var dbTeacher = teacherRepository.GetByEmail("email").Result;
             Assert.That(dbTeacher, Is.Not.Null);
             Assert.Multiple(() =>
             {
@@ -302,7 +302,7 @@ namespace Graidex.Application.Tests.Services
         [Test]
         public async Task UpdateCurrentInfo_WithInvalidData_ShouldReturnNotFound()
         {
-            this.teacherRepository.Entities.Clear();
+            teacherRepository.Entities.Clear();
 
             var teacher = new Teacher
             {
@@ -312,7 +312,7 @@ namespace Graidex.Application.Tests.Services
                 Surname = "surname",
             };
 
-            this.teacherRepository.Entities.Add(teacher);
+            teacherRepository.Entities.Add(teacher);
 
             var updateDto = new TeacherInfoDto
             {
@@ -320,7 +320,7 @@ namespace Graidex.Application.Tests.Services
                 Surname = "newsurname"
             };
 
-            var result = await this.teacherService.UpdateCurrentInfoAsync(updateDto);
+            var result = await teacherService.UpdateCurrentInfoAsync(updateDto);
 
             Assert.That(result.IsT2);
         }
@@ -330,7 +330,7 @@ namespace Graidex.Application.Tests.Services
         [Test]
         public async Task UpdateCurrentPassword_WithValidData_ShouldReturnSuccess()
         {
-            this.teacherRepository.Entities.Clear();
+            teacherRepository.Entities.Clear();
 
             var teacher = new Teacher
             {
@@ -340,7 +340,7 @@ namespace Graidex.Application.Tests.Services
                 Surname = "surname",
             };
 
-            this.teacherRepository.Entities.Add(teacher);
+            teacherRepository.Entities.Add(teacher);
 
             var updatePasswordDto = new ChangePasswordDto
             {
@@ -348,7 +348,7 @@ namespace Graidex.Application.Tests.Services
                 NewPassword = "newpassword"
             };
 
-            var result = await this.teacherService.UpdateCurrentPasswordAsync(updatePasswordDto);
+            var result = await teacherService.UpdateCurrentPasswordAsync(updatePasswordDto);
 
             Assert.That(result.IsT0);
         }
@@ -356,7 +356,7 @@ namespace Graidex.Application.Tests.Services
         [Test]
         public async Task UpdateCurrentPassword_WithInvalidData_ShouldReturnNotFound()
         {
-            this.teacherRepository.Entities.Clear();
+            teacherRepository.Entities.Clear();
 
             var teacher = new Teacher
             {
@@ -366,7 +366,7 @@ namespace Graidex.Application.Tests.Services
                 Surname = "surname",
             };
 
-            this.teacherRepository.Entities.Add(teacher);
+            teacherRepository.Entities.Add(teacher);
 
             var updatePasswordDto = new ChangePasswordDto
             {
@@ -374,7 +374,7 @@ namespace Graidex.Application.Tests.Services
                 NewPassword = "newpassword"
             };
 
-            var result = await this.teacherService.UpdateCurrentPasswordAsync(updatePasswordDto);
+            var result = await teacherService.UpdateCurrentPasswordAsync(updatePasswordDto);
 
             Assert.That(result.IsT2);
         }
@@ -382,7 +382,7 @@ namespace Graidex.Application.Tests.Services
         [Test]
         public async Task UpdateCurrentPassword_WithInvalidPassword_ShouldReturnWrongPassword()
         {
-            this.teacherRepository.Entities.Clear();
+            teacherRepository.Entities.Clear();
 
             var teacher = new Teacher
             {
@@ -392,7 +392,7 @@ namespace Graidex.Application.Tests.Services
                 Surname = "surname",
             };
 
-            this.teacherRepository.Entities.Add(teacher);
+            teacherRepository.Entities.Add(teacher);
 
             var updatePasswordDto = new ChangePasswordDto
             {
@@ -400,7 +400,7 @@ namespace Graidex.Application.Tests.Services
                 NewPassword = "newpassword"
             };
 
-            var result = await this.teacherService.UpdateCurrentPasswordAsync(updatePasswordDto);
+            var result = await teacherService.UpdateCurrentPasswordAsync(updatePasswordDto);
 
             Assert.That(result.IsT3);
         }
