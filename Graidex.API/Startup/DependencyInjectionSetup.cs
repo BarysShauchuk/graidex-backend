@@ -1,11 +1,15 @@
 ﻿using FluentValidation;
+using Graidex.API.HostedServices;
 using Graidex.API.WebServices;
 using Graidex.Application;
 using Graidex.Application.Interfaces;
+using Graidex.Application.Interfaces.TestCheckingQueue;
 using Graidex.Application.Services.Authentication;
 using Graidex.Application.Services.Authorization.PolicyHandlers;
 using Graidex.Application.Services.Authorization.Requirements;
 using Graidex.Application.Services.Subjects;
+using Graidex.Application.Services.Tests;
+using Graidex.Application.Services.Tests.TestChecking;
 using Graidex.Application.Services.Users.Students;
 using Graidex.Application.Services.Users.Teachers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,11 +20,6 @@ namespace Graidex.API.Startup
 {
     public static class DependencyInjectionSetup
     {
-        public static IServiceCollection RegisterHostedServices(this IServiceCollection services)
-        {
-            return services;
-        }
-
         public static IServiceCollection RegisterAuthenticationServices(
             this IServiceCollection services,
             ConfigurationManager configuration)
@@ -100,9 +99,32 @@ namespace Graidex.API.Startup
             services.AddScoped<ITeacherService, TeacherService>();
 
             services.AddScoped<ISubjectService, SubjectService>();
+            services.AddScoped<ITestService, TestService>();
 
             services.AddValidatorsFromAssemblyContaining<IApplicationAssemblyMarker>();
             services.AddAutoMapper(typeof(IApplicationAssemblyMarker).Assembly);
+
+            return services;
+        }
+
+        public static IServiceCollection RegisterTestCheckingServices(this IServiceCollection services)
+        {
+            services.AddHostedService<TestCheckingBackgroundService>();
+            services.RegisterTestCheckingQueue();
+            services.AddSingleton<ITestCheckingService, TestCheckingService>();
+
+            return services;
+        }
+
+        private static IServiceCollection RegisterTestCheckingQueue(this IServiceCollection services)
+        {
+            services.AddSingleton<TestCheckingQueue>();
+
+            services.AddSingleton<ITestCheckingInQueue>(
+                sp => sp.GetRequiredService<TestCheckingQueue>());
+
+            services.AddSingleton<ITestCheckingOutQueue>(
+                sp => sp.GetRequiredService<TestCheckingQueue>());
 
             return services;
         }

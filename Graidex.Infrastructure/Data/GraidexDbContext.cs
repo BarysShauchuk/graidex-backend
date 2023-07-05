@@ -82,7 +82,7 @@ namespace Graidex.Infrastructure.Data
 
             modelBuilder.Entity<TestResult>()
                 .Property(x => x.Answers)
-                .HasConversion(JsonExtensions.CreateJsonConverter<List<Answer>>());
+                .HasConversion(JsonExtensions.CreateJsonConverter<List<IAnswer<Question>>>());
 
 
             modelBuilder.Entity<SubjectRequest>()

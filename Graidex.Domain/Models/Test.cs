@@ -10,7 +10,7 @@ namespace Graidex.Domain.Models
     /// Represents a test in the application.
     /// </summary>
     public class Test
-    {   
+    {
         /// <summary>
         /// Gets or sets the unique identifier for the test.
         /// </summary>
@@ -61,12 +61,6 @@ namespace Graidex.Domain.Models
         /// Gets or sets the collection of questions for the test.
         /// </summary>
         public List<Question> Questions { get; set; } = new List<Question>();
-
-        /// <summary>
-        /// Gets or sets the maximum amount of points that can be earned for the test.
-        /// </summary>
-        [NotMapped]
-        public int MaxPoints => Questions.Sum(question => question.MaxPoints);
 
         /// <summary>
         /// Gets or sets the minimum grade to pass this test.

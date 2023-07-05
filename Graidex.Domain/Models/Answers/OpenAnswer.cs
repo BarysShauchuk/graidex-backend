@@ -10,7 +10,7 @@ namespace Graidex.Domain.Models.Answers
     /// <summary>
     /// Represents an answer to an open question in the test.
     /// </summary>
-    public class OpenAnswer : Answer
+    public class OpenAnswer : IAnswer<OpenQuestion>
     {   
         /// <summary>
         /// Gets or sets the open question this answer relates to.
@@ -18,13 +18,11 @@ namespace Graidex.Domain.Models.Answers
         public required OpenQuestion Question { get; set; }
 
         /// <summary>
-        /// Gets the maximum number of points that can be awarded for this answer.
-        /// </summary>
-        public override int MaxPoints => Question.MaxPoints;
-
-        /// <summary>
         /// Gets or sets the response text of the open answer.
         /// </summary>
         public required string Text { get; set; }
+
+        /// <inheritdoc />
+        public int Points { get; set; }
     }
 }

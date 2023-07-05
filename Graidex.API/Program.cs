@@ -7,13 +7,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddCors();
 
 builder.Services.RegisterInfrastructureServices(builder.Configuration);
-builder.Services.RegisterHostedServices();
 
 builder.Services.RegisterAuthenticationServices(builder.Configuration);
 builder.Services.RegisterAuthorizationServices();
 
 builder.Services.RegisterWebServices();
 builder.Services.RegisterApplicationServices();
+builder.Services.RegisterTestCheckingServices();
 
 builder.Services.RegisterSwaggerServices();
 

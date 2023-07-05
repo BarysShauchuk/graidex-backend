@@ -17,6 +17,11 @@ namespace Graidex.Domain.Models
         public int Id { get; set; }
 
         /// <summary>
+        /// Gets or sets the flag indicating whether the test was already checked automatically.
+        /// </summary>
+        public bool IsAutoChecked { get; set; }
+
+        /// <summary>
         /// Gets or sets the time of the start of the test.
         /// </summary>
         public DateTime StartTime { get; set; }
@@ -39,7 +44,7 @@ namespace Graidex.Domain.Models
         /// <summary>
         /// Gets or sets the collection of answers to the questions in the test.
         /// </summary>
-        public List<Answer> Answers { get; set; } = new List<Answer>();
+        public List<IAnswer<Question>> Answers { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the total amount of points earned.
@@ -51,6 +56,6 @@ namespace Graidex.Domain.Models
         /// Gets or sets the grade earned.
         /// </summary>
         [NotMapped]
-        public int Grade => Answers.Sum(answer => answer.MaxPoints);
+        public int Grade => Answers.Sum(answer => answer.Question.MaxPoints);
     }
 }

@@ -10,7 +10,7 @@ namespace Graidex.Domain.Models.Answers
     /// <summary>
     /// Represents an answer to a single-choice question in the test.
     /// </summary>
-    public class SingleChoiceAnswer : Answer
+    public class SingleChoiceAnswer : IAnswer<SingleChoiceQuestion>
     {   
         /// <summary>
         /// Gets or sets the single-choice question this answer relates to.
@@ -18,13 +18,11 @@ namespace Graidex.Domain.Models.Answers
         public required SingleChoiceQuestion Question { get; set; }
 
         /// <summary>
-        /// Gets the maximum number of points that can be awarded for this answer.
-        /// </summary>
-        public override int MaxPoints => Question.MaxPoints;
-
-        /// <summary>
         /// Gets or sets the choice option index that was selected as an answer.
         /// </summary>
         public required int ChoiceOptionIndex { get; set; }
+
+        /// <inheritdoc />
+        public int Points { get; set; }
     }
 }

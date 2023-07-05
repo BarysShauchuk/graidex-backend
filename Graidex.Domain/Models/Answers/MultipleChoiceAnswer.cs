@@ -10,7 +10,7 @@ namespace Graidex.Domain.Models.Answers
     /// <summary>
     /// Represents an answer to a multiple-choice question in the test.
     /// </summary>
-    public class MultipleChoiceAnswer : Answer
+    public class MultipleChoiceAnswer : IAnswer<MultipleChoiceQuestion>
     {   
         /// <summary>
         /// Gets or sets the multiple-choice question this answer relates to.
@@ -18,13 +18,11 @@ namespace Graidex.Domain.Models.Answers
         public required MultipleChoiceQuestion Question { get; set; }
 
         /// <summary>
-        /// Gets the maximum number of points that can be awarded for this answer.
-        /// </summary>
-        public override int MaxPoints => Question.MaxPoints;
-
-        /// <summary>
         /// Gets or sets the collection of choice option indexes that were selected as an answer.
         /// </summary>
         public virtual ICollection<int> ChoiceOptionIndexes { get; set; } = new List<int>();
+
+        /// <inheritdoc />
+        public int Points { get; set; }
     }
 }
