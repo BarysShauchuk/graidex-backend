@@ -27,4 +27,8 @@
     <ProjectReference Include="..\Graidex.Infrastructure\Graidex.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
 </Project>

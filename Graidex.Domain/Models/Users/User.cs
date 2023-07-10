@@ -34,5 +34,10 @@ namespace Graidex.Domain.Models.Users
         /// Gets or sets the password hash of the user.
         /// </summary>
         public required string PasswordHash { get; set; }
+
+        /// <summary>
+        /// Gets or sets file name of the profile image of the user.
+        /// </summary>
+        public string? ProfileImage { get; set; }
     }
 }

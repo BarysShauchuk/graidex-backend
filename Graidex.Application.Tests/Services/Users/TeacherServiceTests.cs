@@ -16,6 +16,8 @@ using Graidex.Application.AutoMapperProfiles;
 using Graidex.Domain.Models.Users;
 using System.ComponentModel.DataAnnotations;
 using Graidex.Application.DTOs.Subject;
+using Graidex.Application.DTOs.Files;
+using Graidex.Domain.Interfaces;
 
 namespace Graidex.Application.Tests.Services.Users
 {
@@ -52,6 +54,13 @@ namespace Graidex.Application.Tests.Services.Users
                 .Setup(x => x.ValidateAsync(It.IsAny<ChangePasswordDto>(), default))
                 .ReturnsAsync(new FluentValidation.Results.ValidationResult());
 
+            var uploadImageDtoValidator = new Mock<IValidator<UploadImageDto>>();
+            uploadImageDtoValidator
+                .Setup(x => x.ValidateAsync(It.IsAny<UploadImageDto>(), default))
+                .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+
+            var fileStorageMock = new Mock<IFileStorageProvider>();
+
             teacherService = new TeacherService(
                 currentUserMock.Object,
                 studentRepository,
@@ -59,8 +68,9 @@ namespace Graidex.Application.Tests.Services.Users
                 subjectRepository,
                 mapper,
                 teacherInfoDtoValidatorMock.Object,
-                changePasswordDtoValidatorMock.Object
-                );
+                changePasswordDtoValidatorMock.Object,
+                uploadImageDtoValidator.Object,
+                fileStorageMock.Object);
         }
 
         #region DeleteCurrent

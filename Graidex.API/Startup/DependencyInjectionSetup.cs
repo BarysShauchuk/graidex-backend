@@ -14,6 +14,7 @@ using Graidex.Application.Services.Users.Students;
 using Graidex.Application.Services.Users.Teachers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Graidex.API.Startup
@@ -104,12 +105,14 @@ namespace Graidex.API.Startup
             services.AddValidatorsFromAssemblyContaining<IApplicationAssemblyMarker>();
             services.AddAutoMapper(typeof(IApplicationAssemblyMarker).Assembly);
 
+            services.AddSingleton<IContentTypeProvider, FileExtensionContentTypeProvider>();
+
             return services;
         }
 
         public static IServiceCollection RegisterTestCheckingServices(this IServiceCollection services)
         {
-            services.AddHostedService<TestCheckingBackgroundService>();
+            //services.AddHostedService<TestCheckingBackgroundService>();
             services.RegisterTestCheckingQueue();
             services.AddSingleton<ITestCheckingService, TestCheckingService>();
 

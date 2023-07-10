@@ -14,11 +14,14 @@ using System.Threading.Tasks;
 using Graidex.Application.DTOs.Users.Teachers;
 using Graidex.Application.Interfaces;
 using Graidex.Application.DTOs.Users.Students;
+using Graidex.Application.DTOs.Files;
 
 namespace Graidex.Application.Services.Users.Teachers
 {
     public class TeacherService : ITeacherService
     {
+        private const string ProfileImagePath = "ProfileImages/Teachers";
+
         private readonly ICurrentUserService currentUser;
         private readonly IStudentRepository studentRepository;
         private readonly ITeacherRepository teacherRepository;
@@ -26,6 +29,8 @@ namespace Graidex.Application.Services.Users.Teachers
         private readonly IMapper mapper;
         private readonly IValidator<TeacherInfoDto> teacherInfoDtoValidator;
         private readonly IValidator<ChangePasswordDto> changePasswordDtoValidator;
+        private readonly IValidator<UploadImageDto> uploadImageDtoValidator;
+        private readonly IFileStorageProvider fileStorage;
 
         public TeacherService(
             ICurrentUserService currentUser,
@@ -34,7 +39,9 @@ namespace Graidex.Application.Services.Users.Teachers
             ISubjectRepository subjectRepository,
             IMapper mapper,
             IValidator<TeacherInfoDto> teacherInfoDtoValidator,
-            IValidator<ChangePasswordDto> changePasswordDtoValidator)
+            IValidator<ChangePasswordDto> changePasswordDtoValidator,
+            IValidator<UploadImageDto> uploadImageDtoValidator,
+            IFileStorageProvider fileStorage)
         {
             this.currentUser = currentUser;
             this.studentRepository = studentRepository;
@@ -43,6 +50,8 @@ namespace Graidex.Application.Services.Users.Teachers
             this.mapper = mapper;
             this.teacherInfoDtoValidator = teacherInfoDtoValidator;
             this.changePasswordDtoValidator = changePasswordDtoValidator;
+            this.uploadImageDtoValidator = uploadImageDtoValidator;
+            this.fileStorage = fileStorage;
         }
 
         public async Task<OneOf<Success, UserNotFound, WrongPassword>> DeleteCurrent(string password)
@@ -61,6 +70,55 @@ namespace Graidex.Application.Services.Users.Teachers
 
             await teacherRepository.Delete(teacher);
             return new Success();
+        }
+
+        public async Task<OneOf<Success, UserNotFound>> DeleteCurrentProfileImageAsync()
+        {
+            string email = currentUser.GetEmail();
+            var teacher = await teacherRepository.GetByEmail(email);
+            if (teacher is null)
+            {
+                return this.currentUser.UserNotFound("Teacher");
+            }
+
+            if (string.IsNullOrEmpty(teacher.ProfileImage))
+            {
+                return new Success();
+            }
+
+            await this.fileStorage.DeleteAsync(teacher.ProfileImage, ProfileImagePath);
+            teacher.ProfileImage = null;
+            await this.teacherRepository.Update(teacher);
+
+            return new Success();
+        }
+
+        public async Task<OneOf<DownloadImageDto, UserNotFound, NotFound>> DownloadCurrentProfileImageAsync()
+        {
+            string email = currentUser.GetEmail();
+            var teacher = await teacherRepository.GetByEmail(email);
+            if (teacher is null)
+            {
+                return this.currentUser.UserNotFound("Teacher");
+            }
+
+            if (string.IsNullOrEmpty(teacher.ProfileImage))
+            {
+                return new NotFound();
+            }
+
+            var fileName = $"ProfileImage{Path.GetExtension(teacher.ProfileImage)}";
+
+            var stream =
+                await this.fileStorage.DownloadAsync(teacher.ProfileImage, ProfileImagePath);
+
+            var downloadImageDto = new DownloadImageDto
+            {
+                FileName = fileName,
+                Stream = stream,
+            };
+
+            return downloadImageDto;
         }
 
         public async Task<OneOf<TeacherInfoDto, UserNotFound>> GetByEmailAsync(string email)
@@ -131,6 +189,36 @@ namespace Graidex.Application.Services.Users.Teachers
 
             teacher.PasswordHash = BCrypt.Net.BCrypt.HashPassword(passwords.NewPassword);
             await teacherRepository.Update(teacher);
+
+            return new Success();
+        }
+
+        public async Task<OneOf<Success, ValidationFailed, UserNotFound>> UpdateCurrentProfileImageAsync(UploadImageDto imageDto)
+        {
+            var validationResult = await this.uploadImageDtoValidator.ValidateAsync(imageDto);
+            if (!validationResult.IsValid)
+            {
+                return new ValidationFailed(validationResult.Errors);
+            }
+
+            string email = currentUser.GetEmail();
+            var teacher = await teacherRepository.GetByEmail(email);
+            if (teacher is null)
+            {
+                return this.currentUser.UserNotFound("Teacher");
+            }
+
+            string fileExtension = Path.GetExtension(imageDto.FileName);
+            string fileName = $"{Guid.NewGuid()}{fileExtension}";
+
+            if (!string.IsNullOrEmpty(teacher.ProfileImage))
+            {
+                await this.fileStorage.DeleteAsync(teacher.ProfileImage, ProfileImagePath);
+            }
+
+            await this.fileStorage.UploadAsync(imageDto.Stream, fileName, ProfileImagePath);
+            teacher.ProfileImage = fileName;
+            await this.teacherRepository.Update(teacher);
 
             return new Success();
         }

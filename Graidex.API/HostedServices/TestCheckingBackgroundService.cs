@@ -12,6 +12,7 @@ namespace Graidex.API.HostedServices
         private readonly ILogger<TestCheckingBackgroundService> logger;
         private readonly ITestCheckingOutQueue queue;
         private readonly ITestCheckingService testCheckingService;
+        private readonly List<Task> tasks = new();
 
         public TestCheckingBackgroundService(
             ILogger<TestCheckingBackgroundService> logger,
@@ -32,13 +33,11 @@ namespace Graidex.API.HostedServices
 
         private async Task ProcessTestCheckingAsync(CancellationToken stoppingToken)
         {
-            List<Task> tasks = new();
-
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
-                    var testsToCheck = await this.queue.GetPendingTestsAsync();
+                    int[] testsToCheck = await this.queue.GetPendingTestsAsync();
                     if (testsToCheck.Length == 0)
                     {
                         continue;

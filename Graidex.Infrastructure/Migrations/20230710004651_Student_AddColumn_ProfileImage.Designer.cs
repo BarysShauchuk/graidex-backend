@@ -4,6 +4,7 @@ using Graidex.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Graidex.Infrastructure.Migrations
 {
     [DbContext(typeof(GraidexDbContext))]
-    partial class GraidexDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230710004651_Student_AddColumn_ProfileImage")]
+    partial class Student_AddColumn_ProfileImage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

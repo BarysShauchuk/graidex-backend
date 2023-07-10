@@ -37,9 +37,7 @@ This is a student testing system that provides teachers with an effective evalua
   },
   "AllowedHosts": "*",
   "ConnectionStrings": {
-    "GraidexDb": "[Default database connection string]",
-    "GraidexDbMac": "[Database connection string for MacOS, no need to add if no MacOS will be used]",
-    "GraidexDbLinux": "[Database connection string for Linux, no need to add if no Linux will be used]"
+    "GraidexDb": "[Database connection string]"
   }
 }
 ```
