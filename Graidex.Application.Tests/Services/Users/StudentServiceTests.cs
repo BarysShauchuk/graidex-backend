@@ -2,11 +2,13 @@
 using FluentValidation;
 using Graidex.Application.AutoMapperProfiles;
 using Graidex.Application.DTOs.Authentication;
+using Graidex.Application.DTOs.Files;
 using Graidex.Application.DTOs.Users.Students;
 using Graidex.Application.DTOs.Users.Teachers;
 using Graidex.Application.Interfaces;
 using Graidex.Application.Services.Users.Students;
 using Graidex.Application.Tests.Fakes;
+using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models;
 using Graidex.Domain.Models.Users;
 using Moq;
@@ -49,6 +51,13 @@ namespace Graidex.Application.Tests.Services.Users
                 .Setup(x => x.ValidateAsync(It.IsAny<ChangePasswordDto>(), default))
                 .ReturnsAsync(new FluentValidation.Results.ValidationResult());
 
+            var uploadImageDtoValidator = new Mock<IValidator<UploadImageDto>>();
+            uploadImageDtoValidator
+                .Setup(x => x.ValidateAsync(It.IsAny<UploadImageDto>(), default))
+                .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+
+            var fileStorageMock = new Mock<IFileStorageProvider>();
+
             this.studentService = new StudentService(
                 currentUserMock.Object,
                 studentRepository,
@@ -56,8 +65,9 @@ namespace Graidex.Application.Tests.Services.Users
                 subjectRepository,
                 mapper,
                 studentInfoDtoValidator.Object,
-                changePasswordDtoValidator.Object
-                );
+                changePasswordDtoValidator.Object,
+                uploadImageDtoValidator.Object,
+                fileStorageMock.Object);
         }
 
         #region GetByEmailAsync

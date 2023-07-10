@@ -1,4 +1,5 @@
 ﻿using Graidex.Application.DTOs.Authentication;
+using Graidex.Application.DTOs.Files;
 using Graidex.Application.DTOs.Users.Teachers;
 using Graidex.Application.OneOfCustomTypes;
 using OneOf;
@@ -18,6 +19,12 @@ namespace Graidex.Application.Services.Users.Teachers
         public Task<OneOf<TeacherInfoDto, UserNotFound>> GetCurrentAsync();
 
         public Task<OneOf<Success, ValidationFailed, UserNotFound>> UpdateCurrentInfoAsync(TeacherInfoDto teacherInfo);
+
+        public Task<OneOf<Success, ValidationFailed, UserNotFound>> UpdateCurrentProfileImageAsync(UploadImageDto imageDto);
+
+        public Task<OneOf<DownloadImageDto, UserNotFound, NotFound>> DownloadCurrentProfileImageAsync();
+
+        public Task<OneOf<Success, UserNotFound>> DeleteCurrentProfileImageAsync();
 
         public Task<OneOf<Success, ValidationFailed, UserNotFound, WrongPassword>> UpdateCurrentPasswordAsync(ChangePasswordDto passwords);
 

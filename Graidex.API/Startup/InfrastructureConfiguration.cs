@@ -1,4 +1,5 @@
-﻿using Graidex.Domain.Interfaces;
+﻿using Graidex.API.Infrastructure;
+using Graidex.Domain.Interfaces;
 using Graidex.Infrastructure.Data;
 using Graidex.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,8 @@ namespace Graidex.API.Startup
             services.AddScoped<ITestRepository, TestRepository>();
             services.AddScoped<ITestResultRepository, TestResultRepository>();
 
+            services.AddSingleton<IFileStorageProvider, FileStorageProvider>();
+
             return services;
         }
 
@@ -33,6 +36,31 @@ namespace Graidex.API.Startup
                 SeedData.EnsurePopulated(app
                     .Services.CreateScope()
                     .ServiceProvider.GetRequiredService<GraidexDbContext>());
+            }
+
+            return app;
+        }
+
+        public static WebApplication ConfigureStorageStructure(this WebApplication app)
+        {
+            var environment = app.Services.GetRequiredService<IWebHostEnvironment>();
+            var rootPath = environment.WebRootPath;
+
+            string[] folders = 
+            {
+                "ProfileImages",
+                    "ProfileImages/Students",
+                    "ProfileImages/Teachers"
+            };
+
+            foreach (string folder in folders)
+            {
+                var path = Path.Combine(rootPath, folder);
+
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
             }
 
             return app;

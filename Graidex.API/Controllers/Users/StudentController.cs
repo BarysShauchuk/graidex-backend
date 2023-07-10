@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using FluentValidation;
 using Graidex.Application.DTOs.Authentication;
+using Graidex.Application.DTOs.Files;
 using Graidex.Application.DTOs.Users.Students;
 using Graidex.Application.OneOfCustomTypes;
 using Graidex.Application.Services.Authentication;
@@ -8,6 +9,10 @@ using Graidex.Application.Services.Users.Students;
 using Graidex.Domain.Models.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.FileProviders;
+using System.Net.Mime;
+using System.Text;
 
 namespace Graidex.API.Controllers.Users
 {
@@ -17,13 +22,16 @@ namespace Graidex.API.Controllers.Users
     {
         private readonly IStudentAuthenticationService authenticationService;
         private readonly IStudentService studentService;
+        private readonly IContentTypeProvider contentTypeProvider;
 
         public StudentController(
             IStudentAuthenticationService authenticationService,
-            IStudentService studentService)
+            IStudentService studentService,
+            IContentTypeProvider contentTypeProvider)
         {
             this.authenticationService = authenticationService;
             this.studentService = studentService;
+            this.contentTypeProvider = contentTypeProvider;
         }
 
         [HttpPost("create")]
@@ -84,7 +92,60 @@ namespace Graidex.API.Controllers.Users
                 userNotFound => NotFound(userNotFound.Comment));
         }
 
-        [HttpPut("change-password")]
+        [HttpPut("update-profile-image")]
+        [Authorize(Roles = "Student")]
+        public async Task<ActionResult> UpdateProfileImage(IFormFile file)
+        {
+            using var stream = file.OpenReadStream();
+
+            var imageDto = new UploadImageDto
+            {
+                FileName = file.FileName,
+                Stream = stream
+            };
+
+            var result = await this.studentService.UpdateCurrentProfileImageAsync(imageDto);
+
+            return result.Match<ActionResult>(
+                success => Ok(),
+                validationFailed => BadRequest(validationFailed.Errors),
+                userNotFound => NotFound(userNotFound.Comment));
+        }
+
+        [HttpGet("download-profile-image")]
+        [Authorize(Roles = "Student")]
+        public async Task<ActionResult> DownloadProfileImage()
+        {
+            var result = await this.studentService.DownloadCurrentProfileImageAsync();
+
+            return result.Match<ActionResult>(
+                file => 
+                {
+                    this.contentTypeProvider.TryGetContentType(
+                        file.FileName, 
+                        out var contentType);
+
+                    return File(
+                        fileStream: file.Stream,
+                        contentType: contentType ?? "image/?",
+                        fileDownloadName: file.FileName);
+                },
+                userNotFound => NotFound(userNotFound.Comment),
+                notFound => NotFound("Profile image not found."));
+        }
+
+        [HttpDelete("delete-profile-image")]
+        [Authorize(Roles = "Student")]
+        public async Task<ActionResult> DeleteProfileImage()
+        {
+            var result = await this.studentService.DeleteCurrentProfileImageAsync();
+
+            return result.Match<ActionResult>(
+                success => Ok(),
+                userNotFound => NotFound(userNotFound.Comment));
+        }
+
+            [HttpPut("change-password")]
         [Authorize(Roles = "Student")]
         public async Task<ActionResult> ChangePassword(ChangePasswordDto passwords)
         {

@@ -20,6 +20,7 @@ builder.Services.RegisterSwaggerServices();
 var app = builder.Build();
 
 app.ConfigureDatabase();
+app.ConfigureStorageStructure();
 
 app.ConfigureSwagger();
 
