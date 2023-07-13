@@ -23,6 +23,7 @@ namespace Graidex.API.Startup
             services.AddScoped<ITeacherRepository, TeacherRepository>();
             services.AddScoped<ITestRepository, TestRepository>();
             services.AddScoped<ITestResultRepository, TestResultRepository>();
+            services.AddScoped<ISubjectRequestRepository, SubjectRequestRepository>();
 
             services.AddSingleton<IFileStorageProvider, FileStorageProvider>();
 

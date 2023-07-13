@@ -253,6 +253,32 @@ namespace Graidex.Application.Services.Users.Students
             return new Success();
         }
 
+        public async Task<OneOf<Success, UserNotFound, NotFound>> RemoveCurrentFromSubjectAsync(int subjectId)
+        {
+            string email = currentUser.GetEmail();
+            var student = await studentRepository.GetByEmail(email);
+            if (student is null)
+            {
+                return this.currentUser.UserNotFound("Student");
+            }
+
+            var subject = await subjectRepository.GetById(subjectId);
+            if (subject is null)
+            {
+                return new NotFound();
+            }
+
+            if (!subject.Students.Any(s => s.Id == student.Id))
+            {
+                return new UserNotFound(
+                    $"Student with email \"{email}\" is not on the subject with id \"{subjectId}\"");
+            }
+
+            subject.Students.Remove(student);
+            await this.subjectRepository.Update(subject);
+            return new Success();
+        }
+
         public async Task<OneOf<Success, ValidationFailed, UserNotFound>> UpdateCurrentProfileImageAsync(UploadImageDto imageDto)
         {
             var validationResult = await this.uploadImageDtoValidator.ValidateAsync(imageDto);

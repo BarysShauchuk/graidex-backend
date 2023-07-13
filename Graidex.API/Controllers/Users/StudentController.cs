@@ -203,5 +203,17 @@ namespace Graidex.API.Controllers.Users
                 userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound("Subject not found."));
         }
+
+        [HttpDelete("remove-me-from-subject/{subjectId}")]
+        [Authorize(Roles = "Student", Policy = "StudentOfSubject")]
+        public async Task<ActionResult> RemoveMeFromSubject(int subjectId)
+        {
+            var result = await this.studentService.RemoveCurrentFromSubjectAsync(subjectId);
+
+            return result.Match<ActionResult>(
+                success => Ok(),
+                userNotFound => NotFound(userNotFound.Comment),
+                notFound => NotFound("Subject not found."));
+        }
     }
 }
