@@ -2,6 +2,7 @@
 using FluentValidation;
 using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Files;
+using Graidex.Application.DTOs.Files.Images;
 using Graidex.Application.DTOs.Users.Students;
 using Graidex.Application.OneOfCustomTypes;
 using Graidex.Application.Services.Authentication;
@@ -192,6 +193,28 @@ namespace Graidex.API.Controllers.Users
                 students => Ok(students),
                 notFound => NotFound("Subject not found."));
         }
+
+        [HttpGet("all-profile-images-of-subject/{subjectId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]
+        public async Task<ActionResult> GetAllProfileImagesOfSubject(int subjectId = 0)
+        {
+            var result = await this.studentService.GetAllProfileImagesOfSubjectAsync(subjectId);
+
+            return result.Match<ActionResult>(
+                file =>
+                {
+                    this.contentTypeProvider.TryGetContentType(
+                        file.FileName,
+                        out var contentType);
+                    
+                    return File(
+                        fileStream: file.Stream,
+                        contentType: contentType ?? "application/zip",
+                        fileDownloadName: file.FileName);
+                },
+                notFound => NotFound("Subject not found."));
+        }
+
 
         [HttpDelete("remove-from-subject/{subjectId}")]
         [Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]

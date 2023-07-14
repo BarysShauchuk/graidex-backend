@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using Graidex.Application.DTOs.Users.Students;
 using Graidex.Application.Interfaces;
 using Graidex.Application.DTOs.Files;
+using Graidex.Application.DTOs.Files.Images;
+using System.IO.Compression;
 
 namespace Graidex.Application.Services.Users.Students
 {
@@ -115,7 +117,7 @@ namespace Graidex.Application.Services.Users.Students
             return new Success();
         }
 
-        public async Task<OneOf<DownloadImageDto, UserNotFound, NotFound>> DownloadCurrentProfileImageAsync()
+        public async Task<OneOf<DownloadFileDto, UserNotFound, NotFound>> DownloadCurrentProfileImageAsync()
         {
             string email = currentUser.GetEmail();
             var student = await studentRepository.GetByEmail(email);
@@ -134,7 +136,7 @@ namespace Graidex.Application.Services.Users.Students
             var stream = 
                 await this.fileStorage.DownloadAsync(student.ProfileImage, ProfileImagePath);
 
-            var downloadImageDto = new DownloadImageDto
+            var downloadImageDto = new DownloadFileDto
             {
                 FileName = fileName,
                 Stream = stream,
@@ -154,6 +156,53 @@ namespace Graidex.Application.Services.Users.Students
             var students = subject.Students;
             var studentDtos = this.mapper.Map<List<StudentDto>>(students);
             return studentDtos;
+        }
+
+        public async Task<OneOf<DownloadFileDto, NotFound>> GetAllProfileImagesOfSubjectAsync(int subjectId)
+        {
+            var subject = await this.subjectRepository.GetById(subjectId);
+            if (subject is null)
+            {
+                return new NotFound();
+            }
+
+            var downloadTasks = subject.Students
+                .Where(s => !string.IsNullOrEmpty(s.ProfileImage))
+                .Select(s => DownloadProfileImagesAsync(s.Email, s.ProfileImage!))
+                .ToList();
+
+            var streams = await Task.WhenAll(downloadTasks);
+
+            var memoryStream = new MemoryStream();
+            using (var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+            {
+                foreach (var stream in streams)
+                {
+                    var entry = zipArchive.CreateEntry(stream.name);
+                    using var entryStream = entry.Open();
+                    stream.stream.CopyTo(entryStream);
+                }
+            }
+
+            memoryStream.Position = 0;
+
+            var downloadFileDto = new DownloadFileDto
+            {
+                FileName = "ProfileImages.zip",
+                Stream = memoryStream,
+            };
+
+            return downloadFileDto;
+        }
+
+        private async Task<(Stream stream, string name)> DownloadProfileImagesAsync(string email, string imageName)
+        {
+            var stream = 
+                await this.fileStorage.DownloadAsync(imageName, ProfileImagePath);
+
+            string name = $"{email}{Path.GetExtension(imageName)}";
+
+            return (stream, name);
         }
 
         public async Task<OneOf<StudentInfoDto, UserNotFound>> GetByEmailAsync(string email)

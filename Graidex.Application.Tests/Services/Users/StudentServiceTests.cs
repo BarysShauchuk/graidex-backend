@@ -2,7 +2,7 @@
 using FluentValidation;
 using Graidex.Application.AutoMapperProfiles;
 using Graidex.Application.DTOs.Authentication;
-using Graidex.Application.DTOs.Files;
+using Graidex.Application.DTOs.Files.Images;
 using Graidex.Application.DTOs.Users.Students;
 using Graidex.Application.DTOs.Users.Teachers;
 using Graidex.Application.Interfaces;

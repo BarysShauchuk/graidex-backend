@@ -15,6 +15,7 @@ using Graidex.Application.DTOs.Users.Teachers;
 using Graidex.Application.Interfaces;
 using Graidex.Application.DTOs.Users.Students;
 using Graidex.Application.DTOs.Files;
+using Graidex.Application.DTOs.Files.Images;
 
 namespace Graidex.Application.Services.Users.Teachers
 {
@@ -93,7 +94,7 @@ namespace Graidex.Application.Services.Users.Teachers
             return new Success();
         }
 
-        public async Task<OneOf<DownloadImageDto, UserNotFound, NotFound>> DownloadCurrentProfileImageAsync()
+        public async Task<OneOf<DownloadFileDto, UserNotFound, NotFound>> DownloadCurrentProfileImageAsync()
         {
             string email = currentUser.GetEmail();
             var teacher = await teacherRepository.GetByEmail(email);
@@ -112,7 +113,7 @@ namespace Graidex.Application.Services.Users.Teachers
             var stream =
                 await this.fileStorage.DownloadAsync(teacher.ProfileImage, ProfileImagePath);
 
-            var downloadImageDto = new DownloadImageDto
+            var downloadImageDto = new DownloadFileDto
             {
                 FileName = fileName,
                 Stream = stream,
@@ -144,6 +145,33 @@ namespace Graidex.Application.Services.Users.Teachers
 
             var teacherInfo = mapper.Map<TeacherInfoDto>(teacher);
             return teacherInfo;
+        }
+
+        public async Task<OneOf<DownloadFileDto, UserNotFound, NotFound>> GetProfileImageByEmailAsync(string email)
+        {
+            var teacher = await teacherRepository.GetByEmail(email);
+            if (teacher is null)
+            {
+                return new UserNotFound($"Teacher with email \"{email}\" is not found.");
+            }
+
+            if (string.IsNullOrEmpty(teacher.ProfileImage))
+            {
+                return new NotFound();
+            }
+
+            var fileName = $"{teacher.Email}{Path.GetExtension(teacher.ProfileImage)}";
+
+            var stream =
+                await this.fileStorage.DownloadAsync(teacher.ProfileImage, ProfileImagePath);
+
+            var downloadImageDto = new DownloadFileDto
+            {
+                FileName = fileName,
+                Stream = stream,
+            };
+
+            return downloadImageDto;
         }
 
         public async Task<OneOf<Success, ValidationFailed, UserNotFound>> UpdateCurrentInfoAsync(TeacherInfoDto teacherInfo)
