@@ -38,5 +38,7 @@ namespace Graidex.Application.Services.Users.Students
         public Task<OneOf<DownloadFileDto, NotFound>> GetAllProfileImagesOfSubjectAsync(int subjectId);
 
         public Task<OneOf<Success, UserNotFound, NotFound>> RemoveFromSubjectAsync(int subjectId, string studentEmail);
+
+        public Task<OneOf<Success, UserNotFound, NotFound>> RemoveCurrentFromSubjectAsync(int subjectId);
     }
 }

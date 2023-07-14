@@ -102,6 +102,8 @@ namespace Graidex.API.Startup
             services.AddScoped<ISubjectService, SubjectService>();
             services.AddScoped<ITestService, TestService>();
 
+            services.AddScoped<ISubjectRequestService, SubjectRequestService>();
+
             services.AddValidatorsFromAssemblyContaining<IApplicationAssemblyMarker>();
             services.AddAutoMapper(typeof(IApplicationAssemblyMarker).Assembly);
 
