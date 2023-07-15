@@ -16,8 +16,8 @@ using Graidex.Application.AutoMapperProfiles;
 using Graidex.Domain.Models.Users;
 using System.ComponentModel.DataAnnotations;
 using Graidex.Application.DTOs.Subject;
-using Graidex.Application.DTOs.Files;
 using Graidex.Domain.Interfaces;
+using Graidex.Application.DTOs.Files.Images;
 
 namespace Graidex.Application.Tests.Services.Users
 {

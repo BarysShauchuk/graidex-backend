@@ -2,6 +2,7 @@
 using FluentValidation;
 using Graidex.Application.DTOs.Authentication;
 using Graidex.Application.DTOs.Files;
+using Graidex.Application.DTOs.Files.Images;
 using Graidex.Application.DTOs.Users.Students;
 using Graidex.Application.DTOs.Users.Teachers;
 using Graidex.Application.OneOfCustomTypes;
@@ -76,6 +77,28 @@ namespace Graidex.API.Controllers.Users
             return result.Match<ActionResult<TeacherInfoDto>>(
                 teacherInfo => Ok(teacherInfo),
                 userNotFound => NotFound(userNotFound.Comment));
+        }
+
+        [HttpGet("profile-image/{teacherEmail}")]
+        [Authorize(Roles = "Student", Policy = "StudentOfTeacher")]
+        public async Task<ActionResult> GetProfileImageByEmail(string teacherEmail)
+        {
+            var result = await this.teacherService.GetProfileImageByEmailAsync(teacherEmail);
+
+            return result.Match<ActionResult>(
+                file =>
+                {
+                    this.contentTypeProvider.TryGetContentType(
+                        file.FileName,
+                        out var contentType);
+
+                    return File(
+                        fileStream: file.Stream,
+                        contentType: contentType ?? "image/?",
+                        fileDownloadName: file.FileName);
+                },
+                userNotFound => NotFound(userNotFound.Comment),
+                notFound => NotFound("Profile image not found."));
         }
 
         [HttpPut("update-info")]

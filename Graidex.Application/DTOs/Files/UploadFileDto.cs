@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.DTOs.Files
 {
-    public class UploadImageDto
+    public class UploadFileDto
     {
         public required string FileName { get; set; }
 

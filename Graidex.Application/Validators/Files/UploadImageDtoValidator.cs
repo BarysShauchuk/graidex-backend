@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Graidex.Application.DTOs.Files;
+using Graidex.Application.DTOs.Files.Images;
 using System;
 using System.Collections.Generic;
 using System.Linq;
