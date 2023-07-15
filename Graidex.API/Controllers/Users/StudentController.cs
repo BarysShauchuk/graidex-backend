@@ -170,18 +170,6 @@ namespace Graidex.API.Controllers.Users
                 wrongPassword => Unauthorized("Wrong password."));
         }
 
-        [HttpPost("add-to-subject/{subjectId}")]
-        [Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]
-        public async Task<ActionResult> AddToSubject(int subjectId, string studentEmail)
-        {
-            var result = await this.studentService.AddToSubjectAsync(subjectId, studentEmail);
-
-            return result.Match<ActionResult>(
-                success => Ok(),
-                userNotFound => NotFound(userNotFound.Comment),
-                notFound => NotFound("Subject not found."));
-        }
-
         [HttpGet("all-of-subject/{subjectId}")]
         [Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]
         public async Task<ActionResult<List<StudentDto>>> GetAllOfSubject(int subjectId)
@@ -198,18 +186,6 @@ namespace Graidex.API.Controllers.Users
         public async Task<ActionResult> RemoveFromSubject(int subjectId, string studentEmail)
         {
             var result = await this.studentService.RemoveFromSubjectAsync(subjectId, studentEmail);
-            return result.Match<ActionResult>(
-                success => Ok(),
-                userNotFound => NotFound(userNotFound.Comment),
-                notFound => NotFound("Subject not found."));
-        }
-
-        [HttpDelete("remove-me-from-subject/{subjectId}")]
-        [Authorize(Roles = "Student", Policy = "StudentOfSubject")]
-        public async Task<ActionResult> RemoveMeFromSubject(int subjectId)
-        {
-            var result = await this.studentService.RemoveCurrentFromSubjectAsync(subjectId);
-
             return result.Match<ActionResult>(
                 success => Ok(),
                 userNotFound => NotFound(userNotFound.Comment),

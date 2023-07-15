@@ -24,14 +24,14 @@ namespace Graidex.API.Controllers
 
         [HttpPost("create/{subjectId}")]
         [Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]
-        public async Task<ActionResult> Create(int subjectId, OutgoingSubjectRequestDto request)
+        public async Task<ActionResult> Create(int subjectId, string studentEmail)
         {
-            var result = await this.subjectRequestService.CreateRequestAsync(subjectId, request);
+            var result = await this.subjectRequestService.CreateRequestAsync(subjectId, studentEmail);
             return result.Match<ActionResult>(
                 success => Ok(),
-                validationFailed => BadRequest(validationFailed.Errors),
                 userNotFound => NotFound(userNotFound.Comment),
-                notFound => NotFound(notFound));
+                notFound => NotFound(),
+                userAlreadyExists => Conflict(userAlreadyExists.Comment));
         }
 
         [HttpGet("all")]
@@ -53,44 +53,40 @@ namespace Graidex.API.Controllers
 
             return result.Match<ActionResult>(
                 subjectRequestDtos => Ok(subjectRequestDtos),
-                userNotFound => NotFound(userNotFound.Comment),
-                notFound => NotFound(notFound));
+                notFound => NotFound());
         }
 
-        [HttpPost("join")]
-        [Authorize(Roles = "Student")]
-        public async Task<ActionResult> JoinSubject(int requestId)
+        [HttpPost("join/{subjectRequestId}")]
+        [Authorize(Roles = "Student", Policy = "StudentOfRequest")]
+        public async Task<ActionResult> JoinSubject(int subjectRequestId)
         {
-            var result = await this.subjectRequestService.JoinSubjectByRequestIdAsync(requestId);
+            var result = await this.subjectRequestService.JoinSubjectByRequestIdAsync(subjectRequestId);
 
             return result.Match<ActionResult>(
                 success => Ok(),
                 userNotFound => NotFound(userNotFound.Comment),
-                notFound => NotFound(notFound));
+                userAlreadyExists => Conflict(userAlreadyExists.Comment),
+                notFound => NotFound());
         }
 
-        [HttpPost("reject")]
-        [Authorize(Roles = "Student")]
-        public async Task<ActionResult> RejectRequest(int requestId)
+        [HttpPost("reject/{subjectRequestId}")]
+        [Authorize(Roles = "Student", Policy = "StudentOfRequest")]
+        public async Task<ActionResult> RejectRequest(int subjectRequestId)
         {
-            var result = await this.subjectRequestService.RejectRequestByIdAsync(requestId);
+            var result = await this.subjectRequestService.RejectRequestByIdAsync(subjectRequestId);
 
             return result.Match<ActionResult>(
-                success => Ok(),
-                userNotFound => NotFound(userNotFound.Comment),
-                notFound => NotFound(notFound));
+                success => Ok());
         }
 
-        [HttpDelete("delete/{subjectId}")]
-        [Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]
+        [HttpDelete("delete/{subjectRequestId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfRequest")]
         public async Task<ActionResult> Delete(int subjectRequestId)
         {
             var result = await this.subjectRequestService.DeleteByIdAsync(subjectRequestId);
 
             return result.Match<ActionResult>(
-                success => Ok(),
-                userNotFound => NotFound(userNotFound.Comment),
-                notFound => NotFound(notFound));
+                success => Ok());
         }
     }
 }

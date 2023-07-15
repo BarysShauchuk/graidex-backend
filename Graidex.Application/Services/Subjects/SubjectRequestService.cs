@@ -12,7 +12,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Graidex.Domain.Models;
 using Graidex.Domain.Models.Users;
-using System.Security.Cryptography.X509Certificates;
 using Graidex.Application.DTOs.Subject;
 
 namespace Graidex.Application.Services.Subjects
@@ -40,18 +39,8 @@ namespace Graidex.Application.Services.Subjects
             this.subjectRequestRepository = subjectRequestRepository;
             this.mapper = mapper;
         }
-        public async Task<OneOf<Success, ValidationFailed, UserNotFound, NotFound>> CreateRequestAsync(int subjectId, OutgoingSubjectRequestDto outgoingRequest)
-        {   
-            // TODO: Add validation
-
-            string teacherEmail = this.currentUser.GetEmail();
-            var teacher = await this.teacherRepository.GetByEmail(teacherEmail);
-            if (teacher is null)
-            {
-                return this.currentUser.UserNotFound("Teacher");
-            }
-            
-            string studentEmail = outgoingRequest.StudentEmail;
+        public async Task<OneOf<Success, UserNotFound, NotFound, UserAlreadyExists>> CreateRequestAsync(int subjectId, string studentEmail)
+        {    
             var student = await this.studentRepository.GetByEmail(studentEmail);
             if (student is null)
             {
@@ -66,15 +55,17 @@ namespace Graidex.Application.Services.Subjects
 
             if (subject.Students.Any(s => s.Id == student.Id))
             {
-                return new UserNotFound($"Student with email \"{studentEmail}\" is already registered to this subject.");
+                return new UserAlreadyExists($"Student with email \"{studentEmail}\" is already registered to this subject.");
             }
 
             if (!subjectRequestRepository.GetAll().Any(x => x.SubjectId == subjectId && x.StudentId == student.Id))
             {
-                var subjectRequest = this.mapper.Map<SubjectRequest>(outgoingRequest);
-                subjectRequest.SubjectId = subjectId;
-                subjectRequest.StudentId = student.Id;
-                subjectRequest.Date = DateTime.UtcNow;
+                var subjectRequest = new SubjectRequest
+                {
+                    StudentId = student.Id,
+                    SubjectId = subjectId,
+                    Date = DateTime.UtcNow
+                };
                 await this.subjectRequestRepository.Add(subjectRequest);
             }
 
@@ -92,6 +83,7 @@ namespace Graidex.Application.Services.Subjects
 
             var subjectRequests = this.subjectRequestRepository.GetAll().Where(x => x.StudentId == student.Id);
             var subjectRequestDtos = new List<IncomingSubjectRequestDto>();
+
             foreach (var request in subjectRequests)
             {
                 IncomingSubjectRequestDto requestDto = this.mapper.Map<IncomingSubjectRequestDto>(request);
@@ -99,19 +91,12 @@ namespace Graidex.Application.Services.Subjects
                 requestDto.SubjectInfo = this.mapper.Map<SubjectInfoDto>(subject);
                 subjectRequestDtos.Add(requestDto);
             }
+
             return subjectRequestDtos;
         }
 
-        public async Task<OneOf<List<SubjectRequestInfoDto>, UserNotFound, NotFound>> GetAllBySubjectIdAsync(int subjectId)
+        public async Task<OneOf<List<OutgoingSubjectRequestDto>, NotFound>> GetAllBySubjectIdAsync(int subjectId)
         {
-            string email = this.currentUser.GetEmail();
-
-            var teacher = await this.teacherRepository.GetByEmail(email);
-            if (teacher is null)
-            {
-                return this.currentUser.UserNotFound("Teacher");
-            }
-
             var subject = await this.subjectRepository.GetById(subjectId);
             if (subject is null)
             {
@@ -119,37 +104,38 @@ namespace Graidex.Application.Services.Subjects
             }
 
             var subjectRequests = this.subjectRequestRepository.GetAll().Where(x => x.SubjectId == subject.Id);
-            var subjectRequestDtos = new List<SubjectRequestInfoDto>();
+            var subjectRequestDtos = new List<OutgoingSubjectRequestDto>();
+
             foreach (var request in subjectRequests)
             {
-                
                 var student = await this.studentRepository.GetById(request.StudentId);
-                SubjectRequestInfoDto requestDto = this.mapper.Map<SubjectRequestInfoDto>(student);
-                requestDto.Date = request.Date;
+                OutgoingSubjectRequestDto requestDto = this.mapper.Map<OutgoingSubjectRequestDto>(request);
+
+                if (student is not null)
+                {
+                    requestDto.StudentEmail = student.Email;
+                }
+
                 subjectRequestDtos.Add(requestDto);
             }
+
             return subjectRequestDtos;
         }
 
-        public async Task<OneOf<Success, UserNotFound, NotFound>> JoinSubjectByRequestIdAsync(int requestId)
+        public async Task<OneOf<Success, UserNotFound, UserAlreadyExists, NotFound>> JoinSubjectByRequestIdAsync(int subjectRequestId)
         {
             string email = this.currentUser.GetEmail();
             var student = await this.studentRepository.GetByEmail(email);
+
             if (student is null)
             {
                 return this.currentUser.UserNotFound("Student");
             }
 
-            var subjectRequest = await this.subjectRequestRepository.GetById(requestId);
+            var subjectRequest = await this.subjectRequestRepository.GetById(subjectRequestId);
             if (subjectRequest is null)
             {
                 return new NotFound();
-            }
-
-            if(subjectRequest.StudentId != student.Id)
-            {
-                return new UserNotFound(
-                    $"Student with email \"{email}\" is not invited by request with id \"{requestId}\"");
             }
 
             var subject = await this.subjectRepository.GetById(subjectRequest.SubjectId);
@@ -157,6 +143,12 @@ namespace Graidex.Application.Services.Subjects
             {
                 return new NotFound();
             }
+
+            if (subject.Students.Any(s => s.Id == student.Id))
+            {
+                return new UserAlreadyExists($"Student with email \"{email}\" is already registered to this subject.");
+            }
+
             subject.Students.Add(student);
             await this.subjectRepository.Update(subject);
             await this.subjectRequestRepository.Delete(subjectRequest);
@@ -164,25 +156,12 @@ namespace Graidex.Application.Services.Subjects
             return new Success();
         }
 
-        public async Task<OneOf<Success, UserNotFound, NotFound>> RejectRequestByIdAsync(int requestId)
+        public async Task<OneOf<Success>> RejectRequestByIdAsync(int subjectRequestId)
         {
-            string email = this.currentUser.GetEmail();
-            var student = await this.studentRepository.GetByEmail(email);
-            if (student is null)
-            {
-                return this.currentUser.UserNotFound("Student");
-            }
-
-            var subjectRequest = await this.subjectRequestRepository.GetById(requestId);
+            var subjectRequest = await this.subjectRequestRepository.GetById(subjectRequestId);
             if (subjectRequest is null)
             {
-                return new NotFound();
-            }
-
-            if (subjectRequest.StudentId != student.Id)
-            {
-                return new UserNotFound(
-                    $"Student with email \"{email}\" is not invited by request with id \"{requestId}\"");
+                return new Success();
             }
 
             await subjectRequestRepository.Delete(subjectRequest);
@@ -190,20 +169,12 @@ namespace Graidex.Application.Services.Subjects
             return new Success();
         }
 
-        public async Task<OneOf<Success, UserNotFound, NotFound>> DeleteByIdAsync(int id)
+        public async Task<OneOf<Success>> DeleteByIdAsync(int subjectRequestId)
         {
-            string email = this.currentUser.GetEmail();
-            var teacher = await this.teacherRepository.GetByEmail(email);
-
-            if (teacher is null)
-            {
-                return this.currentUser.UserNotFound("Teacher");
-            }
-
-            var subjectRequest = await this.subjectRequestRepository.GetById(id);
+            var subjectRequest = await this.subjectRequestRepository.GetById(subjectRequestId);
             if (subjectRequest is null)
             {
-                return new NotFound();
+                return new Success();
             }
 
             await subjectRequestRepository.Delete(subjectRequest);
