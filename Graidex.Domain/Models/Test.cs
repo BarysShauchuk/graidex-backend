@@ -9,38 +9,42 @@ namespace Graidex.Domain.Models
     /// <summary>
     /// Represents a test in the application.
     /// </summary>
-    public class Test
+    public class Test : TestBase
     {
         /// <summary>
-        /// Gets or sets the unique identifier for the test.
+        /// Possible participation restriction rules for the test.
         /// </summary>
-        public int Id { get; set; }
+        public enum ParticipationRestriction
+        {
+            /// <summary> 
+            /// Only the students in the restriction group can take the test. 
+            /// </summary>
+            Group,
+
+            /// <summary> 
+            /// All students of subject except the ones in the restriction group can take the test. 
+            /// </summary>
+            AllButGroup
+        }
 
         /// <summary>
-        /// Gets or sets the title of the test.
+        /// Gets or sets a value indicating whether the test is visible or hidden.
         /// </summary>
-        [MaxLength(50)]
-        public required string Title { get; set; }
+        public new bool IsVisible
+        {
+            get => base.IsVisible;
+            set => base.IsVisible = value;
+        }
 
         /// <summary>
-        /// Gets or sets the time of the last update of the test.
+        /// Gets or sets the date and time of the start of the test.
         /// </summary>
-        public DateTime LastUpdate { get; set; } // TODO: DateTime -> DateOnly
+        public DateTime StartDateTime { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the test is hidden or not.
+        /// Gets or sets the date and time of the end of the test.
         /// </summary>
-        public bool IsHidden { get; set; }
-
-        /// <summary>
-        /// Gets or sets the time of the start of the test.
-        /// </summary>
-        public DateTime StartTime { get; set; }
-
-        /// <summary>
-        /// Gets or sets the time of the end of the test.
-        /// </summary>
-        public DateTime EndTime { get; set; }
+        public DateTime EndDateTime { get; set; }
 
         /// <summary>
         /// Gets or sets the time limit of the test.
@@ -48,23 +52,13 @@ namespace Graidex.Domain.Models
         public TimeSpan TimeLimit { get; set; }
 
         /// <summary>
-        /// Gets or sets id of the subject the test is created for.
+        /// Gets or sets the restriction rule for the test.
         /// </summary>
-        public required int SubjectId { get; set; }
+        public ParticipationRestriction RestrictionRule { get; set; }
 
         /// <summary>
-        /// Gets or sets the collection of students that are allowed to take the test.
+        /// Gets or sets the collection of students for the restriction group.
         /// </summary>
-        public virtual ICollection<Student> AllowedStudents { get; set; } = new List<Student>();
-
-        /// <summary>
-        /// Gets or sets the collection of questions for the test.
-        /// </summary>
-        public List<Question> Questions { get; set; } = new List<Question>();
-
-        /// <summary>
-        /// Gets or sets the minimum grade to pass this test.
-        /// </summary>
-        public int GradeToPass { get; set; }
+        public virtual ICollection<Student> RestrictionGroup { get; set; } = new List<Student>();
     }
 }
