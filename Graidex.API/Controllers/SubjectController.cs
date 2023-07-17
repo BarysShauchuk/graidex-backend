@@ -50,7 +50,7 @@ namespace Graidex.API.Controllers
             return result.Match<ActionResult>(
                 subjectInfoDto => Ok(subjectInfoDto),
                 userNotFound => NotFound(userNotFound.Comment),
-                notFound => NotFound(notFound));
+                notFound => NotFound());
         }
 
         [HttpGet("of-student/{subjectId}")]
@@ -62,7 +62,7 @@ namespace Graidex.API.Controllers
             return result.Match<ActionResult>(
                 subjectInfoDto => Ok(subjectInfoDto),
                 userNotFound => NotFound(userNotFound.Comment),
-                notFound => NotFound(notFound));
+                notFound => NotFound());
         }
 
         [HttpPut("update/{subjectId}")]
@@ -75,7 +75,7 @@ namespace Graidex.API.Controllers
                 success => Ok(),
                 validationFailed => BadRequest(validationFailed.Errors),
                 userNotFound => NotFound(userNotFound.Comment),
-                notFound => NotFound(notFound));
+                notFound => NotFound());
         }
 
         [HttpDelete("delete/{subjectId}")]
@@ -87,7 +87,7 @@ namespace Graidex.API.Controllers
             return result.Match<ActionResult>(
                 success => Ok(),
                 userNotFound => NotFound(userNotFound.Comment),
-                notFound => NotFound(notFound));
+                notFound => NotFound());
         }
     }
 }

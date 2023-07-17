@@ -13,11 +13,11 @@ namespace Graidex.Application.Services.Subjects
 {
     public interface ISubjectRequestService
     {
-        public Task<OneOf<Success, ValidationFailed, UserNotFound, NotFound>> CreateRequestAsync(int id, OutgoingSubjectRequestDto outgoingRequest);
+        public Task<OneOf<Success, UserNotFound, NotFound, UserAlreadyExists>> CreateRequestAsync(int subjectId, string studentEmail);
         public Task<OneOf<List<IncomingSubjectRequestDto>, UserNotFound>> GetAllOfCurrentAsync();
-        public Task<OneOf<List<SubjectRequestInfoDto>, UserNotFound, NotFound>> GetAllBySubjectIdAsync(int subjectId);
-        public Task<OneOf<Success, UserNotFound, NotFound>> JoinSubjectByRequestIdAsync(int requestId);
-        public Task<OneOf<Success, UserNotFound, NotFound>> RejectRequestByIdAsync(int requestId);
-        public Task<OneOf<Success, UserNotFound, NotFound>> DeleteByIdAsync(int id);
+        public Task<OneOf<List<OutgoingSubjectRequestDto>, NotFound>> GetAllBySubjectIdAsync(int subjectId);
+        public Task<OneOf<Success, UserNotFound, UserAlreadyExists, NotFound>> JoinSubjectByRequestIdAsync(int subjectRequestId);
+        public Task<OneOf<Success>> RejectRequestByIdAsync(int subjectRequestId);
+        public Task<OneOf<Success>> DeleteByIdAsync(int subjectRequestId);
     }
 }

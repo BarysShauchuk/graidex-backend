@@ -31,14 +31,10 @@ namespace Graidex.Application.Services.Users.Students
 
         public Task<OneOf<Success, UserNotFound, WrongPassword>> DeleteCurrentAsync(string password);
 
-        public Task<OneOf<Success, UserNotFound, NotFound>> AddToSubjectAsync(int subjectId, string studentEmail);
-
         public Task<OneOf<List<StudentDto>, NotFound>> GetAllOfSubjectAsync(int subjectId);
 
         public Task<OneOf<DownloadFileDto, NotFound>> GetAllProfileImagesOfSubjectAsync(int subjectId);
 
         public Task<OneOf<Success, UserNotFound, NotFound>> RemoveFromSubjectAsync(int subjectId, string studentEmail);
-
-        public Task<OneOf<Success, UserNotFound, NotFound>> RemoveCurrentFromSubjectAsync(int subjectId);
     }
 }

@@ -50,6 +50,8 @@ namespace Graidex.API.Startup
             services.AddScoped<IAuthorizationHandler, IsStudentOfSubjectHandler>();
             services.AddScoped<IAuthorizationHandler, IsTeacherOfStudentHandler>();
             services.AddScoped<IAuthorizationHandler, IsStudentOfTeacherHandler>();
+            services.AddScoped<IAuthorizationHandler, IsStudentOfRequestHandler>();
+            services.AddScoped<IAuthorizationHandler, IsTeacherOfRequestHandler>();
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("TeacherOfSubject", policyBuilder =>
@@ -78,6 +80,20 @@ namespace Graidex.API.Startup
                     policyBuilder.RequireAuthenticatedUser();
                     policyBuilder.RequireRole("Student");
                     policyBuilder.AddRequirements(new IsStudentOfTeacherRequirement());
+                });
+
+                options.AddPolicy("StudentOfRequest", policyBuilder =>
+                {
+                    policyBuilder.RequireAuthenticatedUser();
+                    policyBuilder.RequireRole("Student");
+                    policyBuilder.AddRequirements(new IsStudentOfRequestRequirement());
+                });
+
+                options.AddPolicy("TeacherOfRequest", policyBuilder =>
+                {
+                    policyBuilder.RequireAuthenticatedUser();
+                    policyBuilder.RequireRole("Teacher");
+                    policyBuilder.AddRequirements(new IsTeacherOfRequestRequirement());
                 });
             });
 
