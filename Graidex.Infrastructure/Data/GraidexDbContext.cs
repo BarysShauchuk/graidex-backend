@@ -36,6 +36,17 @@ namespace Graidex.Infrastructure.Data
         /// <param name="modelBuilder">The ModelBuilder used to configure entities, relationships and connect them to the database.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            ConfigureUsers(modelBuilder);
+
+            ConfigureSubjects(modelBuilder);
+
+            ConfigureTests(modelBuilder);
+
+            ConfigureTestResults(modelBuilder);
+        }
+
+        private static void ConfigureUsers(ModelBuilder modelBuilder)
+        {
             modelBuilder.Entity<Teacher>()
                 .HasIndex(teacher => teacher.Email)
                 .IsUnique();
@@ -53,36 +64,14 @@ namespace Graidex.Infrastructure.Data
             modelBuilder.Entity<Student>()
                 .HasMany<Subject>()
                 .WithMany(subject => subject.Students);
+        }
 
-
+        private static void ConfigureSubjects(ModelBuilder modelBuilder)
+        {
             modelBuilder.Entity<Subject>()
                 .HasMany<Test>()
                 .WithOne()
                 .HasForeignKey(test => test.SubjectId);
-
-
-            modelBuilder.Entity<Test>()
-                .HasMany(test => test.AllowedStudents)
-                .WithMany();
-
-            modelBuilder.Entity<Test>()
-                .Property(x => x.Questions)
-                .HasConversion(JsonExtensions.CreateJsonConverter<List<Question>>());
-
-            modelBuilder.Entity<Test>()
-                .HasMany<TestResult>()
-                .WithOne()
-                .HasForeignKey(testResult => testResult.TestId);
-
-
-            modelBuilder.Entity<TestResult>()
-                .HasOne<Student>()
-                .WithMany()
-                .HasForeignKey(testResult => testResult.StudentId);
-
-            modelBuilder.Entity<TestResult>()
-                .Property(x => x.Answers)
-                .HasConversion(JsonExtensions.CreateJsonConverter<List<IAnswer<Question>>>());
 
 
             modelBuilder.Entity<SubjectRequest>()
@@ -94,6 +83,34 @@ namespace Graidex.Infrastructure.Data
                 .HasOne<Subject>()
                 .WithMany()
                 .HasForeignKey(subjectRequest => subjectRequest.SubjectId);
+        }
+
+        private static void ConfigureTests(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<TestBase>()
+                .Property(x => x.Questions)
+                .HasConversion(JsonExtensions.CreateJsonConverter<List<Question>>());
+
+            modelBuilder.Entity<Test>()
+                .HasMany(test => test.RestrictionGroup)
+                .WithMany();
+
+            modelBuilder.Entity<Test>()
+                .HasMany<TestResult>()
+                .WithOne()
+                .HasForeignKey(testResult => testResult.TestId);
+        }
+
+        private static void ConfigureTestResults(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<TestResult>()
+                .HasOne<Student>()
+                .WithMany()
+                .HasForeignKey(testResult => testResult.StudentId);
+
+            modelBuilder.Entity<TestResult>()
+                .Property(x => x.Answers)
+                .HasConversion(JsonExtensions.CreateJsonConverter<List<IAnswer<Question>>>());
         }
 
         /// <summary>
@@ -114,14 +131,16 @@ namespace Graidex.Infrastructure.Data
         /// <summary>
         /// Gets or sets the DbSet of <see cref="Test"/> objects.
         /// </summary>
-        public DbSet<Test> Tests { get; set; }
+        public DbSet<TestBase> Tests { get; set; }
 
         /// <summary>
         /// Gets or sets the DbSet of <see cref="TestResult"/> objects.
         /// </summary>
         public DbSet<TestResult> TestResults { get; set; }
 
-        // TODO: Add repository for SubjectRequest.
+        /// <summary>
+        /// Gets or sets the DbSet of <see cref="SubjectRequest"/> objects.
+        /// </summary>
         public DbSet<SubjectRequest> SubjectRequests { get; set; }
     }
 }
