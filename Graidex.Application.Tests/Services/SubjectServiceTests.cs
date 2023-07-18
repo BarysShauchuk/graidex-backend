@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Graidex.Application.AutoMapperProfiles;
 using Graidex.Application.DTOs.Subject;
+using Graidex.Application.DTOs.Users.Students;
 using Graidex.Application.Interfaces;
 using Graidex.Application.Services.Subjects;
 using Graidex.Application.Tests.Fakes;
@@ -42,13 +44,25 @@ namespace Graidex.Application.Tests.Services
                 cfg => cfg.AddProfile<SubjectsProfile>())
                 .CreateMapper();
 
+            var createSubjectDtoValidator = new Mock<IValidator<CreateSubjectDto>>();
+            createSubjectDtoValidator
+                .Setup(x => x.ValidateAsync(It.IsAny<CreateSubjectDto>(), default))
+                .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+
+            var updateSubjectDtoValidator = new Mock<IValidator<UpdateSubjectDto>>();
+            updateSubjectDtoValidator
+                .Setup(x => x.ValidateAsync(It.IsAny<UpdateSubjectDto>(), default))
+                .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+
             this.subjectService = new SubjectService
                 (
                 this.currentUserMock.Object,
                 this.teacherRepository,
                 this.studentRepository,
                 this.subjectRepository,
-                mapper
+                mapper,
+                createSubjectDtoValidator.Object,
+                updateSubjectDtoValidator.Object
                 );
         }
 

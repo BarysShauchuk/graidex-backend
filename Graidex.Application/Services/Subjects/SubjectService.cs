@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Graidex.Application.DTOs.Subject;
 using Graidex.Application.Interfaces;
 using Graidex.Application.OneOfCustomTypes;
 using Graidex.Application.Services.Users;
+using Graidex.Application.Validators.Users.Students;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models;
 using OneOf;
@@ -22,24 +24,34 @@ namespace Graidex.Application.Services.Subjects
         private readonly IStudentRepository studentRepository;
         private readonly ISubjectRepository subjectRepository;
         private readonly IMapper mapper;
+        private readonly IValidator<CreateSubjectDto> createSubjectDtoValidator;
+        private readonly IValidator<UpdateSubjectDto> updateSubjectDtoValidator;
 
         public SubjectService(
             ICurrentUserService currentUser,
             ITeacherRepository teacherRepository,
             IStudentRepository studentRepository,
             ISubjectRepository subjectRepository,
-            IMapper mapper)
+            IMapper mapper,
+            IValidator<CreateSubjectDto> createSubjectDtoValidator,
+            IValidator<UpdateSubjectDto> updateSubjectDtoValidator)
         {
             this.currentUser = currentUser;
             this.teacherRepository = teacherRepository;
             this.studentRepository = studentRepository;
             this.subjectRepository = subjectRepository;
             this.mapper = mapper;
+            this.createSubjectDtoValidator = createSubjectDtoValidator;
+            this.updateSubjectDtoValidator = updateSubjectDtoValidator;
         }
 
         public async Task<OneOf<SubjectDto, ValidationFailed, UserNotFound>> CreateForCurrentAsync(CreateSubjectDto createSubjectDto)
         {
-            // TODO: Validate object
+            var validationResult = await createSubjectDtoValidator.ValidateAsync(createSubjectDto);
+            if (!validationResult.IsValid)
+            {
+                return new ValidationFailed(validationResult.Errors);
+            }
 
             string email = this.currentUser.GetEmail();
             var teacher = await this.teacherRepository.GetByEmail(email);
@@ -145,7 +157,12 @@ namespace Graidex.Application.Services.Subjects
 
          public async Task<OneOf<Success, ValidationFailed, UserNotFound, NotFound>> UpdateSubjectInfoAsync(int id, UpdateSubjectDto updateSubjectDto)
          {
-            // TODO: Add validation
+            var validationResult = await updateSubjectDtoValidator.ValidateAsync(updateSubjectDto);
+            if (!validationResult.IsValid)
+            {
+                return new ValidationFailed(validationResult.Errors);
+            }
+
             string email = this.currentUser.GetEmail();
 
             var teacher = await this.teacherRepository.GetByEmail(email);
