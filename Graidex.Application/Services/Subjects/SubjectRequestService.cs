@@ -81,7 +81,7 @@ namespace Graidex.Application.Services.Subjects
                 return this.currentUser.UserNotFound("Student");
             }
 
-            var subjectRequests = this.subjectRequestRepository.GetAll().Where(x => x.StudentId == student.Id);
+            var subjectRequests = this.subjectRequestRepository.GetAll().Where(x => x.StudentId == student.Id).ToList();
             var subjectRequestDtos = new List<IncomingSubjectRequestDto>();
 
             foreach (var request in subjectRequests)
@@ -103,7 +103,7 @@ namespace Graidex.Application.Services.Subjects
                 return new NotFound();
             }
 
-            var subjectRequests = this.subjectRequestRepository.GetAll().Where(x => x.SubjectId == subject.Id);
+            var subjectRequests = this.subjectRequestRepository.GetAll().Where(x => x.SubjectId == subject.Id).ToList();
             var subjectRequestDtos = new List<OutgoingSubjectRequestDto>();
 
             foreach (var request in subjectRequests)
