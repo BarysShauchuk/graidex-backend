@@ -20,13 +20,13 @@ namespace Graidex.Application.Validators.Users.Subjects
         {
             RuleFor(x => x.CustomId)
                 .NotEmpty()
-                .Length(7).WithMessage("Custom ID length must be 7 symbols.")
-                .Matches(@"^[A-Z]{3}\d{4}$").WithMessage("Subject custom id should be in format XXX1234.");
+                .Length(1, 15).WithMessage("Custom ID length must be from 1 to 15 symbols.")
+                .Matches(@"^[\x20-\x7E]+$").WithMessage("Subject custom id should only contain printable ASCII characters.");
 
             RuleFor(x => x.Title) 
                 .NotEmpty()
-                .Length(0, 50).WithMessage("Title length must be less than 50 symbols.")
-                .Matches(@"^[A-Za-z0-9\s\-]+$").WithMessage("Subject title should only contain latin letters, spaces, dashes and numbers.")
+                .Length(1, 50).WithMessage("Title length must be less than 50 symbols.")
+                .Matches(@"^[\x20-\x7E]+$").WithMessage("Subject title should only contain printable ASCII characters.")
                 .Matches(@"[\p{L}]+").WithMessage("This field must contain at least one letter.");
         }
     }
