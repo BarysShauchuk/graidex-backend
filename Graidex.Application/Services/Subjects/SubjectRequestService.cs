@@ -81,14 +81,25 @@ namespace Graidex.Application.Services.Subjects
                 return this.currentUser.UserNotFound("Student");
             }
 
-            var subjectRequests = this.subjectRequestRepository.GetAll().Where(x => x.StudentId == student.Id).ToList();
+            var subjectRequests = this.subjectRequestRepository.GetAll().Where(x => x.StudentId == student.Id);
+            var subjectIds = subjectRequests.Select(x => x.SubjectId);
+
+            var subjects = this.subjectRepository.GetAll().Where(x => subjectIds.Contains(x.Id)).ToList();
+
+            var data = subjectRequests.ToList().Zip(subjects, (request, subject) => new { request = request, subject = subject });
+
             var subjectRequestDtos = new List<IncomingSubjectRequestDto>();
 
-            foreach (var request in subjectRequests)
+            foreach (var item in data)
             {
-                IncomingSubjectRequestDto requestDto = this.mapper.Map<IncomingSubjectRequestDto>(request);
-                var subject = await this.subjectRepository.GetById(request.SubjectId);
-                requestDto.SubjectInfo = this.mapper.Map<SubjectInfoDto>(subject);
+                var requestDto = this.mapper.Map<IncomingSubjectRequestDto>(item.request);
+
+                if (item.subject != null) 
+                {
+                    var subjectInfoDto = this.mapper.Map<SubjectInfoDto>(item.subject);
+                    requestDto.SubjectInfo = subjectInfoDto;
+                }
+
                 subjectRequestDtos.Add(requestDto);
             }
 
@@ -103,17 +114,20 @@ namespace Graidex.Application.Services.Subjects
                 return new NotFound();
             }
 
-            var subjectRequests = this.subjectRequestRepository.GetAll().Where(x => x.SubjectId == subject.Id).ToList();
+            var subjectRequests = this.subjectRequestRepository.GetAll().Where(x => x.SubjectId == subject.Id);
+            var students = this.studentRepository.GetAll().Where(x => subjectRequests.Select(x => x.StudentId).Contains(x.Id)).ToList();
+
+            var data = subjectRequests.ToList().Zip(students, (request, student) => new { request = request, student = student });
+
             var subjectRequestDtos = new List<OutgoingSubjectRequestDto>();
 
-            foreach (var request in subjectRequests)
+            foreach (var item in data)
             {
-                var student = await this.studentRepository.GetById(request.StudentId);
-                OutgoingSubjectRequestDto requestDto = this.mapper.Map<OutgoingSubjectRequestDto>(request);
+                OutgoingSubjectRequestDto requestDto = this.mapper.Map<OutgoingSubjectRequestDto>(item.request);
 
-                if (student is not null)
+                if (item.student is not null)
                 {
-                    requestDto.StudentEmail = student.Email;
+                    requestDto.StudentEmail = item.student.Email;
                 }
 
                 subjectRequestDtos.Add(requestDto);
