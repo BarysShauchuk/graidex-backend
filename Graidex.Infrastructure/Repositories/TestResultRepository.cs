@@ -1,5 +1,5 @@
 ﻿using Graidex.Domain.Interfaces;
-using Graidex.Domain.Models;
+using Graidex.Domain.Models.Tests;
 using Graidex.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 

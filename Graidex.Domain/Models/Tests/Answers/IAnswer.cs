@@ -1,7 +1,7 @@
-﻿using Graidex.Domain.Models.Questions;
+﻿using Graidex.Domain.Models.Tests.Questions;
 using System.Text.Json.Serialization;
 
-namespace Graidex.Domain.Models.Answers
+namespace Graidex.Domain.Models.Tests.Answers
 {
     /// <summary>
     /// Represents an answer to a question in the test.

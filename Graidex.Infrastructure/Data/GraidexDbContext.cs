@@ -1,12 +1,13 @@
 ﻿using Graidex.Domain.Models;
-using Graidex.Domain.Models.Answers;
-using Graidex.Domain.Models.Questions;
 using Graidex.Domain.Models.Users;
 using Microsoft.EntityFrameworkCore;
 using Graidex.Infrastructure.Infrastructure;
+using Graidex.Domain.Models.Tests.Answers;
+using Graidex.Domain.Models.Tests.Questions;
+using Graidex.Domain.Models.Tests;
 
 namespace Graidex.Infrastructure.Data
-{   
+{
     /// <summary>
     /// DbContext class used to perform database operations in the Graidex application.
     /// </summary>
@@ -69,10 +70,9 @@ namespace Graidex.Infrastructure.Data
         private static void ConfigureSubjects(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Subject>()
-                .HasMany<Test>()
+                .HasMany<SubjectContent>()
                 .WithOne()
-                .HasForeignKey(test => test.SubjectId);
-
+                .HasForeignKey(content => content.SubjectId);
 
             modelBuilder.Entity<SubjectRequest>()
                 .HasOne<Student>()
@@ -87,22 +87,29 @@ namespace Graidex.Infrastructure.Data
 
         private static void ConfigureTests(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<TestBase>()
+            modelBuilder.Entity<Test>().ToTable("Tests");
+            modelBuilder.Entity<TestDraft>().ToTable("TestDrafts");
+
+            modelBuilder.Entity<Test>()
+                .Property(x => x.Questions)
+                .HasConversion(JsonExtensions.CreateJsonConverter<List<Question>>());
+
+            modelBuilder.Entity<TestDraft>()
                 .Property(x => x.Questions)
                 .HasConversion(JsonExtensions.CreateJsonConverter<List<Question>>());
 
             modelBuilder.Entity<Test>()
-                .HasMany(test => test.RestrictionGroup)
+                .HasMany(test => test.AllowedStudents)
                 .WithMany();
-
-            modelBuilder.Entity<Test>()
-                .HasMany<TestResult>()
-                .WithOne()
-                .HasForeignKey(testResult => testResult.TestId);
         }
 
         private static void ConfigureTestResults(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<TestResult>()
+                .HasOne<Test>()
+                .WithMany()
+                .HasForeignKey(testResult => testResult.TestId);
+
             modelBuilder.Entity<TestResult>()
                 .HasOne<Student>()
                 .WithMany()
@@ -123,24 +130,36 @@ namespace Graidex.Infrastructure.Data
         /// </summary>
         public DbSet<Teacher> Teachers { get; set; }
 
+
         /// <summary>
         /// Gets or sets the DbSet of <see cref="Subject"/> objects.
         /// </summary>
         public DbSet<Subject> Subjects { get; set; }
 
         /// <summary>
-        /// Gets or sets the DbSet of <see cref="Test"/> objects.
+        /// Gets or sets the DbSet of <see cref="SubjectContent"/> objects.
         /// </summary>
-        public DbSet<TestBase> Tests { get; set; }
-
-        /// <summary>
-        /// Gets or sets the DbSet of <see cref="TestResult"/> objects.
-        /// </summary>
-        public DbSet<TestResult> TestResults { get; set; }
+        public DbSet<SubjectContent> SubjectContents { get; set; }
 
         /// <summary>
         /// Gets or sets the DbSet of <see cref="SubjectRequest"/> objects.
         /// </summary>
         public DbSet<SubjectRequest> SubjectRequests { get; set; }
+
+
+        /// <summary>
+        /// Gets or sets the DbSet of <see cref="TestDraft"/> objects.
+        /// </summary>
+        public DbSet<TestDraft> TestDrafts { get; set; }
+
+        /// <summary>
+        /// Gets or sets the DbSet of <see cref="Test"/> objects.
+        /// </summary>
+        public DbSet<Test> Tests { get; set; }
+
+        /// <summary>
+        /// Gets or sets the DbSet of <see cref="TestResult"/> objects.
+        /// </summary>
+        public DbSet<TestResult> TestResults { get; set; }
     }
 }

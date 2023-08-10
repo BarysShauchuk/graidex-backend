@@ -5,14 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Graidex.Domain.Models;
+using Graidex.Domain.Models.Tests;
 using Graidex.Domain.Models.Users;
-using Graidex.Domain.Models.Questions;
-using Graidex.Domain.Models.Answers;
-using Graidex.Domain.Models.ChoiceOptions;
 using System.Runtime.CompilerServices;
+using Graidex.Domain.Models.Tests.ChoiceOptions;
+using Graidex.Domain.Models.Tests.Questions;
+using Graidex.Domain.Models.Tests.Answers;
 
 namespace Graidex.Infrastructure.Data
-{   
+{
     /// <summary>
     /// Static class with methods used to populate the database with seed data.
     /// </summary>
@@ -303,13 +304,13 @@ namespace Graidex.Infrastructure.Data
             var test1 = new Test
             {
                 Title = "Math Test 1",
-                LastUpdate = DateTime.Now,
+                Description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
                 IsVisible = true,
                 StartDateTime = new DateTime(2023, 7, 10, 12, 0, 0),
                 EndDateTime = new DateTime(2023, 7, 10, 13, 0, 0),
                 TimeLimit = new TimeSpan(1, 0, 0),
                 SubjectId = subject1.Id,
-                RestrictionGroup = new List<Student> { student1, student2 },
+                AllowedStudents = new List<Student> { student1, student2 },
                 Questions = new List<Question> { multQuestion1, openQuestion1, singleQuestion1 },
                 GradeToPass = 6,
             };
@@ -317,13 +318,13 @@ namespace Graidex.Infrastructure.Data
             var test2 = new Test
             {
                 Title = "Physics Test 2",
-                LastUpdate = DateTime.Now,
+                Description = "Felis eget nunc lobortis mattis.",
                 IsVisible = false,
                 StartDateTime = new DateTime(2023, 6, 10, 12, 0, 0),
                 EndDateTime = new DateTime(2023, 6, 10, 13, 0, 0),
                 TimeLimit = new TimeSpan(1, 0, 0),
                 SubjectId = subject2.Id,
-                RestrictionGroup = new List<Student> { student2, student3 },
+                AllowedStudents = new List<Student> { student2, student3 },
                 Questions = new List<Question> { multQuestion2, openQuestion2, singleQuestion2, singleQuestion1},
                 GradeToPass = 7,
             };
@@ -331,13 +332,13 @@ namespace Graidex.Infrastructure.Data
             var test3 = new Test
             {
                 Title = "Chemistry Test 3",
-                LastUpdate = DateTime.Now,
+                Description = "Nunc mi ipsum faucibus vitae. Sed nisi lacus sed viverra tellus in hac habitasse platea.",
                 IsVisible = true,
                 StartDateTime = new DateTime(2023, 5, 10, 12, 0, 0),
                 EndDateTime = new DateTime(2023, 5, 10, 13, 0, 0),
                 TimeLimit = new TimeSpan(1, 0, 0),
                 SubjectId = subject3.Id,
-                RestrictionGroup = new List<Student> { student1, student3 },
+                AllowedStudents = new List<Student> { student1, student3 },
                 Questions = new List<Question> { multQuestion3, openQuestion3, singleQuestion3, multQuestion2},
                 GradeToPass = 8,
             };

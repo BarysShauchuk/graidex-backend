@@ -21,7 +21,8 @@ namespace Graidex.Infrastructure.Migrations
                     Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Surname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProfileImage = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -37,7 +38,8 @@ namespace Graidex.Infrastructure.Migrations
                     Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Surname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProfileImage = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -52,7 +54,8 @@ namespace Graidex.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CustomId = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
                     Title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    TeacherId = table.Column<int>(type: "int", nullable: false)
+                    TeacherId = table.Column<int>(type: "int", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -70,11 +73,11 @@ namespace Graidex.Infrastructure.Migrations
                 columns: table => new
                 {
                     StudentsId = table.Column<int>(type: "int", nullable: false),
-                    SubjectsId = table.Column<int>(type: "int", nullable: false)
+                    SubjectId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StudentSubject", x => new { x.StudentsId, x.SubjectsId });
+                    table.PrimaryKey("PK_StudentSubject", x => new { x.StudentsId, x.SubjectId });
                     table.ForeignKey(
                         name: "FK_StudentSubject_Students_StudentsId",
                         column: x => x.StudentsId,
@@ -82,9 +85,80 @@ namespace Graidex.Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_StudentSubject_Subjects_SubjectsId",
-                        column: x => x.SubjectsId,
+                        name: "FK_StudentSubject_Subjects_SubjectId",
+                        column: x => x.SubjectId,
                         principalTable: "Subjects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SubjectContents",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    IsVisible = table.Column<bool>(type: "bit", nullable: false),
+                    SubjectId = table.Column<int>(type: "int", nullable: false),
+                    ItemId = table.Column<int>(type: "int", nullable: false),
+                    ItemType = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubjectContents", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SubjectContents_Subjects_SubjectId",
+                        column: x => x.SubjectId,
+                        principalTable: "Subjects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SubjectRequests",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StudentId = table.Column<int>(type: "int", nullable: false),
+                    SubjectId = table.Column<int>(type: "int", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubjectRequests", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SubjectRequests_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SubjectRequests_Subjects_SubjectId",
+                        column: x => x.SubjectId,
+                        principalTable: "Subjects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TestDrafts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false),
+                    LastUpdate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Questions = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    GradeToPass = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TestDrafts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TestDrafts_SubjectContents_Id",
+                        column: x => x.Id,
+                        principalTable: "SubjectContents",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -93,24 +167,45 @@ namespace Graidex.Infrastructure.Migrations
                 name: "Tests",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    LastUpdate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsHidden = table.Column<bool>(type: "bit", nullable: false),
-                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false),
+                    StartDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TimeLimit = table.Column<TimeSpan>(type: "time", nullable: false),
-                    SubjectId = table.Column<int>(type: "int", nullable: false),
-                    Questions = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Questions = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    GradeToPass = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tests", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Tests_Subjects_SubjectId",
-                        column: x => x.SubjectId,
-                        principalTable: "Subjects",
+                        name: "FK_Tests_SubjectContents_Id",
+                        column: x => x.Id,
+                        principalTable: "SubjectContents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StudentTest",
+                columns: table => new
+                {
+                    AllowedStudentsId = table.Column<int>(type: "int", nullable: false),
+                    TestId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudentTest", x => new { x.AllowedStudentsId, x.TestId });
+                    table.ForeignKey(
+                        name: "FK_StudentTest_Students_AllowedStudentsId",
+                        column: x => x.AllowedStudentsId,
+                        principalTable: "Students",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StudentTest_Tests_TestId",
+                        column: x => x.TestId,
+                        principalTable: "Tests",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -121,6 +216,7 @@ namespace Graidex.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    IsAutoChecked = table.Column<bool>(type: "bit", nullable: false),
                     StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TestId = table.Column<int>(type: "int", nullable: false),
@@ -151,9 +247,29 @@ namespace Graidex.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_StudentSubject_SubjectsId",
+                name: "IX_StudentSubject_SubjectId",
                 table: "StudentSubject",
-                column: "SubjectsId");
+                column: "SubjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentTest_TestId",
+                table: "StudentTest",
+                column: "TestId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubjectContents_SubjectId",
+                table: "SubjectContents",
+                column: "SubjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubjectRequests_StudentId",
+                table: "SubjectRequests",
+                column: "StudentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubjectRequests_SubjectId",
+                table: "SubjectRequests",
+                column: "SubjectId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Subjects_TeacherId",
@@ -175,11 +291,6 @@ namespace Graidex.Infrastructure.Migrations
                 name: "IX_TestResults_TestId",
                 table: "TestResults",
                 column: "TestId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tests_SubjectId",
-                table: "Tests",
-                column: "SubjectId");
         }
 
         /// <inheritdoc />
@@ -189,6 +300,15 @@ namespace Graidex.Infrastructure.Migrations
                 name: "StudentSubject");
 
             migrationBuilder.DropTable(
+                name: "StudentTest");
+
+            migrationBuilder.DropTable(
+                name: "SubjectRequests");
+
+            migrationBuilder.DropTable(
+                name: "TestDrafts");
+
+            migrationBuilder.DropTable(
                 name: "TestResults");
 
             migrationBuilder.DropTable(
@@ -196,6 +316,9 @@ namespace Graidex.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Tests");
+
+            migrationBuilder.DropTable(
+                name: "SubjectContents");
 
             migrationBuilder.DropTable(
                 name: "Subjects");

@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Graidex.Domain.Models.ChoiceOptions;
+using Graidex.Domain.Models.Tests.ChoiceOptions;
 
-namespace Graidex.Domain.Models.Questions
+namespace Graidex.Domain.Models.Tests.Questions
 {
     /// <summary>
     /// Represents a single-choice question in the test.
     /// </summary>
     public class SingleChoiceQuestion : Question
-    {   
+    {
         /// <summary>
         /// Gets or sets the collection of choice options for the question.
         /// </summary>

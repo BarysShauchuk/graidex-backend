@@ -1,30 +1,19 @@
-﻿using Graidex.Domain.Models.Questions;
+﻿using Graidex.Domain.Models.Tests.Questions;
 using Graidex.Domain.Models.Users;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Graidex.Domain.Models
-{   
+namespace Graidex.Domain.Models.Tests
+{
     /// <summary>
     /// Represents a test in the application.
     /// </summary>
     public class Test : TestBase
     {
-        /// <summary>
-        /// Possible participation restriction rules for the test.
-        /// </summary>
-        public enum ParticipationRestriction
+        public Test()
         {
-            /// <summary> 
-            /// Only the students in the restriction group can take the test. 
-            /// </summary>
-            Group,
-
-            /// <summary> 
-            /// All students of subject except the ones in the restriction group can take the test. 
-            /// </summary>
-            AllButGroup
+            this.ItemType ??= nameof(Test);
         }
 
         /// <summary>
@@ -52,13 +41,8 @@ namespace Graidex.Domain.Models
         public TimeSpan TimeLimit { get; set; }
 
         /// <summary>
-        /// Gets or sets the restriction rule for the test.
+        /// Gets or sets the collection of students allowed to take the test.
         /// </summary>
-        public ParticipationRestriction RestrictionRule { get; set; }
-
-        /// <summary>
-        /// Gets or sets the collection of students for the restriction group.
-        /// </summary>
-        public virtual ICollection<Student> RestrictionGroup { get; set; } = new List<Student>();
+        public virtual ICollection<Student> AllowedStudents { get; set; } = new List<Student>();
     }
 }

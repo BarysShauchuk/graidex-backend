@@ -1,4 +1,4 @@
-﻿using Graidex.Domain.Models.Questions;
+﻿using Graidex.Domain.Models.Tests.Questions;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Collections.Generic;

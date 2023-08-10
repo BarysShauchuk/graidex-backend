@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace Graidex.Domain.Models.Questions
+namespace Graidex.Domain.Models.Tests.Questions
 {
     /// <summary>
     /// Represents a question in the test.

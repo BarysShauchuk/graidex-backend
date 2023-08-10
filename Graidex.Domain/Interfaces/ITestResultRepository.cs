@@ -1,4 +1,4 @@
-﻿using Graidex.Domain.Models;
+﻿using Graidex.Domain.Models.Tests;
 using System;
 using System.Collections.Generic;
 using System.Linq;

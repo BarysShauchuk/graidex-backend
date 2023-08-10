@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Graidex.Domain.Models.ChoiceOptions;
+using Graidex.Domain.Models.Tests.ChoiceOptions;
 
-namespace Graidex.Domain.Models.Questions
-{   
+namespace Graidex.Domain.Models.Tests.Questions
+{
     /// <summary>
     /// Represents a multiple-chioce question.
     /// </summary>

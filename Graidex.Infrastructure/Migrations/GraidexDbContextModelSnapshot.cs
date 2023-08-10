@@ -56,6 +56,37 @@ namespace Graidex.Infrastructure.Migrations
                     b.ToTable("Subjects");
                 });
 
+            modelBuilder.Entity("Graidex.Domain.Models.SubjectContent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ItemType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SubjectId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubjectId");
+
+                    b.ToTable("SubjectContents");
+
+                    b.UseTptMappingStrategy();
+                });
+
             modelBuilder.Entity("Graidex.Domain.Models.SubjectRequest", b =>
                 {
                     b.Property<int>("Id")
@@ -82,49 +113,7 @@ namespace Graidex.Infrastructure.Migrations
                     b.ToTable("SubjectRequests");
                 });
 
-            modelBuilder.Entity("Graidex.Domain.Models.TestBase", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("GradeToPass")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsVisible")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Questions")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("SubjectId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Tests");
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("TestBase");
-
-                    b.UseTphMappingStrategy();
-                });
-
-            modelBuilder.Entity("Graidex.Domain.Models.TestResult", b =>
+            modelBuilder.Entity("Graidex.Domain.Models.Tests.TestResult", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -255,28 +244,37 @@ namespace Graidex.Infrastructure.Migrations
 
             modelBuilder.Entity("StudentTest", b =>
                 {
-                    b.Property<int>("RestrictionGroupId")
+                    b.Property<int>("AllowedStudentsId")
                         .HasColumnType("int");
 
                     b.Property<int>("TestId")
                         .HasColumnType("int");
 
-                    b.HasKey("RestrictionGroupId", "TestId");
+                    b.HasKey("AllowedStudentsId", "TestId");
 
                     b.HasIndex("TestId");
 
                     b.ToTable("StudentTest");
                 });
 
-            modelBuilder.Entity("Graidex.Domain.Models.Test", b =>
+            modelBuilder.Entity("Graidex.Domain.Models.Tests.Test", b =>
                 {
-                    b.HasBaseType("Graidex.Domain.Models.TestBase");
+                    b.HasBaseType("Graidex.Domain.Models.SubjectContent");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime>("EndDateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("RestrictionRule")
+                    b.Property<int>("GradeToPass")
                         .HasColumnType("int");
+
+                    b.Property<string>("Questions")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("StartDateTime")
                         .HasColumnType("datetime2");
@@ -284,9 +282,29 @@ namespace Graidex.Infrastructure.Migrations
                     b.Property<TimeSpan>("TimeLimit")
                         .HasColumnType("time");
 
-                    b.HasIndex("SubjectId");
+                    b.ToTable("Tests", (string)null);
+                });
 
-                    b.HasDiscriminator().HasValue("Test");
+            modelBuilder.Entity("Graidex.Domain.Models.Tests.TestDraft", b =>
+                {
+                    b.HasBaseType("Graidex.Domain.Models.SubjectContent");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("GradeToPass")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Questions")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("TestDrafts", (string)null);
                 });
 
             modelBuilder.Entity("Graidex.Domain.Models.Subject", b =>
@@ -294,6 +312,15 @@ namespace Graidex.Infrastructure.Migrations
                     b.HasOne("Graidex.Domain.Models.Users.Teacher", null)
                         .WithMany()
                         .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Graidex.Domain.Models.SubjectContent", b =>
+                {
+                    b.HasOne("Graidex.Domain.Models.Subject", null)
+                        .WithMany()
+                        .HasForeignKey("SubjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -313,7 +340,7 @@ namespace Graidex.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Graidex.Domain.Models.TestResult", b =>
+            modelBuilder.Entity("Graidex.Domain.Models.Tests.TestResult", b =>
                 {
                     b.HasOne("Graidex.Domain.Models.Users.Student", null)
                         .WithMany()
@@ -321,7 +348,7 @@ namespace Graidex.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Graidex.Domain.Models.Test", null)
+                    b.HasOne("Graidex.Domain.Models.Tests.Test", null)
                         .WithMany()
                         .HasForeignKey("TestId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -347,22 +374,31 @@ namespace Graidex.Infrastructure.Migrations
                 {
                     b.HasOne("Graidex.Domain.Models.Users.Student", null)
                         .WithMany()
-                        .HasForeignKey("RestrictionGroupId")
+                        .HasForeignKey("AllowedStudentsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Graidex.Domain.Models.Test", null)
+                    b.HasOne("Graidex.Domain.Models.Tests.Test", null)
                         .WithMany()
                         .HasForeignKey("TestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Graidex.Domain.Models.Test", b =>
+            modelBuilder.Entity("Graidex.Domain.Models.Tests.Test", b =>
                 {
-                    b.HasOne("Graidex.Domain.Models.Subject", null)
-                        .WithMany()
-                        .HasForeignKey("SubjectId")
+                    b.HasOne("Graidex.Domain.Models.SubjectContent", null)
+                        .WithOne()
+                        .HasForeignKey("Graidex.Domain.Models.Tests.Test", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Graidex.Domain.Models.Tests.TestDraft", b =>
+                {
+                    b.HasOne("Graidex.Domain.Models.SubjectContent", null)
+                        .WithOne()
+                        .HasForeignKey("Graidex.Domain.Models.Tests.TestDraft", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

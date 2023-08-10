@@ -18,5 +18,7 @@ namespace Graidex.Domain.Interfaces
         /// <param name="id">The id of the subject to retrieve.</param>
         /// <returns>A task that represents the asynchronous operation to find the <see cref="Subject"/> object with the specified id.</returns>
         public Task<Subject?> GetById(int id);
+
+        public Task<SubjectContent[]> GetContentById(int id);
     }
 }

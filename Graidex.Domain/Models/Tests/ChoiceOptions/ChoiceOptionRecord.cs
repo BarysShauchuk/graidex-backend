@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Domain.Models.ChoiceOptions
-{   
+namespace Graidex.Domain.Models.Tests.ChoiceOptions
+{
     /// <summary>
     /// Represents a choice option in a multiple-choice question.
     /// </summary>
