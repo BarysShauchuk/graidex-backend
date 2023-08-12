@@ -89,5 +89,15 @@ namespace Graidex.API.Controllers
                 userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound());
         }
+
+        [HttpGet("subject-content/{subjectId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]
+        public async Task<ActionResult> GetContentById(int subjectId)
+        {
+            var result = await this.subjectService.GetAllContentByIdAsync(subjectId);
+            return result.Match<ActionResult>(
+               subjectContentDtos => Ok(subjectContentDtos),
+               notFound => NotFound());
+        }
     }
 }

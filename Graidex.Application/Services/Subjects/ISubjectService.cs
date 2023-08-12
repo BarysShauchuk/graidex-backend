@@ -19,5 +19,6 @@ namespace Graidex.Application.Services.Subjects
         public Task<OneOf<SubjectInfoDto, UserNotFound, NotFound>> GetSubjectOfStudentByIdAsync(int id);
         public Task<OneOf<Success, ValidationFailed, UserNotFound, NotFound>> UpdateSubjectInfoAsync(int id, UpdateSubjectDto updateSubjectDto);
         public Task<OneOf<Success, UserNotFound, NotFound>> DeleteByIdAsync(int id);
+        public Task<OneOf<List<SubjectContentDto>, NotFound>> GetAllContentByIdAsync(int id);
     }
 }

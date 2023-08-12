@@ -205,5 +205,21 @@ namespace Graidex.Application.Services.Subjects
 
             return new Success();
         }
+
+        public async Task<OneOf<List<SubjectContentDto>, NotFound>> GetAllContentByIdAsync(int id)
+        {
+            var subject = await this.subjectRepository.GetById(id);
+
+            if (subject is null)
+            {
+                return new NotFound();
+            }
+
+            var subjectContents = await this.subjectRepository.GetContentById(subject.Id);
+
+            var subjectContentDtos = this.mapper.Map<List<SubjectContentDto>>(subjectContents);
+
+            return subjectContentDtos;
+        }
     }
 }
