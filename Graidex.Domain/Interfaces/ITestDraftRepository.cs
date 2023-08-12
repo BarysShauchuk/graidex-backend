@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Graidex.Domain.Interfaces
 {
+    /// <summary>
+    /// Defines the basic operations for a concrete <see cref="TestDraft"/> repository.
+    /// </summary>
     public interface ITestDraftRepository : IRepository<TestDraft>
     {
         /// <summary>
