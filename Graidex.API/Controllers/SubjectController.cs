@@ -1,4 +1,5 @@
 ﻿using Graidex.Application.DTOs.Subject;
+using Graidex.Application.OneOfCustomTypes;
 using Graidex.Application.Services.Subjects;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -98,6 +99,17 @@ namespace Graidex.API.Controllers
             return result.Match<ActionResult>(
                subjectContentDtos => Ok(subjectContentDtos),
                notFound => NotFound());
+        }
+
+        [HttpGet("visible-subject-content/{subjectId}")]
+        [Authorize(Roles = "Student", Policy = "StudentOfSubject")]
+        public async Task<ActionResult> GetVisibleContentById(int subjectId)
+        {
+            var result = await this.subjectService.GetVisibleContentOfByIdAsync(subjectId);
+            return result.Match<ActionResult>(
+                subjectContentDtos => Ok(subjectContentDtos),
+                userNotFound => NotFound(userNotFound.Comment),
+                notFound => NotFound());
         }
     }
 }

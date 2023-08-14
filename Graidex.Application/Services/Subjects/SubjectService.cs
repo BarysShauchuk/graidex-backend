@@ -23,6 +23,7 @@ namespace Graidex.Application.Services.Subjects
         private readonly ITeacherRepository teacherRepository;
         private readonly IStudentRepository studentRepository;
         private readonly ISubjectRepository subjectRepository;
+        private readonly ITestRepository testRepository;
         private readonly IMapper mapper;
         private readonly IValidator<CreateSubjectDto> createSubjectDtoValidator;
         private readonly IValidator<UpdateSubjectDto> updateSubjectDtoValidator;
@@ -32,6 +33,7 @@ namespace Graidex.Application.Services.Subjects
             ITeacherRepository teacherRepository,
             IStudentRepository studentRepository,
             ISubjectRepository subjectRepository,
+            ITestRepository testRepository,
             IMapper mapper,
             IValidator<CreateSubjectDto> createSubjectDtoValidator,
             IValidator<UpdateSubjectDto> updateSubjectDtoValidator)
@@ -40,6 +42,7 @@ namespace Graidex.Application.Services.Subjects
             this.teacherRepository = teacherRepository;
             this.studentRepository = studentRepository;
             this.subjectRepository = subjectRepository;
+            this.testRepository = testRepository;
             this.mapper = mapper;
             this.createSubjectDtoValidator = createSubjectDtoValidator;
             this.updateSubjectDtoValidator = updateSubjectDtoValidator;
@@ -218,6 +221,39 @@ namespace Graidex.Application.Services.Subjects
             var subjectContents = await this.subjectRepository.GetContentById(subject.Id);
 
             var subjectContentDtos = this.mapper.Map<List<SubjectContentDto>>(subjectContents);
+
+            return subjectContentDtos;
+        }
+
+        public async Task<OneOf<List<SubjectContentDto>, UserNotFound, NotFound>> GetVisibleContentOfByIdAsync(int id)
+        {
+            string email = this.currentUser.GetEmail();
+            var student = await this.studentRepository.GetByEmail(email);
+            if (student is null)
+            {
+                return this.currentUser.UserNotFound("Student");
+            }
+
+            var subject = await this.subjectRepository.GetById(id);
+            if (subject is null)
+            {
+                return new NotFound();
+            }
+
+            var subjectContents = await this.subjectRepository.GetContentById(subject.Id);
+
+            var visibleContent  = subjectContents.Where(x => x.IsVisible == true).ToList();
+
+            var activeContent = this.testRepository.GetAll().Where(x =>
+                x.SubjectId == id
+                && !x.IsVisible
+                && x.AllowedStudents.Any(x => x.Id == student.Id) 
+                && x.StartDateTime < DateTime.Now
+                && x.EndDateTime > DateTime.Now);
+
+            visibleContent.AddRange(activeContent.ToList());
+
+            var subjectContentDtos = this.mapper.Map<List<SubjectContentDto>>(visibleContent);
 
             return subjectContentDtos;
         }
