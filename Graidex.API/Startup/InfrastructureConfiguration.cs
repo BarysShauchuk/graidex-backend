@@ -22,6 +22,7 @@ namespace Graidex.API.Startup
             services.AddScoped<ISubjectRepository, SubjectRepository>();
             services.AddScoped<ITeacherRepository, TeacherRepository>();
             services.AddScoped<ITestRepository, TestRepository>();
+            services.AddScoped<ITestDraftRepository, TestDraftRepository>();
             services.AddScoped<ITestResultRepository, TestResultRepository>();
             services.AddScoped<ISubjectRequestRepository, SubjectRequestRepository>();
 

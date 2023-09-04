@@ -20,7 +20,7 @@ namespace Graidex.Application.Validators.Subjects
         {
             RuleFor(x => x.CustomId)
                 .NotEmpty()
-                .Length(1, 15).WithMessage("Custom ID length must be from 1 to 15 symbols.")
+                .Length(1, 15).WithMessage("Custom ID length must be from 1 to 15 symbols.");
 
             RuleFor(x => x.Title)
                 .NotEmpty()
