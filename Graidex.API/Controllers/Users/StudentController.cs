@@ -203,7 +203,6 @@ namespace Graidex.API.Controllers.Users
                 notFound => NotFound("Subject not found."));
         }
 
-
         [HttpDelete("remove-from-subject/{subjectId}")]
         [Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]
         public async Task<ActionResult> RemoveFromSubject(int subjectId, string studentEmail)
