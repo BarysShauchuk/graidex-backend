@@ -27,7 +27,10 @@ This is a student testing system that provides teachers with an effective evalua
 {
   "AppSettings": {
     "Token":  "[The key token string]",
-    "FrontendUrl": "[Url for frontend]"
+    "FrontendUrl": "[Url for frontend]",
+    "MongoDb": {
+      "DatabaseName": "GraidexDb"
+    }
   },
   "Logging": {
     "LogLevel": {
@@ -37,7 +40,8 @@ This is a student testing system that provides teachers with an effective evalua
   },
   "AllowedHosts": "*",
   "ConnectionStrings": {
-    "GraidexDb": "[Database connection string]"
+    "GraidexDb": "[Database connection string]",
+    "GraidexDb.MongoDb": "[MongoDb connection string]"
   }
 }
 ```
