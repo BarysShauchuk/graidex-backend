@@ -15,5 +15,10 @@ namespace Graidex.Application.Tests.Fakes
         {
             return Task.FromResult(this.Entities.SingleOrDefault(x => x.Id == id));
         }
+
+        public Task<SubjectContent[]> GetContentById(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

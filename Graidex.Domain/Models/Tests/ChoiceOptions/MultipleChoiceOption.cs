@@ -9,7 +9,7 @@ namespace Graidex.Domain.Models.Tests.ChoiceOptions
     /// <summary>
     /// Represents a choice option in a multiple-choice question.
     /// </summary>
-    public record ChoiceOptionRecord
+    public record MultipleChoiceOption
     {
         /// <summary>
         /// Gets or sets the option.

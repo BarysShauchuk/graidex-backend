@@ -1,8 +1,12 @@
 ﻿using Graidex.API.Infrastructure;
 using Graidex.Domain.Interfaces;
+using Graidex.Infrastructure.Configuration;
 using Graidex.Infrastructure.Data;
 using Graidex.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using MongoDB.Driver.Core.Configuration;
 
 namespace Graidex.API.Startup
 {
@@ -17,13 +21,26 @@ namespace Graidex.API.Startup
                 options.UseSqlServer(configuration.GetConnectionString("GraidexDb"));
                 options.UseLazyLoadingProxies();
             });
-            
+
+
+            services.Configure<MongoDbConfig>(
+                configuration.GetSection("AppSettings").GetSection("MongoDb"));
+
+            services.AddSingleton<GraidexMongoDbClient>(serviceProvider =>
+                new GraidexMongoDbClient(
+                    configuration.GetConnectionString("GraidexDb.MongoDb"),
+                    serviceProvider.GetRequiredService<IOptions<MongoDbConfig>>(),
+                    serviceProvider.GetRequiredService<ILogger<GraidexMongoDbClient>>())
+            );
+
             services.AddScoped<IStudentRepository, StudentRepository>();
             services.AddScoped<ISubjectRepository, SubjectRepository>();
             services.AddScoped<ITeacherRepository, TeacherRepository>();
             services.AddScoped<ITestRepository, TestRepository>();
             services.AddScoped<ITestResultRepository, TestResultRepository>();
             services.AddScoped<ISubjectRequestRepository, SubjectRequestRepository>();
+
+            services.AddScoped<ITestQuestionsRepository, TestQuestionsRepository>();
 
             services.AddSingleton<IFileStorageProvider, FileStorageProvider>();
 
@@ -34,9 +51,10 @@ namespace Graidex.API.Startup
         {
             if (app.Environment.IsDevelopment())
             {
-                SeedData.EnsurePopulated(app
-                    .Services.CreateScope()
-                    .ServiceProvider.GetRequiredService<GraidexDbContext>());
+                var serviceProvider = app.Services.CreateScope().ServiceProvider;
+                SeedData.EnsurePopulated(
+                    serviceProvider.GetRequiredService<GraidexDbContext>(),
+                    serviceProvider.GetRequiredService<GraidexMongoDbClient>());
             }
 
             return app;

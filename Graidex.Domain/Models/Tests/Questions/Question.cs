@@ -20,5 +20,7 @@ namespace Graidex.Domain.Models.Tests.Questions
         /// Gets or sets the maximum number of points that can be awarded for this question.
         /// </summary>
         public virtual int MaxPoints { get; set; }
+
+        public string DefaultComment { get; set; } = string.Empty;
     }
 }

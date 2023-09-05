@@ -22,27 +22,29 @@ namespace Graidex.Infrastructure.Data
         /// <summary>
         /// Applies pending migration to database.
         /// </summary>
-        /// <param name="context">The <see cref="GraidexDbContext"/> object used to perform database operations.</param>
+        /// <param name="sqlDbContext">The <see cref="GraidexDbContext"/> object used to perform database operations.</param>
         /// <exception cref="ArgumentNullException">The GraidexDbContext object is null.</exception>
-        public static void EnsurePopulated(GraidexDbContext? context)
+        public static void EnsurePopulated(
+            GraidexDbContext? sqlDbContext, 
+            GraidexMongoDbClient mongoDbClient)
         {
-            if (context == null)
+            if (sqlDbContext == null)
             {
                 throw new ArgumentNullException("context");
             }
 
-            if (context.Database.GetPendingMigrations().Any())
+            if (sqlDbContext.Database.GetPendingMigrations().Any())
             {
-                context.Database.Migrate();
+                sqlDbContext.Database.Migrate();
             }
 
-            if (!context.Teachers.Any())
+            if (!sqlDbContext.Teachers.Any() && !sqlDbContext.Students.Any())
             {
-                Populate(context);
+                Populate(sqlDbContext, mongoDbClient);
             }
         }
 
-        private static void Populate(GraidexDbContext context)
+        private static void Populate(GraidexDbContext sqlDbContext, GraidexMongoDbClient mongoDbClient)
         {
             #region Users
             var teacher1 = new Teacher
@@ -97,9 +99,9 @@ namespace Graidex.Infrastructure.Data
             };
             #endregion Users
 
-            context.Teachers.AddRange(teacher1, teacher2, teacher3);
-            context.Students.AddRange(student1, student2, student3);
-            context.SaveChanges();
+            sqlDbContext.Teachers.AddRange(teacher1, teacher2, teacher3);
+            sqlDbContext.Students.AddRange(student1, student2, student3);
+            sqlDbContext.SaveChanges();
 
             #region Subjects
             var subject1 = new Subject
@@ -108,7 +110,7 @@ namespace Graidex.Infrastructure.Data
                 Title = "Mathematics",
                 TeacherId = teacher1.Id,
                 Students = new List<Student> { student1, student2 },
-                ImageUrl = "https://www.mathsisfun.com/images/geometry.svg",
+                ImageUrl = "https://images.pexels.com/photos/167682/pexels-photo-167682.jpeg?auto=compress&cs=tinysrgb&h=350",
             };
 
             var subject2 = new Subject
@@ -117,7 +119,7 @@ namespace Graidex.Infrastructure.Data
                 Title = "Physics",
                 TeacherId = teacher2.Id,
                 Students = new List<Student> { student2, student3 },
-                ImageUrl = "SomeURL",
+                ImageUrl = "https://images.pexels.com/photos/60582/newton-s-cradle-balls-sphere-action-60582.jpeg?auto=compress&cs=tinysrgb&h=350",
             };
 
             var subject3 = new Subject
@@ -129,8 +131,8 @@ namespace Graidex.Infrastructure.Data
             };
             #endregion Subjects
 
-            context.Subjects.AddRange(subject1, subject2, subject3);
-            context.SaveChanges();
+            sqlDbContext.Subjects.AddRange(subject1, subject2, subject3);
+            sqlDbContext.SaveChanges();
 
             #region ChoiceOptions
             var choiceOption1 = new ChoiceOption
@@ -148,19 +150,19 @@ namespace Graidex.Infrastructure.Data
                 Text = "Amet volutpat consequat mauris nunc."
             };
 
-            var choiceRecord1 = new ChoiceOptionRecord
+            var choiceRecord1 = new MultipleChoiceOption
             {
                 Option = choiceOption1,
                 IsCorrect = true
             };
 
-            var choiceRecord2 = new ChoiceOptionRecord
+            var choiceRecord2 = new MultipleChoiceOption
             {
                 Option = choiceOption2,
                 IsCorrect = false
             };
 
-            var choiceRecord3 = new ChoiceOptionRecord
+            var choiceRecord3 = new MultipleChoiceOption
             {
                 Option = choiceOption3,
                 IsCorrect = true
@@ -171,24 +173,24 @@ namespace Graidex.Infrastructure.Data
             var multQuestion1 = new MultipleChoiceQuestion
             {
                 Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem donec massa sapien faucibus et molestie ac feugiat sed.",
-                Options = new List<ChoiceOptionRecord> { choiceRecord1, choiceRecord2, choiceRecord3},
-                PointsPerOption = 1,
+                Options = new List<MultipleChoiceOption> { choiceRecord1, choiceRecord2, choiceRecord3},
+                PointsPerCorrectAnswer = 1,
                 MaxPoints = 2
             };
 
             var multQuestion2 = new MultipleChoiceQuestion
             {
                 Text = "Felis eget nunc lobortis mattis.",
-                Options = new List<ChoiceOptionRecord> { choiceRecord1, choiceRecord3},
-                PointsPerOption = 1,
+                Options = new List<MultipleChoiceOption> { choiceRecord1, choiceRecord3},
+                PointsPerCorrectAnswer = 1,
                 MaxPoints = 2
             };
 
             var multQuestion3 = new MultipleChoiceQuestion
             {
                 Text = "Nunc mi ipsum faucibus vitae. Sed nisi lacus sed viverra tellus in hac habitasse platea.",
-                Options = new List<ChoiceOptionRecord> { choiceRecord2, choiceRecord3 },
-                PointsPerOption = 3,
+                Options = new List<MultipleChoiceOption> { choiceRecord2, choiceRecord3 },
+                PointsPerCorrectAnswer = 3,
                 MaxPoints = 6
             };
 
@@ -311,7 +313,6 @@ namespace Graidex.Infrastructure.Data
                 TimeLimit = new TimeSpan(1, 0, 0),
                 SubjectId = subject1.Id,
                 AllowedStudents = new List<Student> { student1, student2 },
-                Questions = new List<Question> { multQuestion1, openQuestion1, singleQuestion1 },
                 GradeToPass = 6,
             };
 
@@ -325,7 +326,6 @@ namespace Graidex.Infrastructure.Data
                 TimeLimit = new TimeSpan(1, 0, 0),
                 SubjectId = subject2.Id,
                 AllowedStudents = new List<Student> { student2, student3 },
-                Questions = new List<Question> { multQuestion2, openQuestion2, singleQuestion2, singleQuestion1},
                 GradeToPass = 7,
             };
 
@@ -339,13 +339,38 @@ namespace Graidex.Infrastructure.Data
                 TimeLimit = new TimeSpan(1, 0, 0),
                 SubjectId = subject3.Id,
                 AllowedStudents = new List<Student> { student1, student3 },
-                Questions = new List<Question> { multQuestion3, openQuestion3, singleQuestion3, multQuestion2},
                 GradeToPass = 8,
             };
             #endregion Tests
 
-            context.Tests.AddRange(test1, test2, test3);
-            context.SaveChanges();
+            sqlDbContext.Tests.AddRange(test1, test2, test3);
+            sqlDbContext.SaveChanges();
+
+            var test1Questions = new TestQuestionsList
+            {
+                TestId = test1.Id,
+                Questions = new List<Question> { multQuestion1, openQuestion1, singleQuestion1 }
+            };
+
+            var test2Questions = new TestQuestionsList
+            {
+                TestId = test2.Id,
+                Questions = new List<Question> { multQuestion2, openQuestion2, singleQuestion2, singleQuestion1 }
+            };
+
+            var test3Questions = new TestQuestionsList
+            {
+                TestId = test3.Id,
+                Questions = new List<Question> { multQuestion3, openQuestion3, singleQuestion3 }
+            };
+
+            mongoDbClient.TestQuestionsLists.InsertMany(
+                new[] 
+                {
+                    test1Questions,
+                    test2Questions,
+                    test3Questions
+                });
 
             #region TestResults
             var testResult1 = new TestResult
@@ -376,8 +401,8 @@ namespace Graidex.Infrastructure.Data
             };
             #endregion TestResults
 
-            context.TestResults.AddRange(testResult1, testResult2, testResult3);
-            context.SaveChanges();
+            sqlDbContext.TestResults.AddRange(testResult1, testResult2, testResult3);
+            sqlDbContext.SaveChanges();
         }
     }
 }

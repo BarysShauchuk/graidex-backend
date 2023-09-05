@@ -36,7 +36,7 @@ namespace Graidex.API.Startup
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(
                             System.Text.Encoding.UTF8.GetBytes(
-                                configuration.GetSection("AppSettings:Token").Value!)),
+                                configuration.GetRequiredSection("AppSettings:Token").Value!)),
                         ValidateIssuer = false,
                         ValidateAudience = false,
                     });

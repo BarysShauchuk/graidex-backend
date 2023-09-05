@@ -18,11 +18,6 @@ namespace Graidex.Domain.Models.Tests
         public required string Description { get; set; }
 
         /// <summary>
-        /// Gets or sets the collection of questions for the test.
-        /// </summary>
-        public List<Question> Questions { get; set; } = new List<Question>();
-
-        /// <summary>
         /// Gets or sets the minimum grade to pass this test.
         /// </summary>
         public int GradeToPass { get; set; }

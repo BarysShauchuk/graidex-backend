@@ -30,7 +30,7 @@ app.UseCors(policyBuilder =>
     policyBuilder.AllowAnyHeader();
     policyBuilder.AllowAnyMethod();
     policyBuilder.WithOrigins(
-        builder.Configuration.GetSection("AppSettings:FrontendUrl").Value!);
+        builder.Configuration.GetRequiredSection("AppSettings:FrontendUrl").Value!);
 });
 
 app.UseAuthentication();

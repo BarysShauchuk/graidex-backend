@@ -91,14 +91,6 @@ namespace Graidex.Infrastructure.Data
             modelBuilder.Entity<TestDraft>().ToTable("TestDrafts");
 
             modelBuilder.Entity<Test>()
-                .Property(x => x.Questions)
-                .HasConversion(JsonExtensions.CreateJsonConverter<List<Question>>());
-
-            modelBuilder.Entity<TestDraft>()
-                .Property(x => x.Questions)
-                .HasConversion(JsonExtensions.CreateJsonConverter<List<Question>>());
-
-            modelBuilder.Entity<Test>()
                 .HasMany(test => test.AllowedStudents)
                 .WithMany();
         }

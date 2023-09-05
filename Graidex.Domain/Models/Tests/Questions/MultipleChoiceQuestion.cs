@@ -15,16 +15,16 @@ namespace Graidex.Domain.Models.Tests.Questions
         /// <summary>
         /// Gets or sets the collection of choice options for the question.
         /// </summary>
-        public virtual ICollection<ChoiceOptionRecord> Options { get; set; } = new List<ChoiceOptionRecord>();
+        public virtual ICollection<MultipleChoiceOption> Options { get; set; } = new List<MultipleChoiceOption>();
 
         /// <summary>
         /// Gets or sets the number of points awarded per correct option.
         /// </summary>
-        public int PointsPerOption { get; set; }
+        public int PointsPerCorrectAnswer { get; set; }
 
         /// <summary>
         /// Gets the maximum number of points that can be awarded for the question.
         /// </summary>
-        public override int MaxPoints => Options.Count(x => x.IsCorrect) * PointsPerOption;
+        public override int MaxPoints => Options.Count(x => x.IsCorrect) * PointsPerCorrectAnswer;
     }
 }
