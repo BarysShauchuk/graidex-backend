@@ -13,7 +13,7 @@ using MongoDB.Bson.Serialization;
 
 namespace Graidex.Infrastructure.Repositories
 {
-    public class TestQuestionsRepository : ITestQuestionsRepository
+    public class TestQuestionsRepository : ITestBaseQuestionsRepository
     {
         private readonly GraidexMongoDbClient client;
 
@@ -22,19 +22,19 @@ namespace Graidex.Infrastructure.Repositories
             this.client = client;
         }
 
-        public async Task<TestQuestionsList> GetQuestionsListAsync(int testId)
+        public async Task<TestBaseQuestionsList> GetQuestionsListAsync(int testBaseId)
         {
             return await this.client.TestQuestionsLists
-                .Find(x => x.TestId == testId)
+                .Find(x => x.TestBaseId == testBaseId)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task UpdateQuestionsListAsync(TestQuestionsList testQuestionsList)
+        public async Task UpdateQuestionsListAsync(TestBaseQuestionsList testBaseQuestionsList)
         {
             await this.client.TestQuestionsLists
                 .ReplaceOneAsync(
-                    x => x.TestId == testQuestionsList.TestId,
-                    testQuestionsList,
+                    x => x.TestBaseId == testBaseQuestionsList.TestBaseId,
+                    testBaseQuestionsList,
                     new ReplaceOptions { IsUpsert = true });
         }
     }

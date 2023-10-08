@@ -18,6 +18,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using FluentValidation;
 
 namespace Graidex.Application.Services.Tests
 {
@@ -28,11 +29,12 @@ namespace Graidex.Application.Services.Tests
         private readonly IStudentRepository studentRepository;
         private readonly ITestRepository testRepository;
         private readonly ITestDraftRepository testDraftRepository;
-        private readonly ITestQuestionsRepository testQuestionsRepository;
+        private readonly ITestBaseQuestionsRepository testBaseQuestionsRepository;
         private readonly ITestResultRepository testResultRepository;
         private readonly ISubjectRepository subjectRepository;
         private readonly IMapper mapper;
         private readonly ITestCheckingInQueue testCheckingQueue;
+        private readonly IValidator<List<TestBaseQuestionDto>> testBaseQuestionsListValidator;
 
         public TestService(
             ICurrentUserService currentUser,
@@ -40,58 +42,30 @@ namespace Graidex.Application.Services.Tests
             IStudentRepository studentRepository,
             ITestRepository testRepository,
             ITestDraftRepository testDraftRepository,
-            ITestQuestionsRepository testQuestionsRepository,
+            ITestBaseQuestionsRepository testBaseQuestionsRepository,
             ITestResultRepository testResultRepository,
             ISubjectRepository subjectRepository,
             IMapper mapper,
-            ITestCheckingInQueue testCheckingQueue)
+            ITestCheckingInQueue testCheckingQueue,
+            IValidator<List<TestBaseQuestionDto>> testBaseQuestionsListValidator)
         {   
             this.currentUser = currentUser;
             this.teacherRepository = teacherRepository;
             this.studentRepository = studentRepository;
             this.testRepository = testRepository;
             this.testDraftRepository = testDraftRepository;
-            this.testQuestionsRepository = testQuestionsRepository;
+            this.testBaseQuestionsRepository = testBaseQuestionsRepository;
             this.testResultRepository = testResultRepository;
             this.subjectRepository = subjectRepository;
             this.mapper = mapper;
             this.testCheckingQueue = testCheckingQueue;
+            this.testBaseQuestionsListValidator = testBaseQuestionsListValidator;
         }
 
-        public async Task<OneOf<List<TestQuestionDto>, NotFound>> GetTestQuestionsAsync(int testId)
+        public async Task<OneOf<List<TestBaseQuestionDto>, NotFound>> GetTestQuestionsAsync(int testId)
         {
-            bool testExists = this.testRepository.GetAll().Any(x => x.Id == testId);
-            if (!testExists)
-            {
-                return new NotFound();
-            }
-
-            var questionsList = await this.testQuestionsRepository.GetQuestionsListAsync(testId);
-            if (questionsList is null)
-            {
-                return new List<TestQuestionDto>();
-            }
-
-            var questions = questionsList.Questions.Select(mapper.Map<TestQuestionDto>).ToList();
-
-            return questions;
-        }
-
-        public Task<OneOf<Success, Error>> StartTestAttemptAsync(InitialTestAttemptDto testAttempt)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<OneOf<Success, Error>> SubmitTestAttemptAsync(FinalTestAttemptDto testAttempt)
-        {
-            // Validation, checks, logic, etc.
-
-            //var testResult = mapper.Map<TestResult>(testAttempt);
-            //await this.testResultRepository.Add(testResult);
-            //await this.testCheckingQueue.AddAsync(testResult.Id);
-            //return new Success();
-
-            throw new NotImplementedException();
+            var result = await this.GetTestBaseQuestionsAsync(testId, this.testRepository);
+            return result;
         }
 
         public async Task<OneOf<GetTestDraftDto, ValidationFailed, UserNotFound>> CreateTestDraftForSubjectAsync(int subjectId, CreateTestDraftDto createTestDraftDto)
@@ -332,23 +306,93 @@ namespace Graidex.Application.Services.Tests
             return new Success();
         }
 
-        public async Task<OneOf<Success, ValidationFailed, NotFound>> UpdateTestQuestionsAsync(int testId, List<TestQuestionDto> testQuestions)
+        public async Task<OneOf<Success, ValidationFailed, TestImmutable, NotFound>> 
+            UpdateTestQuestionsAsync(int testId, List<TestBaseQuestionDto> testQuestions)
         {
-            bool testExists = this.testRepository.GetAll().Any(x => x.Id == testId);
+            var validationResult = await this.testBaseQuestionsListValidator.ValidateAsync(testQuestions);
+            if (!validationResult.IsValid)
+            {
+                return new ValidationFailed(validationResult.Errors);
+            }
+
+            var test = await this.testRepository.GetById(testId);
+            if (test is null)
+            {
+                return new NotFound();
+            }
+
+            if (DateTime.Now >= test.StartDateTime)
+            {
+                return new TestImmutable("Test has already started");
+            }
+
+            var testQuestionsList = new TestBaseQuestionsList
+            {
+                TestBaseId = testId,
+                Questions = testQuestions.Select(mapper.Map<Question>).ToList()
+            };
+
+            await this.testBaseQuestionsRepository.UpdateQuestionsListAsync(testQuestionsList);
+
+            return new Success();
+        }
+
+        public async Task<OneOf<List<TestBaseQuestionDto>, NotFound>> GetTestDraftQuestionsAsync(int testId)
+        {
+            var result = await this.GetTestBaseQuestionsAsync(testId, this.testDraftRepository);
+            return result;
+        }
+
+        public async Task<OneOf<Success, ValidationFailed, NotFound>> UpdateTestDraftQuestionsAsync(int testDraftId, List<TestBaseQuestionDto> testQuestions)
+        {
+            bool testExists = this.testDraftRepository.GetAll().Any(x => x.Id == testDraftId);
             if (!testExists)
             {
                 return new NotFound();
             }
 
-            var testQuestionsList = new TestQuestionsList
+            var validationResult = await this.testBaseQuestionsListValidator.ValidateAsync(testQuestions);
+            if (!validationResult.IsValid)
             {
-                TestId = testId,
+                return new ValidationFailed(validationResult.Errors);
+            }
+
+            var testQuestionsList = new TestBaseQuestionsList
+            {
+                TestBaseId = testDraftId,
                 Questions = testQuestions.Select(mapper.Map<Question>).ToList()
             };
 
-            await this.testQuestionsRepository.UpdateQuestionsListAsync(testQuestionsList);
+            await this.testBaseQuestionsRepository.UpdateQuestionsListAsync(testQuestionsList);
 
             return new Success();
+        }
+
+        private async Task<OneOf<List<TestBaseQuestionDto>, NotFound>> GetTestBaseQuestionsAsync<T>(
+            int testBaseId, 
+            IRepository<T> repository)
+            where T : TestBase
+        {
+            bool testExists = repository.GetAll().Any(x => x.Id == testBaseId);
+            if (!testExists)
+            {
+                return new NotFound();
+            }
+
+            var questionsList = 
+                await this.testBaseQuestionsRepository.GetQuestionsListAsync(testBaseId);
+
+            Console.WriteLine(questionsList is null);
+
+            if (questionsList is null)
+            {
+                return new List<TestBaseQuestionDto>();
+            }
+
+            var questions = questionsList.Questions
+                .Select(mapper.Map<TestBaseQuestionDto>).ToList();
+
+            return questions;
         }
     }
 }

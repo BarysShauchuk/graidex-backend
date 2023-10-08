@@ -14,8 +14,6 @@ namespace Graidex.Application.Services.Tests
 {
     public interface ITestService
     {
-        public Task<OneOf<Success, Error>> StartTestAttemptAsync(InitialTestAttemptDto testAttempt);
-        public Task<OneOf<Success, Error>> SubmitTestAttemptAsync(FinalTestAttemptDto testAttempt);
         public Task<OneOf<GetTestDraftDto, ValidationFailed, UserNotFound>> CreateTestDraftForSubjectAsync(int subjectId, CreateTestDraftDto createTestDraftDto);
         public Task<OneOf<GetTestDraftDto, UserNotFound, NotFound>> CreateTestDraftFromTestAsync(int testId);
         public Task<OneOf<GetTestDraftDto, UserNotFound, NotFound>> DuplicateTestDraftAsync(int draftId);
@@ -29,7 +27,10 @@ namespace Graidex.Application.Services.Tests
         // public Task<OneOf<Success, Error>> StartTestAttemptAsync(InitialTestAttemptDto testAttempt);
         // public Task<OneOf<Success, Error>> SubmitTestAttemptAsync(FinalTestAttemptDto testAttempt);
 
-        public Task<OneOf<List<TestQuestionDto>, NotFound>> GetTestQuestionsAsync(int testId);
-        public Task<OneOf<Success, ValidationFailed, NotFound>> UpdateTestQuestionsAsync(int testId, List<TestQuestionDto> testQuestions);
+        public Task<OneOf<List<TestBaseQuestionDto>, NotFound>> GetTestQuestionsAsync(int testId);
+        public Task<OneOf<Success, ValidationFailed, TestImmutable, NotFound>> UpdateTestQuestionsAsync(int testId, List<TestBaseQuestionDto> testQuestions);
+
+        public Task<OneOf<List<TestBaseQuestionDto>, NotFound>> GetTestDraftQuestionsAsync(int testId);
+        public Task<OneOf<Success, ValidationFailed, NotFound>> UpdateTestDraftQuestionsAsync(int testId, List<TestBaseQuestionDto> testQuestions);
     }
 }

@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Graidex.Domain.Models.Tests.Questions
 {
-    public class TestQuestionsList
+    public class TestBaseQuestionsList
     {
-        public string _id => TestId.ToString();
+        public string _id => TestBaseId.ToString();
 
-        public int TestId { get; set; }
+        public int TestBaseId { get; set; }
 
         public List<Question> Questions { get; set; } = new();
     }

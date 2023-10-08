@@ -78,7 +78,13 @@ namespace Graidex.Infrastructure.Repositories
             var data = await context.Database.SqlQuery<string>(
                 $"SELECT * FROM SubjectContents WHERE SubjectId = {id} FOR JSON PATH")
                 .ToListAsync();
+
             var json = string.Join("", data);
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return Array.Empty<SubjectContent>();
+            }
+
             var content = System.Text.Json.JsonSerializer.Deserialize<SubjectContent[]>(json);
 
             return content ?? Array.Empty<SubjectContent>();

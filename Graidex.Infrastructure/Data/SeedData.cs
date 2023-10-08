@@ -346,21 +346,21 @@ namespace Graidex.Infrastructure.Data
             sqlDbContext.Tests.AddRange(test1, test2, test3);
             sqlDbContext.SaveChanges();
 
-            var test1Questions = new TestQuestionsList
+            var test1Questions = new TestBaseQuestionsList
             {
-                TestId = test1.Id,
+                TestBaseId = test1.Id,
                 Questions = new List<Question> { multQuestion1, openQuestion1, singleQuestion1 }
             };
 
-            var test2Questions = new TestQuestionsList
+            var test2Questions = new TestBaseQuestionsList
             {
-                TestId = test2.Id,
+                TestBaseId = test2.Id,
                 Questions = new List<Question> { multQuestion2, openQuestion2, singleQuestion2, singleQuestion1 }
             };
 
-            var test3Questions = new TestQuestionsList
+            var test3Questions = new TestBaseQuestionsList
             {
-                TestId = test3.Id,
+                TestBaseId = test3.Id,
                 Questions = new List<Question> { multQuestion3, openQuestion3, singleQuestion3 }
             };
 

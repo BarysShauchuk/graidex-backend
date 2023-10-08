@@ -2,7 +2,6 @@
 using Graidex.Application.DTOs.Test.TestDraft;
 using Graidex.Application.Services.Tests;
 using Graidex.Application.DTOs.Test.Questions;
-using Graidex.Application.Services.Tests;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models;
 using Graidex.Domain.Models.Tests;
@@ -150,26 +149,50 @@ namespace Graidex.API.Controllers
                 testImmutable => BadRequest(testImmutable.Comment));
         }
 
-        [HttpPut("update-questions/{testId}")]
-        [Authorize(Roles = "Teacher")] // TODO: Add TestOfTeacher policy
-        public async Task<ActionResult> UpdateQuestions(int testId, List<TestQuestionDto> questions)
+        [HttpPut("update-test-questions/{testId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfTest")]
+        public async Task<ActionResult> UpdateTestQuestions(int testId, List<TestBaseQuestionDto> questions)
         {
             var result = await this.testService.UpdateTestQuestionsAsync(testId, questions);
 
             return result.Match<ActionResult>(
                 success => Ok(),
                 validationFailed => BadRequest(validationFailed.Errors),
+                testImmutable => BadRequest(testImmutable.Comment),
                 notFound => NotFound());
         }
 
-        [HttpGet("questions-of-teacher/{testId}")]
-        [Authorize(Roles = "Teacher")] // TODO: Add TestOfTeacher policy
-        public async Task<ActionResult<List<TestQuestionDto>>> GetQuestions(int testId)
+        [HttpGet("test-questions-of-teacher/{testId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfTest")]
+        public async Task<ActionResult<List<TestBaseQuestionDto>>> GetTestQuestions(int testId)
         {
             var result = await this.testService.GetTestQuestionsAsync(testId);
 
             return result.Match<ActionResult>(
                 questions => Ok(questions),
+                notFound => NotFound());
+        }
+
+        [HttpGet("test-draft-questions/{draftId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfDraft")]
+        public async Task<ActionResult<List<GetTestDraftDto>>> GetTestDraftQuestions(int draftId)
+        {
+            var drafts = await this.testService.GetTestDraftQuestionsAsync(draftId);
+
+            return drafts.Match<ActionResult>(
+                questions => Ok(questions),
+                notFound => NotFound());
+        }
+
+        [HttpPut("update-test-draft-questions/{draftId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfDraft")]
+        public async Task<ActionResult> UpdateTestDraftQuestions(int draftId, List<TestBaseQuestionDto> questions)
+        {
+            var result = await this.testService.UpdateTestDraftQuestionsAsync(draftId, questions);
+
+            return result.Match<ActionResult>(
+                success => Ok(),
+                validationFailed => BadRequest(validationFailed.Errors),
                 notFound => NotFound());
         }
     }

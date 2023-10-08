@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Graidex.Application.DTOs.Test.Questions.ChoiceOptions;
 
-namespace Graidex.Application.DTOs.Test.Questions
+namespace Graidex.Application.DTOs.Test.Questions.ConcreteQuestions
 {
-    public class TestSingleChoiceQuestionDto : TestQuestionDto
+    public class TestBaseSingleChoiceQuestionDto : TestBaseQuestionDto
     {
         /// <summary>
         /// Gets or sets the collection of choice options for the question.

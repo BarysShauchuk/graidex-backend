@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Graidex.Application.DTOs.Test.Questions;
+using Graidex.Application.DTOs.Test.Questions.ChoiceOptions;
+using Graidex.Application.DTOs.Test.Questions.ConcreteQuestions;
 using Graidex.Application.DTOs.Test.TestDraft;
 using Graidex.Domain.Models;
 using Graidex.Domain.Models.Tests;
@@ -35,27 +37,27 @@ namespace Graidex.Application.AutoMapperProfiles
             CreateMap<Test, CreateTestDraftDto>();
             CreateMap<TestDraft, DuplicateDraftDto>();
             CreateMap<DuplicateDraftDto, TestDraft>();
-            CreateMap<Question, TestQuestionDto>()
-                .Include<OpenQuestion, TestOpenQuestionDto>()
-                .Include<SingleChoiceQuestion, TestSingleChoiceQuestionDto>()
-                .Include<MultipleChoiceQuestion, TestMultipleChoiceQuestionDto>();
+            CreateMap<Question, TestBaseQuestionDto>()
+                .Include<OpenQuestion, TestBaseOpenQuestionDto>()
+                .Include<SingleChoiceQuestion, TestBaseSingleChoiceQuestionDto>()
+                .Include<MultipleChoiceQuestion, TestBaseMultipleChoiceQuestionDto>();
 
-            CreateMap<OpenQuestion, TestOpenQuestionDto>();
-            CreateMap<SingleChoiceQuestion, TestSingleChoiceQuestionDto>();
-            CreateMap<MultipleChoiceQuestion, TestMultipleChoiceQuestionDto>();
+            CreateMap<OpenQuestion, TestBaseOpenQuestionDto>();
+            CreateMap<SingleChoiceQuestion, TestBaseSingleChoiceQuestionDto>();
+            CreateMap<MultipleChoiceQuestion, TestBaseMultipleChoiceQuestionDto>();
 
             CreateMap<ChoiceOption, ChoiceOptionDto>();
             CreateMap<MultipleChoiceOption, MultipleChoiceOptionDto>();
 
 
-            CreateMap<TestQuestionDto, Question>()
-                .Include<TestOpenQuestionDto, OpenQuestion>()
-                .Include<TestSingleChoiceQuestionDto, SingleChoiceQuestion>()
-                .Include<TestMultipleChoiceQuestionDto, MultipleChoiceQuestion>();
+            CreateMap<TestBaseQuestionDto, Question>()
+                .Include<TestBaseOpenQuestionDto, OpenQuestion>()
+                .Include<TestBaseSingleChoiceQuestionDto, SingleChoiceQuestion>()
+                .Include<TestBaseMultipleChoiceQuestionDto, MultipleChoiceQuestion>();
 
-            CreateMap<TestOpenQuestionDto, OpenQuestion>();
-            CreateMap<TestSingleChoiceQuestionDto, SingleChoiceQuestion>();
-            CreateMap<TestMultipleChoiceQuestionDto, MultipleChoiceQuestion>();
+            CreateMap<TestBaseOpenQuestionDto, OpenQuestion>();
+            CreateMap<TestBaseSingleChoiceQuestionDto, SingleChoiceQuestion>();
+            CreateMap<TestBaseMultipleChoiceQuestionDto, MultipleChoiceQuestion>();
 
             CreateMap<ChoiceOptionDto, ChoiceOption>();
             CreateMap<MultipleChoiceOptionDto, MultipleChoiceOption>();

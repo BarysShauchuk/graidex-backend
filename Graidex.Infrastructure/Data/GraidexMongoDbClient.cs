@@ -30,7 +30,7 @@ namespace Graidex.Infrastructure.Data
             this.Database = this.GetDatabase(options.Value.DatabaseName);
 
             this.TestQuestionsLists = this.Database
-                .GetCollection<TestQuestionsList>(nameof(TestQuestionsLists));
+                .GetCollection<TestBaseQuestionsList>(nameof(TestQuestionsLists));
 
             this.Configure();
 
@@ -47,6 +47,6 @@ namespace Graidex.Infrastructure.Data
 
         public IMongoDatabase Database { get; }
 
-        public IMongoCollection<TestQuestionsList> TestQuestionsLists { get; }
+        public IMongoCollection<TestBaseQuestionsList> TestQuestionsLists { get; }
     }
 }

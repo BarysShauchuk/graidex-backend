@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.DTOs.Test.Questions
+namespace Graidex.Application.DTOs.Test.Questions.ChoiceOptions
 {
     public class ChoiceOptionDto
     {
