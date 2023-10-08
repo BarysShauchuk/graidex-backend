@@ -94,16 +94,9 @@ namespace Graidex.Application.Services.Tests
             throw new NotImplementedException();
         }
 
-        public async Task<OneOf<GetTestDraftDto, ValidationFailed, UserNotFound>> CreateTestDraftForSubjectAsync(int subjectId, CreateTestDraftDto createTestDraftDto)
+        public async Task<OneOf<GetTestDraftDto, ValidationFailed>> CreateTestDraftForSubjectAsync(int subjectId, CreateTestDraftDto createTestDraftDto)
         {   
             // TODO: Add validation
-
-            string email = this.currentUser.GetEmail();
-            var teacher = await this.teacherRepository.GetByEmail(email);
-            if (teacher is null)
-            {
-                return this.currentUser.UserNotFound("Teacher");
-            }
 
             var testDraft = this.mapper.Map<TestDraft>(createTestDraftDto);
 
@@ -115,15 +108,8 @@ namespace Graidex.Application.Services.Tests
             return this.mapper.Map<GetTestDraftDto>(testDraft);
         }
 
-        public async Task<OneOf<GetTestDraftDto, UserNotFound, NotFound>> CreateTestDraftFromTestAsync(int testId)
+        public async Task<OneOf<GetTestDraftDto, NotFound>> CreateTestDraftFromTestAsync(int testId)
         {
-            string email = this.currentUser.GetEmail();
-            var teacher = await this.teacherRepository.GetByEmail(email);
-            if (teacher is null)
-            {
-                return this.currentUser.UserNotFound("Teacher");
-            }
-
             var test = await this.testRepository.GetById(testId);
             if (test is null)
             {
@@ -141,15 +127,8 @@ namespace Graidex.Application.Services.Tests
             return this.mapper.Map<GetTestDraftDto> (testDraft);    
         }
 
-        public async Task<OneOf<GetTestDraftDto, UserNotFound, NotFound>> DuplicateTestDraftAsync(int draftId)
+        public async Task<OneOf<GetTestDraftDto, NotFound>> DuplicateTestDraftAsync(int draftId)
         {
-            string email = this.currentUser.GetEmail();
-            var teacher = await this.teacherRepository.GetByEmail(email);
-            if (teacher is null)
-            {
-                return this.currentUser.UserNotFound("Teacher");
-            }
-
             var testDraft = await this.testDraftRepository.GetById(draftId);
             if (testDraft is null)
             {
@@ -165,15 +144,8 @@ namespace Graidex.Application.Services.Tests
             return this.mapper.Map<GetTestDraftDto>(duplicateDraft);
         }
 
-        public async Task<OneOf<GetTestDraftDto, UserNotFound, NotFound>> GetTestDraftByIdAsync(int draftId)
+        public async Task<OneOf<GetTestDraftDto, NotFound>> GetTestDraftByIdAsync(int draftId)
         {
-            string email = this.currentUser.GetEmail();
-            var teacher = await this.teacherRepository.GetByEmail(email);
-            if (teacher is null)
-            {
-                return this.currentUser.UserNotFound("Teacher");
-            }
-
             var testDraft = await this.testDraftRepository.GetById(draftId);
             if (testDraft is null)
             {
@@ -183,16 +155,9 @@ namespace Graidex.Application.Services.Tests
             return this.mapper.Map<GetTestDraftDto>(testDraft);
         }
 
-        public async Task<OneOf<Success,  ValidationFailed, UserNotFound, NotFound>> UpdateTestDraftByIdASync(int draftId, UpdateTestDraftDto updateTestDraftDto)
+        public async Task<OneOf<Success, ValidationFailed, NotFound>> UpdateTestDraftByIdASync(int draftId, UpdateTestDraftDto updateTestDraftDto)
         {
             // TODO: Add validation
-
-            string email = this.currentUser.GetEmail();
-            var teacher = await this.teacherRepository.GetByEmail(email);
-            if (teacher is null)
-            {
-                return this.currentUser.UserNotFound("Teacher");
-            }
 
             var testDraft = await this.testDraftRepository.GetById(draftId);
             if (testDraft is null)
@@ -208,15 +173,8 @@ namespace Graidex.Application.Services.Tests
             return new Success();
         }
 
-        public async Task<OneOf<Success, UserNotFound, NotFound>> DeleteTestDraftByIdAsync(int draftId)
+        public async Task<OneOf<Success, NotFound>> DeleteTestDraftByIdAsync(int draftId)
         {
-            string email = this.currentUser.GetEmail();
-            var teacher = await this.teacherRepository.GetByEmail(email);
-            if (teacher is null)
-            {
-                return this.currentUser.UserNotFound("Teacher");
-            }
-
             var testDraft = await this.testDraftRepository.GetById(draftId);
             if (testDraft is null)
             {
@@ -228,16 +186,9 @@ namespace Graidex.Application.Services.Tests
             return new Success();
         }
 
-        public async Task<OneOf<GetTestDto, ValidationFailed, UserNotFound, NotFound>> CreateTestForDraftAsync(int draftId, CreateTestDto createTestDto)
+        public async Task<OneOf<GetTestDto, ValidationFailed, NotFound>> CreateTestForDraftAsync(int draftId, CreateTestDto createTestDto)
         {   
             // TODO: Add validation
-
-            string email = this.currentUser.GetEmail();
-            var teacher = await this.teacherRepository.GetByEmail(email);
-            if (teacher is null)
-            {
-                return this.currentUser.UserNotFound("Teacher");
-            }
 
             var testDraft = await this.testDraftRepository.GetById(draftId);
             if (testDraft is null)
@@ -255,47 +206,48 @@ namespace Graidex.Application.Services.Tests
             return this.mapper.Map<GetTestDto>(test);
         }
 
-        public async Task<OneOf<GetTestDto, UserNotFound, NotFound>> GetTestByIdAsync(int testId)
+        public async Task<OneOf<GetTestDto, NotFound>> GetTestByIdAsync(int testId)
         {
-            string email = this.currentUser.GetEmail();
-            var teacher = await this.teacherRepository.GetByEmail(email);
-            if (teacher is null)
-            {
-                return this.currentUser.UserNotFound("Teacher");
-            }
-
             var test = await this.testRepository.GetById(testId);
             if (test is null)
             {
                 return new NotFound();
             }
+
             return this.mapper.Map<GetTestDto>(test);
         }
 
-        public async Task<OneOf<Success, ValidationFailed, UserNotFound, NotFound, TestImmutable>> UpdateTestByIdAsync(int testId, UpdateTestDto updateTestDto)
+        public async Task<OneOf<GetVisibleTestDto, NotFound>> GetVisibleTestByIdAsync(int testId)
         {
-            string email = this.currentUser.GetEmail();
-            var teacher = await this.teacherRepository.GetByEmail(email);
-            if (teacher is null)
-            {
-                return this.currentUser.UserNotFound("Teacher");
-            }
-
             var test = await this.testRepository.GetById(testId);
             if (test is null)
             {
                 return new NotFound();
             }
 
-            if (DateTime.Now >= test.StartDateTime && DateTime.Now < test.EndDateTime)
-            {   
-                if (updateTestDto.StartDateTime != test.StartDateTime || updateTestDto.TimeLimit < test.TimeLimit)
-                {
-                    return new TestImmutable("Test has already started");
-                }
+            return this.mapper.Map<GetVisibleTestDto>(test);
+        }
+
+        public async Task<OneOf<Success, ValidationFailed, NotFound, TestImmutable>> UpdateTestByIdAsync(int testId, UpdateTestDto updateTestDto)
+        {
+            var test = await this.testRepository.GetById(testId);
+            if (test is null)
+            {
+                return new NotFound();
             }
 
-            if (DateTime.Now >= test.EndDateTime)
+            if (DateTime.Now >= test.StartDateTime 
+                && DateTime.Now < test.EndDateTime 
+                && (updateTestDto.StartDateTime != test.StartDateTime || updateTestDto.TimeLimit < test.TimeLimit))
+            {   
+                return new TestImmutable("Test has already started");
+            }
+
+            if (DateTime.Now >= test.EndDateTime
+                && (updateTestDto.GradeToPass != test.GradeToPass
+                || updateTestDto.StartDateTime != test.StartDateTime
+                || updateTestDto.EndDateTime != test.EndDateTime
+                || updateTestDto.TimeLimit != test.TimeLimit))
             {
                 return new TestImmutable("Test has already ended");
             }
@@ -307,22 +259,15 @@ namespace Graidex.Application.Services.Tests
             return new Success();
         }
 
-        public async Task<OneOf<Success, UserNotFound, NotFound, TestImmutable>> DeleteTestByIdAsync(int testId)
+        public async Task<OneOf<Success, NotFound, TestImmutable>> DeleteTestByIdAsync(int testId)
         {
-            string email = this.currentUser.GetEmail();
-            var teacher = await this.teacherRepository.GetByEmail(email);
-            if (teacher is null)
-            {
-                return this.currentUser.UserNotFound("Teacher");
-            }
-
             var test = await this.testRepository.GetById(testId);
             if (test is null)
             {
                 return new NotFound();
             }
 
-            if (DateTime.Now >= test.StartDateTime && DateTime.Now < test.EndDateTime)
+            if (DateTime.Now >= test.StartDateTime)
             {
                 return new TestImmutable("Test has already started");
             }
@@ -347,6 +292,32 @@ namespace Graidex.Application.Services.Tests
             };
 
             await this.testQuestionsRepository.UpdateQuestionsListAsync(testQuestionsList);
+
+            return new Success();
+        }
+        
+        public async Task<OneOf<Success, NotFound>> AddStudentsToTestAsync(int testId, List<String> studentEmails)
+        {   
+            var test = await this.testRepository.GetById(testId);
+            if (test is null)
+            {
+                return new NotFound();
+            }
+
+            var subject = await this.subjectRepository.GetById(test.SubjectId);
+            if (subject is null)
+            {
+                return new NotFound();
+            }
+
+            var students = this.studentRepository.GetAll().Where(x => studentEmails.Contains(x.Email) && subject.Students.Contains(x) && !test.AllowedStudents.Contains(x));
+
+            foreach ( var student in students )
+            {
+                test.AllowedStudents.Add(student);
+            }
+
+            await this.testRepository.Update(test);
 
             return new Success();
         }

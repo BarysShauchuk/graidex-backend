@@ -33,8 +33,7 @@ namespace Graidex.API.Controllers
 
             return result.Match<ActionResult<GetTestDraftDto>>(
                 getTestDraftDto => Ok(getTestDraftDto),
-                validationFailed => BadRequest(validationFailed.Errors),
-                userNotFound => NotFound(userNotFound.Comment));
+                validationFailed => BadRequest(validationFailed.Errors));
         }
 
         [HttpPost("create-draft-from-test/{testId}")]
@@ -45,7 +44,6 @@ namespace Graidex.API.Controllers
 
             return result.Match<ActionResult<GetTestDraftDto>>(
                 getTestDraftDto => Ok(getTestDraftDto),
-                userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound());
         }
 
@@ -57,7 +55,6 @@ namespace Graidex.API.Controllers
 
             return result.Match<ActionResult<GetTestDraftDto>>(
                 getTestDraftDto => Ok(getTestDraftDto),
-                userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound());
         }
 
@@ -69,7 +66,6 @@ namespace Graidex.API.Controllers
 
             return result.Match<ActionResult<GetTestDraftDto>>(
                 getTestDraftDto => Ok(getTestDraftDto),
-                userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound());
         }
 
@@ -82,7 +78,6 @@ namespace Graidex.API.Controllers
             return result.Match<ActionResult>(
                 success => Ok(),
                 validationFailed => BadRequest(validationFailed.Errors),
-                userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound());
         }
 
@@ -94,7 +89,6 @@ namespace Graidex.API.Controllers
 
             return result.Match<ActionResult>(
                 success => Ok(),
-                userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound());
         }
 
@@ -107,7 +101,6 @@ namespace Graidex.API.Controllers
             return result.Match<ActionResult<GetTestDto>>(
                 getTestDto => Ok(getTestDto),
                 validationFailed => BadRequest(validationFailed.Errors),
-                userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound());
         }
 
@@ -119,7 +112,17 @@ namespace Graidex.API.Controllers
 
             return result.Match<ActionResult<GetTestDto>>(
                 getTestDto => Ok(getTestDto),
-                userNotFound => NotFound(userNotFound.Comment),
+                notFound => NotFound());
+        }
+
+        [HttpGet("get-visible-test/{testId}")]
+        [Authorize(Roles = "Student", Policy = "StudentOfTest")]
+        public async Task<ActionResult<GetVisibleTestDto>> GetVisibleTestById(int testId)
+        {
+            var result = await this.testService.GetVisibleTestByIdAsync(testId);
+
+            return result.Match<ActionResult<GetVisibleTestDto>>(
+                getTestDto => Ok(getTestDto),
                 notFound => NotFound());
         }
 
@@ -132,7 +135,6 @@ namespace Graidex.API.Controllers
             return result.Match<ActionResult>(
                 success => Ok(),
                 validationFailed => BadRequest(validationFailed.Errors),
-                userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound(),
                 testImmutable => BadRequest(testImmutable.Comment));
         }
@@ -145,13 +147,12 @@ namespace Graidex.API.Controllers
              
             return result.Match<ActionResult>(
                 success => Ok(),
-                userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound(),
                 testImmutable => BadRequest(testImmutable.Comment));
         }
 
         [HttpPut("update-questions/{testId}")]
-        [Authorize(Roles = "Teacher")] // TODO: Add TestOfTeacher policy
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfTest")]
         public async Task<ActionResult> UpdateQuestions(int testId, List<TestQuestionDto> questions)
         {
             var result = await this.testService.UpdateTestQuestionsAsync(testId, questions);
@@ -163,13 +164,24 @@ namespace Graidex.API.Controllers
         }
 
         [HttpGet("questions-of-teacher/{testId}")]
-        [Authorize(Roles = "Teacher")] // TODO: Add TestOfTeacher policy
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfTest")]
         public async Task<ActionResult<List<TestQuestionDto>>> GetQuestions(int testId)
         {
             var result = await this.testService.GetTestQuestionsAsync(testId);
 
             return result.Match<ActionResult>(
                 questions => Ok(questions),
+                notFound => NotFound());
+        }
+
+        [HttpPut("add-students/{testId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfTest")]
+        public async Task<ActionResult> AddStudentsToTest(int testId, List<String> studentEmails)
+        {
+            var result = await this.testService.AddStudentsToTestAsync(testId, studentEmails);
+
+            return result.Match<ActionResult>(
+                success => Ok(),
                 notFound => NotFound());
         }
     }

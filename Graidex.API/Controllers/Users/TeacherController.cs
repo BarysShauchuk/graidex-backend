@@ -156,7 +156,7 @@ namespace Graidex.API.Controllers.Users
         }
 
         [HttpDelete("delete-profile-image")]
-        [Authorize(Roles = "Student")]
+        [Authorize(Roles = "Teacher")]
         public async Task<ActionResult> DeleteProfileImage()
         {
             var result = await this.teacherService.DeleteCurrentProfileImageAsync();
