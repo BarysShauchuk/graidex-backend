@@ -33,6 +33,7 @@ namespace Graidex.Application.AutoMapperProfiles
             CreateMap<DraftToTestDto, Test>();
             CreateMap<CreateTestDto, Test>();
             CreateMap<Test, GetTestDto>();
+            CreateMap<Test, GetVisibleTestDto>();
             CreateMap<UpdateTestDto, Test>();
             CreateMap<Test, CreateTestDraftDto>();
             CreateMap<TestDraft, DuplicateDraftDto>();
