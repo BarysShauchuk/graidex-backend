@@ -23,7 +23,5 @@ namespace Graidex.Application.DTOs.Test.TestDraft
         public DateTime EndDateTime { get; set; }
 
         public TimeSpan TimeLimit { get; set; }
-
-        public virtual ICollection<Student> AllowedStudents { get; set; } = new List<Student>();
     }
 }
