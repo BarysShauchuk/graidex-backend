@@ -32,6 +32,11 @@ namespace Graidex.Domain.Models.Tests
         public DateTime EndTime { get; set; }
 
         /// <summary>
+        /// Gets or sets the flag indicating whether the test was submitted.
+        /// </summary>
+        public bool IsSubmitted { get; set; }
+
+        /// <summary>
         /// Gets or sets id of the test the result belongs to.
         /// </summary>
         public required int TestId { get; set; }

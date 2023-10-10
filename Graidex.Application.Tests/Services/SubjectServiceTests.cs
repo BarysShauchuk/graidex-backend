@@ -22,6 +22,7 @@ namespace Graidex.Application.Tests.Services
         private FakeStudentRepository studentRepository;
         private FakeTeacherRepository teacherRepository;
         private FakeSubjectRepository subjectRepository;
+        private FakeTestRepository testRepository;
         private SubjectService subjectService;
         private Mock<ICurrentUserService> currentUserMock = new Mock <ICurrentUserService>(); 
 
@@ -32,6 +33,7 @@ namespace Graidex.Application.Tests.Services
             this.studentRepository = new FakeStudentRepository();
             this.teacherRepository = new FakeTeacherRepository();
             this.subjectRepository = new FakeSubjectRepository();
+            this.testRepository = new FakeTestRepository();
 
             this.currentUserMock
                 .Setup(a => a.GetEmail())
@@ -60,6 +62,7 @@ namespace Graidex.Application.Tests.Services
                 this.teacherRepository,
                 this.studentRepository,
                 this.subjectRepository,
+                this.testRepository,
                 mapper,
                 createSubjectDtoValidator.Object,
                 updateSubjectDtoValidator.Object
