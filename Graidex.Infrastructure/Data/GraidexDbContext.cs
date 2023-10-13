@@ -106,10 +106,6 @@ namespace Graidex.Infrastructure.Data
                 .HasOne<Student>()
                 .WithMany()
                 .HasForeignKey(testResult => testResult.StudentId);
-
-            modelBuilder.Entity<TestResult>()
-                .Property(x => x.Answers)
-                .HasConversion(JsonExtensions.CreateJsonConverter<List<IAnswer<Question>>>());
         }
 
         /// <summary>

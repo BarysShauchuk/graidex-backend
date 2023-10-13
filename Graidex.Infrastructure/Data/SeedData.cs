@@ -379,7 +379,7 @@ namespace Graidex.Infrastructure.Data
                 EndTime = new DateTime(2023, 7, 10, 12, 55, 0),
                 TestId = test1.Id,
                 StudentId = student1.Id,
-                Answers = new() {multAnswer1, openAnswer1, singleAnswer1},
+                // Answers = new() {multAnswer1, openAnswer1, singleAnswer1},
             };
 
             var testResult2 = new TestResult
@@ -388,7 +388,7 @@ namespace Graidex.Infrastructure.Data
                 EndTime = new DateTime(2023, 6, 10, 12, 55, 0),
                 TestId = test2.Id,
                 StudentId = student2.Id,
-                Answers = new()  {multAnswer2, openAnswer2, singleAnswer2, singleAnswer1},
+                // Answers = new()  {multAnswer2, openAnswer2, singleAnswer2, singleAnswer1},
             };
 
             var testResult3 = new TestResult
@@ -397,7 +397,7 @@ namespace Graidex.Infrastructure.Data
                 EndTime = new DateTime(2023, 5, 10, 12, 55, 0),
                 TestId = test3.Id,
                 StudentId = student3.Id,
-                Answers = new() { multAnswer3, openAnswer3, singleAnswer3, multAnswer2},
+                // Answers = new() { multAnswer3, openAnswer3, singleAnswer3, multAnswer2},
             };
             #endregion TestResults
 

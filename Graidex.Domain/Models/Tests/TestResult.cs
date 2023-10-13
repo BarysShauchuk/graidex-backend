@@ -22,6 +22,11 @@ namespace Graidex.Domain.Models.Tests
         public bool IsAutoChecked { get; set; }
 
         /// <summary>
+        /// Gets or sets the flag indicating whether the test result can be reviewed by student.
+        /// </summary>
+        public bool CanReview { get; set; }
+
+        /// <summary>
         /// Gets or sets the time of the start of the test.
         /// </summary>
         public DateTime StartTime { get; set; }
@@ -30,11 +35,6 @@ namespace Graidex.Domain.Models.Tests
         /// Gets or sets the time of the end of the test.
         /// </summary>
         public DateTime EndTime { get; set; }
-
-        /// <summary>
-        /// Gets or sets the flag indicating whether the test was submitted.
-        /// </summary>
-        public bool IsSubmitted { get; set; }
 
         /// <summary>
         /// Gets or sets id of the test the result belongs to.
@@ -47,20 +47,13 @@ namespace Graidex.Domain.Models.Tests
         public required int StudentId { get; set; }
 
         /// <summary>
-        /// Gets or sets the collection of answers to the questions in the test.
-        /// </summary>
-        public List<IAnswer<Question>> Answers { get; set; } = new();
-
-        /// <summary>
         /// Gets or sets the total amount of points earned.
         /// </summary>
-        [NotMapped]
-        public int TotalPoints => Answers.Sum(answer => answer.Points);
+        public int TotalPoints { get; set; }
 
         /// <summary>
         /// Gets or sets the grade earned.
         /// </summary>
-        [NotMapped]
-        public int Grade => Answers.Sum(answer => answer.Question.MaxPoints);
+        public int Grade { get; set; }
     }
 }

@@ -44,5 +44,25 @@ namespace Graidex.Domain.Models.Tests
         /// Gets or sets the collection of students allowed to take the test.
         /// </summary>
         public virtual ICollection<Student> AllowedStudents { get; set; } = new List<Student>();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the test should automatically be checked after submission.
+        /// </summary>
+        public bool AutoCheckAfterSubmission { get; set; }
+
+        /// <summary>
+        /// Gets or sets a rules for enabling the review of the test result by student.
+        /// </summary>
+        public ReviewResultOptions ReviewResult { get; set; }
+
+        /// <summary>
+        /// Enumerates the rules for enabling the review of the test result by student.
+        /// </summary>
+        public enum ReviewResultOptions
+        {
+            SetManually,
+            AfterSubmission,
+            AfterAutoCheck,
+        }
     }
 }
