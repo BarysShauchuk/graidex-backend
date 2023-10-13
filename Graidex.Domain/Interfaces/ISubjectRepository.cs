@@ -20,5 +20,9 @@ namespace Graidex.Domain.Interfaces
         public Task<Subject?> GetById(int id);
 
         public Task<SubjectContent[]> GetContentById(int id);
+
+        public Task UpdateContentVisibilityById(int id, bool isVisible);
+
+        public Task<SubjectContent?> GetContentItemById(int contentId);
     }
 }

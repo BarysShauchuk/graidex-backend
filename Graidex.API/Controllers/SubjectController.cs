@@ -111,5 +111,18 @@ namespace Graidex.API.Controllers
                 userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound());
         }
+
+        [HttpPut("set-subject-content-visibility/{contentId}")]
+        [Authorize(Roles = "Teacher", Policy = "")] // TODO: Add policy TeacherOfSubjectContent
+        public async Task<ActionResult> ChangeContentVisibilityById(int contentId, bool isVisible)
+        {
+            var result = 
+                await this.subjectService.ChangeContentVisibilityByIdAsync(contentId, isVisible);
+
+            return result.Match<ActionResult>(
+                success => Ok(),
+                notFound => NotFound(),
+                immutable => BadRequest(immutable.Comment));
+        }
     }
 }

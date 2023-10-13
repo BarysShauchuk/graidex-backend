@@ -257,5 +257,33 @@ namespace Graidex.Application.Services.Subjects
 
             return subjectContentDtos;
         }
+
+        public async Task<OneOf<Success, NotFound, ItemImmutable>> ChangeContentVisibilityByIdAsync(int contentId, bool isVisible)
+        {
+            var contentItem = await this.subjectRepository.GetContentItemById(contentId);
+
+            if (contentItem is null)
+            {
+                return new NotFound();
+            }
+
+            if (contentItem.IsVisible == isVisible)
+            {
+                return new Success();
+            }
+
+            string[] contentTypesWithImmutableVisibility = new[] 
+            {
+                "TestDraft",
+            };
+
+            if (contentTypesWithImmutableVisibility.Contains(contentItem.ItemType))
+            {
+                return new ItemImmutable("TestDraft visibility cannot be changed.");
+            }
+
+            await this.subjectRepository.UpdateContentVisibilityById(contentId, isVisible);
+            return new Success();
+        }
     }
 }

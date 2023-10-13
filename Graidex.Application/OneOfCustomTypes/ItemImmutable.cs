@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.OneOfCustomTypes
 {
-    public record TestImmutable (string? Comment);
+    public record ItemImmutable (string? Comment);
 }

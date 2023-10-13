@@ -202,7 +202,7 @@ namespace Graidex.Application.Services.Tests
             return this.mapper.Map<GetVisibleTestDto>(test);
         }
 
-        public async Task<OneOf<Success, ValidationFailed, NotFound, TestImmutable>> UpdateTestByIdAsync(int testId, UpdateTestDto updateTestDto)
+        public async Task<OneOf<Success, ValidationFailed, NotFound, ItemImmutable>> UpdateTestByIdAsync(int testId, UpdateTestDto updateTestDto)
         {
             var test = await this.testRepository.GetById(testId);
             if (test is null)
@@ -214,7 +214,7 @@ namespace Graidex.Application.Services.Tests
                 && DateTime.Now < test.EndDateTime 
                 && (updateTestDto.StartDateTime != test.StartDateTime || updateTestDto.TimeLimit < test.TimeLimit))
             {   
-                return new TestImmutable("Test has already started");
+                return new ItemImmutable("Test has already started");
             }
 
             if (DateTime.Now >= test.EndDateTime
@@ -223,7 +223,7 @@ namespace Graidex.Application.Services.Tests
                 || updateTestDto.EndDateTime != test.EndDateTime
                 || updateTestDto.TimeLimit != test.TimeLimit))
             {
-                return new TestImmutable("Test has already ended");
+                return new ItemImmutable("Test has already ended");
             }
 
             this.mapper.Map(updateTestDto, test);
@@ -233,7 +233,7 @@ namespace Graidex.Application.Services.Tests
             return new Success();
         }
 
-        public async Task<OneOf<Success, NotFound, TestImmutable>> DeleteTestByIdAsync(int testId)
+        public async Task<OneOf<Success, NotFound, ItemImmutable>> DeleteTestByIdAsync(int testId)
         {
             var test = await this.testRepository.GetById(testId);
             if (test is null)
@@ -243,7 +243,7 @@ namespace Graidex.Application.Services.Tests
 
             if (DateTime.Now >= test.StartDateTime)
             {
-                return new TestImmutable("Test has already started");
+                return new ItemImmutable("Test has already started");
             }
 
             await this.testRepository.Delete(test);
@@ -251,7 +251,7 @@ namespace Graidex.Application.Services.Tests
             return new Success();
         }
 
-        public async Task<OneOf<Success, ValidationFailed, TestImmutable, NotFound>> 
+        public async Task<OneOf<Success, ValidationFailed, ItemImmutable, NotFound>> 
             UpdateTestQuestionsAsync(int testId, List<TestBaseQuestionDto> testQuestions)
         {
             var validationResult = await this.testBaseQuestionsListValidator.ValidateAsync(testQuestions);
@@ -268,7 +268,7 @@ namespace Graidex.Application.Services.Tests
 
             if (DateTime.Now >= test.StartDateTime)
             {
-                return new TestImmutable("Test has already started");
+                return new ItemImmutable("Test has already started");
             }
 
             var testQuestionsList = new TestBaseQuestionsList

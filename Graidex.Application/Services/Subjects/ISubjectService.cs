@@ -21,5 +21,6 @@ namespace Graidex.Application.Services.Subjects
         public Task<OneOf<Success, UserNotFound, NotFound>> DeleteByIdAsync(int id);
         public Task<OneOf<List<SubjectContentDto>, NotFound>> GetAllContentByIdAsync(int id);
         public Task<OneOf<List<SubjectContentDto>, UserNotFound, NotFound>> GetVisibleContentOfByIdAsync(int id);
+        public Task<OneOf<Success, NotFound, ItemImmutable>> ChangeContentVisibilityByIdAsync(int contentId, bool isVisible);
     }
 }

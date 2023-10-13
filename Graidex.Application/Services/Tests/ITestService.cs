@@ -33,16 +33,16 @@ namespace Graidex.Application.Services.Tests
 
         public Task<OneOf<GetVisibleTestDto, NotFound>> GetVisibleTestByIdAsync(int testId);
 
-        public Task<OneOf<Success, ValidationFailed, NotFound, TestImmutable>> UpdateTestByIdAsync(int testId, UpdateTestDto updateTestDto);
+        public Task<OneOf<Success, ValidationFailed, NotFound, ItemImmutable>> UpdateTestByIdAsync(int testId, UpdateTestDto updateTestDto);
 
-        public Task<OneOf<Success, NotFound, TestImmutable>> DeleteTestByIdAsync(int testId);
+        public Task<OneOf<Success, NotFound, ItemImmutable>> DeleteTestByIdAsync(int testId);
 
         // public Task<OneOf<Success, Error>> StartTestAttemptAsync(InitialTestAttemptDto testAttempt);
 
         // public Task<OneOf<Success, Error>> SubmitTestAttemptAsync(FinalTestAttemptDto testAttempt);
 
         public Task<OneOf<List<TestBaseQuestionDto>, NotFound>> GetTestQuestionsAsync(int testId);
-        public Task<OneOf<Success, ValidationFailed, TestImmutable, NotFound>> UpdateTestQuestionsAsync(int testId, List<TestBaseQuestionDto> testQuestions);
+        public Task<OneOf<Success, ValidationFailed, ItemImmutable, NotFound>> UpdateTestQuestionsAsync(int testId, List<TestBaseQuestionDto> testQuestions);
 
         public Task<OneOf<List<TestBaseQuestionDto>, NotFound>> GetTestDraftQuestionsAsync(int testId);
         public Task<OneOf<Success, ValidationFailed, NotFound>> UpdateTestDraftQuestionsAsync(int testId, List<TestBaseQuestionDto> testQuestions);

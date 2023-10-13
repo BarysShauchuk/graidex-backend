@@ -2,6 +2,7 @@
 using Graidex.Domain.Models;
 using Graidex.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Graidex.Infrastructure.Repositories
 {
@@ -88,6 +89,66 @@ namespace Graidex.Infrastructure.Repositories
             var content = System.Text.Json.JsonSerializer.Deserialize<SubjectContent[]>(json);
 
             return content ?? Array.Empty<SubjectContent>();
+        }
+
+        /// <summary>
+        /// Changes the visibility of a <see cref="SubjectContent"/> object in the database.
+        /// </summary>
+        /// <param name="id">The id of the <see cref="SubjectContent"/> object to be updated.</param>
+        /// <param name="isVisible">The new visibility value of the <see cref="SubjectContent"/> object.</param>
+        /// <returns>A task that represents the asynchronous update operation.</returns>
+        public async Task UpdateContentVisibilityById(int id, bool isVisible)
+        {
+            var rowsAffected = await context.Database.ExecuteSqlRawAsync(
+                $"""
+                UPDATE SubjectContents 
+                SET IsVisible = {(isVisible ? 1 : 0)}
+                WHERE Id = {id}
+                """);
+
+            if (rowsAffected == 0)
+            {
+                throw new InvalidOperationException($"Content item with id = {id} isn't found");
+            }
+
+            if (rowsAffected > 1)
+            {
+                throw new InvalidOperationException("More than one content item found with the same id.");
+            }
+        }
+
+        /// <summary>
+        /// Gets a <see cref="SubjectContent"/> object from the database with a specified id.
+        /// </summary>
+        /// <param name="contentId">The unique identifier of the <see cref="SubjectContent"/> object to be returned.</param>
+        /// <returns>A task that represents the asynchronous operation to find the <see cref="SubjectContent"/> with the specified id or null if not found.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when more than one <see cref="SubjectContent"/> object is found with the same id.</exception>
+        public async Task<SubjectContent?> GetContentItemById(int contentId)
+        {
+            var data = await context.Database.SqlQuery<string>(
+                $"""
+                 SELECT * FROM SubjectContents WHERE Id = {contentId} FOR JSON PATH
+                """).ToListAsync();
+
+            var json = string.Join("", data);
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return null;
+            }
+
+            var contentList = System.Text.Json.JsonSerializer.Deserialize<SubjectContent[]>(json);
+
+            if (contentList is null || contentList.Length == 0)
+            {
+                return null;
+            }
+
+            if (contentList.Length > 1)
+            {
+                throw new InvalidOperationException("More than one content item found with the same id.");
+            }
+
+            return contentList[0];
         }
     }
 }
