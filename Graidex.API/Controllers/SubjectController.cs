@@ -124,5 +124,29 @@ namespace Graidex.API.Controllers
                 notFound => NotFound(),
                 immutable => BadRequest(immutable.Comment));
         }
+
+        [HttpPut("set-subject-content-order-index/{contentId}")]
+        [Authorize(Roles = "Teacher", Policy = "")] // TODO: Add policy TeacherOfSubjectContent
+        public async Task<ActionResult> ChangeContentOrderIndexById(int contentId, double orderIndex)
+        {
+            var result =
+                await this.subjectService.ChangeContentOrderIndexByIdAsync(contentId, orderIndex);
+
+            return result.Match<ActionResult>(
+                success => Ok(),
+                notFound => NotFound());
+        }
+
+        [HttpPut("refresh-subject-content-order-index/{subjectId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfSubject")]
+        public async Task<ActionResult> RefreshContentOrderingById(int subjectId)
+        {
+            var result =
+                await this.subjectService.RefreshContentOrderingByIdAsync(subjectId);
+
+            return result.Match<ActionResult>(
+                success => Ok(),
+                notFound => NotFound());
+        }
     }
 }

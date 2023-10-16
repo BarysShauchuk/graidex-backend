@@ -285,5 +285,31 @@ namespace Graidex.Application.Services.Subjects
             await this.subjectRepository.UpdateContentVisibilityById(contentId, isVisible);
             return new Success();
         }
+
+        public async Task<OneOf<Success, NotFound>> ChangeContentOrderIndexByIdAsync(int contentId, double orderIndex)
+        {
+            var contentItem = await this.subjectRepository.GetContentItemById(contentId);
+
+            if (contentItem is null)
+            {
+                return new NotFound();
+            }
+
+            await this.subjectRepository.UpdateContentOrderById(contentId, orderIndex);
+            return new Success();
+        }
+
+        public async Task<OneOf<Success, NotFound>> RefreshContentOrderingByIdAsync(int subjectId)
+        {
+            var subject = await this.subjectRepository.GetById(subjectId);
+
+            if (subject is null)
+            {
+                return new NotFound();
+            }
+
+            await this.subjectRepository.RefreshSubjectContentOrderingById(subjectId);
+            return new Success();
+        }
     }
 }

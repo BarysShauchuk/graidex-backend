@@ -27,5 +27,7 @@ namespace Graidex.Application.DTOs.Test.TestDraft
         public DateTime EndDateTime { get; set; }
 
         public TimeSpan TimeLimit { get; set; }
+
+        public double OrderIndex { get; set; }
     }
 }

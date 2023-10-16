@@ -25,5 +25,6 @@ namespace Graidex.Application.DTOs.Test.TestDraft
 
         public DateTime LastUpdate { get; set; }
 
+        public double OrderIndex { get; set; }
     }
 }

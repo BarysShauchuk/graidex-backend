@@ -23,5 +23,7 @@ namespace Graidex.Domain.Models
         public int SubjectId { get; set; }
 
         public string? ItemType { get; set; }
+
+        public double OrderIndex { get; set; }
     }
 }

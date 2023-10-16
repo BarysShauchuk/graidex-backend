@@ -24,5 +24,9 @@ namespace Graidex.Domain.Interfaces
         public Task UpdateContentVisibilityById(int id, bool isVisible);
 
         public Task<SubjectContent?> GetContentItemById(int contentId);
+
+        public Task UpdateContentOrderById(int id, double orderIndex);
+
+        public Task RefreshSubjectContentOrderingById(int subjectId);
     }
 }

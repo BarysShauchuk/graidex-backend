@@ -77,7 +77,13 @@ namespace Graidex.Infrastructure.Repositories
         public async Task<SubjectContent[]> GetContentById(int id)
         {
             var data = await context.Database.SqlQuery<string>(
-                $"SELECT * FROM SubjectContents WHERE SubjectId = {id} FOR JSON PATH")
+                $"""
+                SELECT * 
+                FROM SubjectContents 
+                WHERE SubjectId = {id} 
+                ORDER BY OrderIndex
+                FOR JSON PATH
+                """)
                 .ToListAsync();
 
             var json = string.Join("", data);
@@ -94,26 +100,26 @@ namespace Graidex.Infrastructure.Repositories
         /// <summary>
         /// Changes the visibility of a <see cref="SubjectContent"/> object in the database.
         /// </summary>
-        /// <param name="id">The id of the <see cref="SubjectContent"/> object to be updated.</param>
+        /// <param name="contentId">The id of the <see cref="SubjectContent"/> object to be updated.</param>
         /// <param name="isVisible">The new visibility value of the <see cref="SubjectContent"/> object.</param>
         /// <returns>A task that represents the asynchronous update operation.</returns>
-        public async Task UpdateContentVisibilityById(int id, bool isVisible)
+        public async Task UpdateContentVisibilityById(int contentId, bool isVisible)
         {
             var rowsAffected = await context.Database.ExecuteSqlRawAsync(
                 $"""
                 UPDATE SubjectContents 
                 SET IsVisible = {(isVisible ? 1 : 0)}
-                WHERE Id = {id}
+                WHERE Id = {contentId}
                 """);
 
             if (rowsAffected == 0)
             {
-                throw new InvalidOperationException($"Content item with id = {id} isn't found");
+                throw new InvalidOperationException($"Content item with id = {contentId} isn't found");
             }
 
             if (rowsAffected > 1)
             {
-                throw new InvalidOperationException("More than one content item found with the same id.");
+                throw new InvalidOperationException("More than one content item updated with the same id.");
             }
         }
 
@@ -127,7 +133,10 @@ namespace Graidex.Infrastructure.Repositories
         {
             var data = await context.Database.SqlQuery<string>(
                 $"""
-                 SELECT * FROM SubjectContents WHERE Id = {contentId} FOR JSON PATH
+                 SELECT * 
+                 FROM SubjectContents 
+                 WHERE Id = {contentId}
+                 FOR JSON PATH
                 """).ToListAsync();
 
             var json = string.Join("", data);
@@ -149,6 +158,38 @@ namespace Graidex.Infrastructure.Repositories
             }
 
             return contentList[0];
+        }
+
+        public async Task UpdateContentOrderById(int id, double orderIndex)
+        {
+            var rowsAffected = await context.Database.ExecuteSqlRawAsync(
+                $"""
+                UPDATE SubjectContents 
+                SET OrderIndex = {orderIndex}
+                WHERE Id = {id}
+                """);
+
+            if (rowsAffected == 0)
+            {
+                throw new InvalidOperationException($"Content item with id = {id} isn't found");
+            }
+
+            if (rowsAffected > 1)
+            {
+                throw new InvalidOperationException("More than one content item updated with the same id.");
+            }
+        }
+
+        public async Task RefreshSubjectContentOrderingById(int subjectId)
+        {
+            var rowsAffected = await context.Database.ExecuteSqlRawAsync(
+                $"""
+                UPDATE SubjectContents
+                SET OrderIndex = i
+                FROM (SELECT OrderIndex, ROW_NUMBER() OVER ( ORDER BY OrderIndex) AS i
+                      FROM SubjectContents
+                      WHERE SubjectId = {subjectId}) SubjectContents
+                """);
         }
     }
 }

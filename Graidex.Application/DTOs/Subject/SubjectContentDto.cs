@@ -36,5 +36,10 @@ namespace Graidex.Application.DTOs.Subject
 
 
         public string? ItemType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ordering index for the subject.
+        /// </summary>
+        public double OrderIndex { get; set; }
     }
 }

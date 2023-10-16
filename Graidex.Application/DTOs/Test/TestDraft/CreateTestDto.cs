@@ -17,5 +17,6 @@ namespace Graidex.Application.DTOs.Test.TestDraft
 
         // TODO: Validate using Enum.IsDefined();
         public ReviewResultOptions ReviewResult { get; set; }
+        public double OrderIndex { get; set; }
     }
 }

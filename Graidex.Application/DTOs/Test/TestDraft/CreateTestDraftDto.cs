@@ -14,5 +14,7 @@ namespace Graidex.Application.DTOs.Test.TestDraft
         public string? Description { get; set; }
 
         public int GradeToPass { get; set; }
+
+        public double OrderIndex { get; set; }
     }
 }
