@@ -314,6 +314,7 @@ namespace Graidex.Infrastructure.Data
                 SubjectId = subject1.Id,
                 AllowedStudents = new List<Student> { student1, student2 },
                 GradeToPass = 6,
+                OrderIndex = 1,
             };
 
             var test2 = new Test
@@ -327,6 +328,7 @@ namespace Graidex.Infrastructure.Data
                 SubjectId = subject2.Id,
                 AllowedStudents = new List<Student> { student2, student3 },
                 GradeToPass = 7,
+                OrderIndex = 1,
             };
 
             var test3 = new Test
@@ -340,6 +342,7 @@ namespace Graidex.Infrastructure.Data
                 SubjectId = subject3.Id,
                 AllowedStudents = new List<Student> { student1, student3 },
                 GradeToPass = 8,
+                OrderIndex = 1,
             };
             #endregion Tests
 
