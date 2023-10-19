@@ -10,28 +10,28 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.Services.Authorization.PolicyHandlers
 {
-    public class IsStudentOfTestHandler : AuthorizationHandler<IsStudentOfTestRequirement>
+    public class IsStudentOfAttemptHandler : AuthorizationHandler<IsStudentOfAttemptRequirement>
     {
         private readonly ICurrentUserService currentUser;
         private readonly IRouteDataService routeData;
         private readonly IStudentRepository studentRepository;
-        private readonly ITestRepository testRepository;
+        private readonly ITestResultRepository testResultRepository;
 
-        public IsStudentOfTestHandler(
+        public IsStudentOfAttemptHandler(
             ICurrentUserService currentUser,
             IRouteDataService routeData,
             IStudentRepository studentRepository,
-            ITestRepository testRepository)
+            ITestResultRepository testResultRepository)
         {
             this.currentUser = currentUser;
             this.routeData = routeData;
             this.studentRepository = studentRepository;
-            this.testRepository = testRepository;
+            this.testResultRepository = testResultRepository;
         }
 
         protected override async Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
-            IsStudentOfTestRequirement requirement)
+            IsStudentOfAttemptRequirement requirement)
         {
             if (!context.User.IsInRole("Student"))
             {
@@ -47,27 +47,21 @@ namespace Graidex.Application.Services.Authorization.PolicyHandlers
                 return;
             }
 
-            int testId = Convert.ToInt32(this.routeData.RouteValues["testId"]);
-            if (testId == 0)
+            int testResultId = Convert.ToInt32(this.routeData.RouteValues["testResultId"]);
+            if (testResultId == 0)
             {
                 context.Fail();
                 return;
             }
 
-            var test = await this.testRepository.GetById(testId);
-            if (test is null)
+            var testResult = await this.testResultRepository.GetById(testResultId);
+            if (testResult is null)
             {
                 context.Fail();
                 return;
             }
 
-            if (!test.AllowedStudents.Contains(student))
-            {
-                context.Fail();
-                return;
-            }
-
-            if (test.IsVisible || (DateTime.Now > test.StartDateTime && DateTime.Now < test.EndDateTime))
+            if (testResult.StudentId == student.Id)
             {
                 context.Succeed(requirement);
                 return;

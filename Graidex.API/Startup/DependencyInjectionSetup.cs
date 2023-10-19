@@ -55,6 +55,7 @@ namespace Graidex.API.Startup
             services.AddScoped<IAuthorizationHandler, IsTeacherOfDraftHandler>();
             services.AddScoped<IAuthorizationHandler, IsTeacherOfTestHandler>();
             services.AddScoped<IAuthorizationHandler, IsStudentOfTestHandler>();
+            services.AddScoped<IAuthorizationHandler, IsStudentOfAttemptHandler>();
 
             services.AddAuthorization(options =>
             {
@@ -120,6 +121,13 @@ namespace Graidex.API.Startup
                     policyBuilder.RequireRole("Student");
                     policyBuilder.AddRequirements(new IsStudentOfTestRequirement());
                 });
+
+                options.AddPolicy("StudentOfAttempt", policyBuilder =>
+                {
+                    policyBuilder.RequireAuthenticatedUser();
+                    policyBuilder.RequireRole("Student");
+                    policyBuilder.AddRequirements(new IsStudentOfAttemptRequirement());
+                });
             });
 
             return services;
@@ -142,6 +150,7 @@ namespace Graidex.API.Startup
 
             services.AddScoped<ISubjectService, SubjectService>();
             services.AddScoped<ITestService, TestService>();
+            services.AddScoped<ITestResultService, TestResultService>();
 
             services.AddScoped<ISubjectRequestService, SubjectRequestService>();
 
