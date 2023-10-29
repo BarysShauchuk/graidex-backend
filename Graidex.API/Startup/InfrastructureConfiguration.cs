@@ -42,6 +42,7 @@ namespace Graidex.API.Startup
             services.AddScoped<ISubjectRequestRepository, SubjectRequestRepository>();
 
             services.AddScoped<ITestBaseQuestionsRepository, TestQuestionsRepository>();
+            services.AddScoped<ITestResultAnswersRepository, TestResultAnswersRepository>();
 
             services.AddSingleton<IFileStorageProvider, FileStorageProvider>();
 

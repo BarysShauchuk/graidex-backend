@@ -240,63 +240,63 @@ namespace Graidex.Infrastructure.Data
             #region Answers
             var multAnswer1 = new MultipleChoiceAnswer
             {
-                Question = multQuestion1,
+                QuestionIndex = 0,
                 ChoiceOptionIndexes = new List<int> { 0 },
                 Points = 1
             };
 
             var multAnswer2 = new MultipleChoiceAnswer
             {
-                Question = multQuestion2,
+                QuestionIndex = 0,
                 ChoiceOptionIndexes = new List<int> { 0, 2 },
                 Points = 2
             };
 
             var multAnswer3 = new MultipleChoiceAnswer
             {
-                Question = multQuestion3,
+                QuestionIndex = 0,
                 ChoiceOptionIndexes = new List<int> { 1, 2 },
                 Points = 6
             };
 
             var openAnswer1 = new OpenAnswer
             {
-                Question = openQuestion1,
+                QuestionIndex = 1,
                 Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
                 Points = 1
             };
 
             var openAnswer2 = new OpenAnswer
             {
-                Question = openQuestion2,
+                QuestionIndex = 1,
                 Text = "Felis eget nunc lobortis mattis.",
                 Points = 0
             };
 
             var openAnswer3 = new OpenAnswer
             {
-                Question = openQuestion3,
+                QuestionIndex = 1,
                 Text = "Nunc mi ipsum faucibus vitae. Sed nisi lacus sed viverra tellus in hac habitasse platea.",
                 Points = 0
             };
 
             var singleAnswer1 = new SingleChoiceAnswer
             {
-                Question = singleQuestion1,
+                QuestionIndex = 2,
                 ChoiceOptionIndex = 0,
                 Points = 1
             };
 
             var singleAnswer2 = new SingleChoiceAnswer
             {
-                Question = singleQuestion2,
+                QuestionIndex = 2,
                 ChoiceOptionIndex = 1,
                 Points = 1
             };
 
             var singleAnswer3 = new SingleChoiceAnswer
             {
-                Question = singleQuestion3,
+                QuestionIndex = 2,
                 ChoiceOptionIndex = 2,
                 Points = 2
             };
@@ -358,7 +358,7 @@ namespace Graidex.Infrastructure.Data
             var test2Questions = new TestBaseQuestionsList
             {
                 TestBaseId = test2.Id,
-                Questions = new List<Question> { multQuestion2, openQuestion2, singleQuestion2, singleQuestion1 }
+                Questions = new List<Question> { multQuestion2, openQuestion2, singleQuestion2 }
             };
 
             var test3Questions = new TestBaseQuestionsList
@@ -382,7 +382,6 @@ namespace Graidex.Infrastructure.Data
                 EndTime = new DateTime(2023, 7, 10, 12, 55, 0),
                 TestId = test1.Id,
                 StudentId = student1.Id,
-                // Answers = new() {multAnswer1, openAnswer1, singleAnswer1},
             };
 
             var testResult2 = new TestResult
@@ -391,7 +390,6 @@ namespace Graidex.Infrastructure.Data
                 EndTime = new DateTime(2023, 6, 10, 12, 55, 0),
                 TestId = test2.Id,
                 StudentId = student2.Id,
-                // Answers = new()  {multAnswer2, openAnswer2, singleAnswer2, singleAnswer1},
             };
 
             var testResult3 = new TestResult
@@ -400,12 +398,37 @@ namespace Graidex.Infrastructure.Data
                 EndTime = new DateTime(2023, 5, 10, 12, 55, 0),
                 TestId = test3.Id,
                 StudentId = student3.Id,
-                // Answers = new() { multAnswer3, openAnswer3, singleAnswer3, multAnswer2},
             };
             #endregion TestResults
 
             sqlDbContext.TestResults.AddRange(testResult1, testResult2, testResult3);
             sqlDbContext.SaveChanges();
+
+            var testResult1Answers = new TestResultAnswersList
+            {
+                TestResultId = testResult1.Id,
+                Answers = new List<Answer> { multAnswer1, openAnswer1, singleAnswer1 }
+            };
+
+            var testResult2Answers = new TestResultAnswersList
+            {
+                TestResultId = testResult2.Id,
+                Answers = new List<Answer> { multAnswer2, openAnswer2, singleAnswer2 }
+            };
+
+            var testResult3Answers = new TestResultAnswersList
+            {
+                TestResultId = testResult3.Id,
+                Answers = new List<Answer> { multAnswer3, openAnswer3, singleAnswer3 }
+            };
+
+            mongoDbClient.TestResultAnswersLists.InsertMany(
+                               new[]
+                               {
+                    testResult1Answers,
+                    testResult2Answers,
+                    testResult3Answers
+                });
         }
     }
 }

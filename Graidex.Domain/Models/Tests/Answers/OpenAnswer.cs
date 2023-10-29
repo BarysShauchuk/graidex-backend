@@ -10,19 +10,11 @@ namespace Graidex.Domain.Models.Tests.Answers
     /// <summary>
     /// Represents an answer to an open question in the test.
     /// </summary>
-    public class OpenAnswer : IAnswer<OpenQuestion>
+    public class OpenAnswer : Answer
     {
-        /// <summary>
-        /// Gets or sets the open question this answer relates to.
-        /// </summary>
-        public required OpenQuestion Question { get; set; }
-
         /// <summary>
         /// Gets or sets the response text of the open answer.
         /// </summary>
-        public required string Text { get; set; }
-
-        /// <inheritdoc />
-        public int Points { get; set; }
+        public string Text { get; set; } = string.Empty;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Graidex.Application.DTOs.Test.TestAttempt;
+using Graidex.Application.Factories;
 using Graidex.Application.Interfaces;
 using Graidex.Application.OneOfCustomTypes;
 using Graidex.Domain.Interfaces;
@@ -14,6 +15,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Graidex.Application.Services.Tests
 {
@@ -23,6 +25,9 @@ namespace Graidex.Application.Services.Tests
         private readonly IStudentRepository studentRepository;
         private readonly ITestRepository testRepository;
         private readonly ITestResultRepository testResultRepository;
+        private readonly ITestBaseQuestionsRepository testBaseQuestionsRepository;
+        private readonly ITestResultAnswersRepository testResultAnswersRepository;
+        private readonly IAnswerFactory answerFactory;
         private readonly IMapper mapper;
 
         public TestResultService(
@@ -30,12 +35,18 @@ namespace Graidex.Application.Services.Tests
             IStudentRepository studentRepository,
             ITestRepository testRepository,
             ITestResultRepository testResultRepository,
+            ITestBaseQuestionsRepository testBaseQuestionsRepository,
+            ITestResultAnswersRepository testResultAnswersRepository,
+            IAnswerFactory answerFactory,
             IMapper mapper)
         {
             this.currentUser = currentUser;
             this.studentRepository = studentRepository;
             this.testRepository = testRepository;
             this.testResultRepository = testResultRepository;
+            this.testBaseQuestionsRepository = testBaseQuestionsRepository;
+            this.testResultAnswersRepository = testResultAnswersRepository;
+            this.answerFactory = answerFactory;
             this.mapper = mapper;
         }
 
@@ -74,7 +85,64 @@ namespace Graidex.Application.Services.Tests
 
             await this.testResultRepository.Add(testResult);
 
+            var questions = await this.testBaseQuestionsRepository.GetQuestionsListAsync(testId);
+            var answers = questions.Questions.Select(this.answerFactory.CreateAnswer).ToList();
+
+            // TODO: Shuffle answers
+
+            var answersList = new TestResultAnswersList
+            {
+                TestResultId = testResult.Id,
+                Answers = answers
+            };
+
+            await this.testResultAnswersRepository.CreateAnswersListAsync(answersList);
+
             return new Success();
+        }
+
+        private static void ShuffleList<T>(IList<T> list, int? seed = null)
+        {
+            Random random = seed.HasValue ? new Random(seed.Value) : new Random();
+
+            int n = list.Count;
+            T temp;
+            while (n > 1)
+            {
+                int k = random.Next(n);
+                n--;
+                temp = list[n];
+                list[n] = list[k];
+                list[k] = temp;
+            }
+        }
+
+        // TODO: Change return type. Rename method?
+        public async Task GetAllQuestionsWithSavedAnswersAsync(int testResultId)
+        {
+            var questions
+                = await this.testBaseQuestionsRepository.GetQuestionsListAsync(testResultId);
+
+            var answers
+                = await this.testResultAnswersRepository.GetAnswersListAsync(testResultId);
+            
+            var questionsWithAnswers = answers.Answers
+                .Select(answer => new GetAnswerDto
+                {
+                    Question = questions.Questions[answer.QuestionIndex], // Mappings here
+                    Answer = answer // And here
+                })
+                .ToList();
+
+            throw new NotImplementedException();
+        }
+
+        // Example of DTO, should be removed. All properties should be DTOs as well.
+        // Real DTO can be named differently.
+        private class GetAnswerDto
+        {
+            public required Question Question { get; set; }
+            public required Answer Answer { get; set; }
         }
 
         public async Task<OneOf<Success, NotFound, AttemptFinished>> UpdateTestAttemptByIdAsync(int testResultId)
@@ -99,6 +167,7 @@ namespace Graidex.Application.Services.Tests
             }
 
             // TODO: Add answers update logic
+            // Get answer from repo, validate types, update answer
 
             await this.testResultRepository.Update(testAttempt);
 

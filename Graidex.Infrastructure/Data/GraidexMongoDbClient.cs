@@ -1,4 +1,5 @@
-﻿using Graidex.Domain.Models.Tests.Questions;
+﻿using Graidex.Domain.Models.Tests.Answers;
+using Graidex.Domain.Models.Tests.Questions;
 using Graidex.Infrastructure.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -32,21 +33,30 @@ namespace Graidex.Infrastructure.Data
             this.TestQuestionsLists = this.Database
                 .GetCollection<TestBaseQuestionsList>(nameof(TestQuestionsLists));
 
-            this.Configure();
+            this.TestResultAnswersLists = this.Database
+                .GetCollection<TestResultAnswersList>(nameof(TestResultAnswersLists));
+
+            Configure();
 
             logger.LogInformation(
                 $"MongoDbClient initialized for database: {options.Value.DatabaseName}");
         }
 
-        public void Configure()
+        private static void Configure()
         {
             BsonClassMap.RegisterClassMap<OpenQuestion>();
             BsonClassMap.RegisterClassMap<SingleChoiceQuestion>();
             BsonClassMap.RegisterClassMap<MultipleChoiceQuestion>();
+
+            BsonClassMap.RegisterClassMap<OpenAnswer>();
+            BsonClassMap.RegisterClassMap<SingleChoiceAnswer>();
+            BsonClassMap.RegisterClassMap<MultipleChoiceAnswer>();
         }
 
         public IMongoDatabase Database { get; }
 
         public IMongoCollection<TestBaseQuestionsList> TestQuestionsLists { get; }
+
+        public IMongoCollection<TestResultAnswersList> TestResultAnswersLists { get; }
     }
 }

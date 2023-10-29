@@ -2,6 +2,7 @@
 using Graidex.API.HostedServices;
 using Graidex.API.WebServices;
 using Graidex.Application;
+using Graidex.Application.Factories;
 using Graidex.Application.Interfaces;
 using Graidex.Application.Interfaces.TestCheckingQueue;
 using Graidex.Application.Services.Authentication;
@@ -158,6 +159,13 @@ namespace Graidex.API.Startup
             services.AddAutoMapper(typeof(IApplicationAssemblyMarker).Assembly);
 
             services.AddSingleton<IContentTypeProvider, FileExtensionContentTypeProvider>();
+
+            return services;
+        }
+
+        public static IServiceCollection RegisterFactories(this IServiceCollection services)
+        {
+            services.AddScoped<IAnswerFactory, AnswerFactory>();
 
             return services;
         }

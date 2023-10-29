@@ -18,6 +18,7 @@ builder.Services.RegisterAuthorizationServices();
 
 builder.Services.RegisterWebServices();
 builder.Services.RegisterApplicationServices();
+builder.Services.RegisterFactories();
 builder.Services.RegisterTestCheckingServices();
 
 builder.Services.RegisterSwaggerServices();

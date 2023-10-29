@@ -6,10 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.DTOs.Test.TestAttempt
+namespace Graidex.Application.Factories
 {
-    public class UpdateTestAttemptDto
+    public interface IAnswerFactory
     {
-        //public required List<IAnswer<Question>> Answers { get; set; }
+        public Answer CreateAnswer(Question question, int index);
     }
 }
