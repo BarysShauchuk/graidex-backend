@@ -9,6 +9,7 @@ namespace Graidex.Application.DTOs.Files
     public class DownloadFileDto
     {
         public required string FileName { get; set; }
+        public string? ContentType { get; set; }
         public required Stream Stream { get; set; }
     }
 }

@@ -158,7 +158,15 @@ namespace Graidex.API.Startup
             services.AddValidatorsFromAssemblyContaining<IApplicationAssemblyMarker>();
             services.AddAutoMapper(typeof(IApplicationAssemblyMarker).Assembly);
 
-            services.AddSingleton<IContentTypeProvider, FileExtensionContentTypeProvider>();
+            services.AddSingleton<
+                Microsoft.AspNetCore.StaticFiles.IContentTypeProvider, 
+                FileExtensionContentTypeProvider
+                >();
+
+            services.AddSingleton<
+                Graidex.Application.Interfaces.IContentTypeProvider, 
+                ContentTypeProvider
+                >();
 
             return services;
         }
