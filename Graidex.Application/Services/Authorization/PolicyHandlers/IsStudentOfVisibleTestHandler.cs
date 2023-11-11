@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.Services.Authorization.PolicyHandlers
 {
-    public class IsStudentOfTestHandler : AuthorizationHandler<IsStudentOfTestRequirement>
+    public class IsStudentOfVisibleTestHandler : AuthorizationHandler<IsStudentOfVisibleTestRequirement>
     {
         private readonly ICurrentUserService currentUser;
         private readonly IRouteDataService routeData;
         private readonly IStudentRepository studentRepository;
         private readonly ITestRepository testRepository;
 
-        public IsStudentOfTestHandler(
+        public IsStudentOfVisibleTestHandler(
             ICurrentUserService currentUser,
             IRouteDataService routeData,
             IStudentRepository studentRepository,
@@ -31,7 +31,7 @@ namespace Graidex.Application.Services.Authorization.PolicyHandlers
 
         protected override async Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
-            IsStudentOfTestRequirement requirement)
+            IsStudentOfVisibleTestRequirement requirement)
         {
             if (!context.User.IsInRole("Student"))
             {
@@ -67,7 +67,7 @@ namespace Graidex.Application.Services.Authorization.PolicyHandlers
                 return;
             }
 
-            if (test.IsVisible || (DateTime.Now > test.StartDateTime && DateTime.Now < test.EndDateTime))
+            if (test.IsVisible || (DateTime.UtcNow > test.StartDateTime && DateTime.UtcNow < test.EndDateTime))
             {
                 context.Succeed(requirement);
                 return;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.Services.Authorization.Requirements
 {
-    public class IsStudentOfTestRequirement : IAuthorizationRequirement
+    public class IsStudentOfVisibleTestRequirement : IAuthorizationRequirement
     {
     }
 }

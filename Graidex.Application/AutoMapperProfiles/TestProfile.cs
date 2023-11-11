@@ -1,10 +1,15 @@
 ﻿using AutoMapper;
+using Graidex.Application.DTOs.Test.Answers.TestAttempt;
 using Graidex.Application.DTOs.Test.Questions;
 using Graidex.Application.DTOs.Test.Questions.ChoiceOptions;
 using Graidex.Application.DTOs.Test.Questions.ConcreteQuestions;
+using Graidex.Application.DTOs.Test.Questions.QuestionsForStudent;
+using Graidex.Application.DTOs.Test.Questions.QuestionsForStudent.ChoiceOptionsForStudent;
+using Graidex.Application.DTOs.Test.Questions.QuestionsForStudent.ConcreteQuestionsForStudent;
 using Graidex.Application.DTOs.Test.TestDraft;
 using Graidex.Domain.Models;
 using Graidex.Domain.Models.Tests;
+using Graidex.Domain.Models.Tests.Answers;
 using Graidex.Domain.Models.Tests.ChoiceOptions;
 using Graidex.Domain.Models.Tests.Questions;
 using System;
@@ -32,12 +37,16 @@ namespace Graidex.Application.AutoMapperProfiles
             CreateMap<TestDraft, DraftToTestDto>();
             CreateMap<DraftToTestDto, Test>();
             CreateMap<CreateTestDto, Test>();
-            CreateMap<Test, GetTestDto>();
+            CreateMap<Test, GetTestDto>()
+                .ForMember(dest => dest.AllowedStudents, act => act.MapFrom(src => src.AllowedStudents.Select(x => x.Email)));
             CreateMap<Test, GetVisibleTestDto>();
             CreateMap<UpdateTestDto, Test>();
             CreateMap<Test, CreateTestDraftDto>();
             CreateMap<TestDraft, DuplicateDraftDto>();
             CreateMap<DuplicateDraftDto, TestDraft>();
+
+
+
             CreateMap<Question, TestBaseQuestionDto>()
                 .Include<OpenQuestion, TestBaseOpenQuestionDto>()
                 .Include<SingleChoiceQuestion, TestBaseSingleChoiceQuestionDto>()
@@ -62,6 +71,42 @@ namespace Graidex.Application.AutoMapperProfiles
 
             CreateMap<ChoiceOptionDto, ChoiceOption>();
             CreateMap<MultipleChoiceOptionDto, MultipleChoiceOption>();
+
+
+
+            CreateMap<Question, TestAttemptQuestionForStudentDto>()
+                .Include<OpenQuestion, TestAttemptOpenQuestionForStudentDto>()
+                .Include<SingleChoiceQuestion, TestAttemptSingleChoiceQuestionForStudentDto>()
+                .Include<MultipleChoiceQuestion, TestAttemptMultipleChoiceQuestionForStudentDto>();
+
+            CreateMap<OpenQuestion, TestAttemptOpenQuestionForStudentDto>();
+            CreateMap<SingleChoiceQuestion, TestAttemptSingleChoiceQuestionForStudentDto>();
+            CreateMap<MultipleChoiceQuestion, TestAttemptMultipleChoiceQuestionForStudentDto>();
+
+            CreateMap<ChoiceOption, ChoiceOptionForStudentDto>();
+            CreateMap<MultipleChoiceOption, MultipleChoiceOptionForStudentDto>();
+
+
+
+            CreateMap<Answer, GetAnswerForStudentDto>()
+                .Include<OpenAnswer, GetOpenAnswerForStudentDto>()
+                .Include<SingleChoiceAnswer, GetSingleChoiceAnswerForStudentDto>()
+                .Include<MultipleChoiceAnswer, GetMultipleChoiceAnswerForStudentDto>();
+
+            CreateMap<OpenAnswer, GetOpenAnswerForStudentDto>();
+            CreateMap<SingleChoiceAnswer, GetSingleChoiceAnswerForStudentDto>();
+            CreateMap<MultipleChoiceAnswer, GetMultipleChoiceAnswerForStudentDto>();
+
+
+
+            CreateMap<GetAnswerForStudentDto, Answer>()
+                .Include<GetOpenAnswerForStudentDto, OpenAnswer>()
+                .Include<GetSingleChoiceAnswerForStudentDto, SingleChoiceAnswer>()
+                .Include<GetMultipleChoiceAnswerForStudentDto, MultipleChoiceAnswer>();
+
+            CreateMap<GetOpenAnswerForStudentDto, OpenAnswer>();
+            CreateMap<GetSingleChoiceAnswerForStudentDto, SingleChoiceAnswer>();
+            CreateMap<GetMultipleChoiceAnswerForStudentDto, MultipleChoiceAnswer>();
         }
     }
 }

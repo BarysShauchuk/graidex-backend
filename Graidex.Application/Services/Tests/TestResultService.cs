@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using Graidex.Application.DTOs.Test.Answers.TestAttempt;
+using Graidex.Application.DTOs.Test.Questions;
+using Graidex.Application.DTOs.Test.Questions.QuestionsForStudent;
 using Graidex.Application.DTOs.Test.TestAttempt;
 using Graidex.Application.Factories;
 using Graidex.Application.Interfaces;
@@ -29,6 +32,7 @@ namespace Graidex.Application.Services.Tests
         private readonly ITestResultAnswersRepository testResultAnswersRepository;
         private readonly IAnswerFactory answerFactory;
         private readonly IMapper mapper;
+        private const int ExtraMinutesForSubmission = 1;
 
         public TestResultService(
             ICurrentUserService currentUser,
@@ -77,13 +81,15 @@ namespace Graidex.Application.Services.Tests
 
             var testResult = new TestResult
             {
-                StartTime = DateTime.Now,
-                EndTime = DateTime.Now + test.TimeLimit,
+                StartTime = DateTime.UtcNow,
+                EndTime = DateTime.UtcNow + test.TimeLimit,
                 TestId = testId,
                 StudentId = student.Id
             };
 
             await this.testResultRepository.Add(testResult);
+
+            // TODO: Add null check
 
             var questions = await this.testBaseQuestionsRepository.GetQuestionsListAsync(testId);
             var answers = questions.Questions.Select(this.answerFactory.CreateAnswer).ToList();
@@ -95,6 +101,8 @@ namespace Graidex.Application.Services.Tests
                 TestResultId = testResult.Id,
                 Answers = answers
             };
+
+            ShuffleList(answersList.Answers, testResult.Id);
 
             await this.testResultAnswersRepository.CreateAnswersListAsync(answersList);
 
@@ -117,35 +125,50 @@ namespace Graidex.Application.Services.Tests
             }
         }
 
-        // TODO: Change return type. Rename method?
-        public async Task GetAllQuestionsWithSavedAnswersAsync(int testResultId)
+        public async Task<OneOf<List<TestAttemptQuestionForStudentDto>, ItemImmutable, NotFound>> GetAllQuestionsAsync(int testResultId)
         {
+            var testAttempt = await this.testResultRepository.GetById(testResultId);
+            if (testAttempt is null)
+            {
+                return new NotFound();
+            }
+
+            var questionsList
+                = await this.testBaseQuestionsRepository.GetQuestionsListAsync(testAttempt.TestId);
+
+            var questions = questionsList.Questions
+                .Select(mapper.Map<TestAttemptQuestionForStudentDto>).ToList();
+
+            return questions;
+        }
+
+        // TODO: Change return type. Rename method?
+        public async Task<OneOf<List<GetAnswerDto>, NotFound>> GetAllQuestionsWithSavedAnswersAsync(int testResultId)
+        {
+            var testAttempt = await this.testResultRepository.GetById(testResultId);
+            if (testAttempt is null)
+            {
+                return new NotFound();
+            }
+
             var questions
-                = await this.testBaseQuestionsRepository.GetQuestionsListAsync(testResultId);
+                = await this.testBaseQuestionsRepository.GetQuestionsListAsync(testAttempt.TestId);
 
             var answers
                 = await this.testResultAnswersRepository.GetAnswersListAsync(testResultId);
-            
+
             var questionsWithAnswers = answers.Answers
                 .Select(answer => new GetAnswerDto
                 {
-                    Question = questions.Questions[answer.QuestionIndex], // Mappings here
-                    Answer = answer // And here
+                    Question = mapper.Map<TestAttemptQuestionForStudentDto>(questions.Questions[answer.QuestionIndex]),
+                    Answer = mapper.Map<GetAnswerForStudentDto>(answer)
                 })
                 .ToList();
 
-            throw new NotImplementedException();
+            return questionsWithAnswers;
         }
 
-        // Example of DTO, should be removed. All properties should be DTOs as well.
-        // Real DTO can be named differently.
-        private class GetAnswerDto
-        {
-            public required Question Question { get; set; }
-            public required Answer Answer { get; set; }
-        }
-
-        public async Task<OneOf<Success, NotFound, AttemptFinished>> UpdateTestAttemptByIdAsync(int testResultId)
+        public async Task<OneOf<Success, NotFound, ItemImmutable>> UpdateTestAttemptByIdAsync(int testResultId, int questionIndex, GetAnswerForStudentDto answerDto)
         {
             var testAttempt = await this.testResultRepository.GetById(testResultId);
             if (testAttempt is null)
@@ -159,24 +182,28 @@ namespace Graidex.Application.Services.Tests
                 return new NotFound();
             }
 
-            if (DateTime.Now > test.EndDateTime 
-                || DateTime.Now > testAttempt.StartTime + test.TimeLimit 
-                || DateTime.Now > testAttempt.EndTime)
+            if (DateTime.UtcNow > test.EndDateTime + new TimeSpan(0, ExtraMinutesForSubmission, 0)
+                || DateTime.UtcNow > testAttempt.StartTime + test.TimeLimit + new TimeSpan(0, ExtraMinutesForSubmission, 0)
+                || DateTime.UtcNow > testAttempt.EndTime + new TimeSpan(0, ExtraMinutesForSubmission, 0))
             {
-                return new AttemptFinished("This test attempt is already finished");
+                return new ItemImmutable("This test attempt is already finished");
             }
 
             // TODO: Add answers update logic
             // Get answer from repo, validate types, update answer
+
+            // TODO: Add validation 
+
+            await this.testResultAnswersRepository.UpdateAnswerAsync(testResultId, questionIndex, mapper.Map<Answer>(answerDto));
 
             await this.testResultRepository.Update(testAttempt);
 
             return new Success();
         }
 
-        public async Task<OneOf<Success, NotFound>> SubmitTestAttemptByIdAsync(int testResultId)
+        public async Task<OneOf<Success, NotFound>> SubmitTestAttemptByIdAsync(int testResultId, int questionIndex, GetAnswerForStudentDto answerDto)
         {
-            var updateResult = await this.UpdateTestAttemptByIdAsync(testResultId);
+            var updateResult = await this.UpdateTestAttemptByIdAsync(testResultId, questionIndex, answerDto);
             if (updateResult.IsT1)
             {
                 return new NotFound();
@@ -193,7 +220,11 @@ namespace Graidex.Application.Services.Tests
                 return new NotFound();
             }
 
-            testAttempt.EndTime = DateTime.Now;
+            testAttempt.EndTime = DateTime.UtcNow;
+
+            // TODO: Add validation 
+
+            await this.testResultAnswersRepository.UpdateAnswerAsync(testResultId, questionIndex, mapper.Map<Answer>(answerDto));
 
             await this.testResultRepository.Update(testAttempt);
 

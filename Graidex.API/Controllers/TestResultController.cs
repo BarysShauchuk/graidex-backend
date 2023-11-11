@@ -1,4 +1,6 @@
 ﻿using Amazon.Auth.AccessControlPolicy;
+using Graidex.Application.DTOs.Test.Answers.TestAttempt;
+using Graidex.Application.DTOs.Test.TestAttempt;
 using Graidex.Application.OneOfCustomTypes;
 using Graidex.Application.Services.Tests;
 using Graidex.Domain.Models.Tests;
@@ -22,7 +24,7 @@ namespace Graidex.API.Controllers
         }
 
         [HttpPost("start-test-attempt/{testId}")]
-        [Authorize(Roles = "Student", Policy = "StudentOfTest")]
+        [Authorize(Roles = "Student", Policy = "StudentOfVisibleTest")]
         public async Task<ActionResult> StartTestAttempt(int testId)
         {
             var result = await this.testResultService.StartTestAttemptAsync(testId);
@@ -34,23 +36,46 @@ namespace Graidex.API.Controllers
                 outOfAttempts => BadRequest(outOfAttempts.Comment));
         }
 
+        [HttpGet("get-all-questions/{testResultId}")]
+        [Authorize(Roles = "Student", Policy = "StudentOfAttempt")]
+        public async Task<ActionResult> GetAllQuestions(int testResultId)
+        {
+            var result = await this.testResultService.GetAllQuestionsAsync(testResultId);
+
+            return result.Match<ActionResult>(
+                questionDtos => Ok(questionDtos),
+                itemImmutable => BadRequest(itemImmutable.Comment),
+                notFound => NotFound());
+        }
+
+        [HttpGet("get-all-questions-with-answers/{testResultId}")]
+        [Authorize(Roles = "Student", Policy = "StudentOfAttempt")]
+        public async Task<ActionResult> GetAllQuestionsWithSavedAnswers(int testResultId)
+        {
+            var result = await this.testResultService.GetAllQuestionsWithSavedAnswersAsync(testResultId);
+
+            return result.Match<ActionResult>(
+                questionsWithAnswersDtos => Ok(questionsWithAnswersDtos),
+                notFound => NotFound());
+        }
+
         [HttpPut("update-test-attempt/{testResultId}")]
         [Authorize(Roles = "Student", Policy = "StudentOfAttempt")]
-        public async Task<ActionResult> UpdateTestAttempt(int testResultId)
+        public async Task<ActionResult> UpdateTestAttempt(int testResultId, int questionIndex, GetAnswerForStudentDto answerDto)
         {
-            var result = await this.testResultService.UpdateTestAttemptByIdAsync(testResultId);
+            var result = await this.testResultService.UpdateTestAttemptByIdAsync(testResultId, questionIndex, answerDto);
 
             return result.Match<ActionResult>(
                 success => Ok(),
                 notFound => NotFound(),
-                attemptFinished => BadRequest(attemptFinished.Comment));
+                itemImmutable => BadRequest(itemImmutable.Comment));
         }
 
         [HttpPut("submit-test-attempt/{testResultId}")]
         [Authorize(Roles = "Student", Policy = "StudentOfAttempt")]
-        public async Task<ActionResult> SubmitTestAttempt(int testResultId)
+        public async Task<ActionResult> SubmitTestAttempt(int testResultId, int questionIndex, GetAnswerForStudentDto answerDto)
         {
-            var result = await this.testResultService.SubmitTestAttemptByIdAsync(testResultId);
+            var result = await this.testResultService.SubmitTestAttemptByIdAsync(testResultId, questionIndex, answerDto);
 
             return result.Match<ActionResult>(
                 success => Ok(),

@@ -195,7 +195,7 @@ namespace Graidex.Application.Services.Authentication
 
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.Now.AddHours(hoursToExpiration),
+                expires: DateTime.UtcNow.AddHours(hoursToExpiration),
                 signingCredentials: creds);
 
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);

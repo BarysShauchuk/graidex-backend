@@ -75,7 +75,7 @@ namespace Graidex.Application.Services.Tests
             var testDraft = this.mapper.Map<TestDraft>(createTestDraftDto);
 
             testDraft.SubjectId = subjectId;
-            testDraft.LastUpdate = DateTime.Now;
+            testDraft.LastUpdate = DateTime.UtcNow;
 
             await this.testDraftRepository.Add(testDraft);
 
@@ -94,7 +94,7 @@ namespace Graidex.Application.Services.Tests
 
             var testDraft = this.mapper.Map<TestDraft>(createTestDraftDto);
             testDraft.SubjectId = test.SubjectId;
-            testDraft.LastUpdate = DateTime.Now;
+            testDraft.LastUpdate = DateTime.UtcNow;
 
             await this.testDraftRepository.Add(testDraft);
 
@@ -141,7 +141,7 @@ namespace Graidex.Application.Services.Tests
 
             this.mapper.Map(updateTestDraftDto, testDraft);
 
-            testDraft.LastUpdate = DateTime.Now;
+            testDraft.LastUpdate = DateTime.UtcNow;
             await testDraftRepository.Update(testDraft);
 
             return new Success();
@@ -177,6 +177,12 @@ namespace Graidex.Application.Services.Tests
 
             await this.testRepository.Add(test);
 
+            var questions = await this.GetTestDraftQuestionsAsync(draftId);
+            if (questions.IsT0)
+            {
+                await this.UpdateTestQuestionsAsync(test.Id, questions.AsT0);
+            }
+            
             return this.mapper.Map<GetTestDto>(test);
         }
 
@@ -210,14 +216,14 @@ namespace Graidex.Application.Services.Tests
                 return new NotFound();
             }
 
-            if (DateTime.Now >= test.StartDateTime 
-                && DateTime.Now < test.EndDateTime 
+            if (DateTime.UtcNow >= test.StartDateTime 
+                && DateTime.UtcNow < test.EndDateTime 
                 && (updateTestDto.StartDateTime != test.StartDateTime || updateTestDto.TimeLimit < test.TimeLimit))
             {   
                 return new ItemImmutable("Test has already started");
             }
 
-            if (DateTime.Now >= test.EndDateTime
+            if (DateTime.UtcNow >= test.EndDateTime
                 && (updateTestDto.GradeToPass != test.GradeToPass
                 || updateTestDto.StartDateTime != test.StartDateTime
                 || updateTestDto.EndDateTime != test.EndDateTime
@@ -241,7 +247,7 @@ namespace Graidex.Application.Services.Tests
                 return new NotFound();
             }
 
-            if (DateTime.Now >= test.StartDateTime)
+            if (DateTime.UtcNow >= test.StartDateTime)
             {
                 return new ItemImmutable("Test has already started");
             }
@@ -266,8 +272,8 @@ namespace Graidex.Application.Services.Tests
                 return new NotFound();
             }
 
-            if (DateTime.Now >= test.StartDateTime)
-            {
+            if (DateTime.UtcNow >= test.StartDateTime)
+            { 
                 return new ItemImmutable("Test has already started");
             }
 

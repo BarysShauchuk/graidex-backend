@@ -14,6 +14,7 @@ namespace Graidex.Application.DTOs.Test.TestDraft
         public DateTime EndDateTime { get; set; }
         public TimeSpan TimeLimit { get; set; }
         public bool AutoCheckAfterSubmission { get; set; }
+        public bool IsVisible { get; set; }
 
         // TODO: Validate using Enum.IsDefined();
         public ReviewResultOptions ReviewResult { get; set; }

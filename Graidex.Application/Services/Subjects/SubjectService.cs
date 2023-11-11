@@ -248,8 +248,8 @@ namespace Graidex.Application.Services.Subjects
                 x.SubjectId == id
                 && !x.IsVisible
                 && x.AllowedStudents.Any(x => x.Id == student.Id) 
-                && x.StartDateTime < DateTime.Now
-                && x.EndDateTime > DateTime.Now);
+                && x.StartDateTime < DateTime.UtcNow
+                && x.EndDateTime > DateTime.UtcNow);
 
             visibleContent.AddRange(activeContent.ToList());
 
