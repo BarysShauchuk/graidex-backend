@@ -23,16 +23,13 @@ namespace Graidex.API.Controllers.Users
     {
         private readonly IStudentAuthenticationService authenticationService;
         private readonly IStudentService studentService;
-        private readonly IContentTypeProvider contentTypeProvider;
 
         public StudentController(
             IStudentAuthenticationService authenticationService,
-            IStudentService studentService,
-            IContentTypeProvider contentTypeProvider)
+            IStudentService studentService)
         {
             this.authenticationService = authenticationService;
             this.studentService = studentService;
-            this.contentTypeProvider = contentTypeProvider;
         }
 
         [HttpPost("create")]
@@ -120,17 +117,10 @@ namespace Graidex.API.Controllers.Users
             var result = await this.studentService.DownloadCurrentProfileImageAsync();
 
             return result.Match<ActionResult>(
-                file => 
-                {
-                    this.contentTypeProvider.TryGetContentType(
-                        file.FileName, 
-                        out var contentType);
-
-                    return File(
+                file => File(
                         fileStream: file.Stream,
-                        contentType: contentType ?? "image/?",
-                        fileDownloadName: file.FileName);
-                },
+                        contentType: file.ContentType ?? "image/?",
+                        fileDownloadName: file.FileName),
                 userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound("Profile image not found."));
         }
@@ -189,17 +179,10 @@ namespace Graidex.API.Controllers.Users
             var result = await this.studentService.GetAllProfileImagesOfSubjectAsync(subjectId);
 
             return result.Match<ActionResult>(
-                file =>
-                {
-                    this.contentTypeProvider.TryGetContentType(
-                        file.FileName,
-                        out var contentType);
-                    
-                    return File(
+                file => File(
                         fileStream: file.Stream,
-                        contentType: contentType ?? "application/zip",
-                        fileDownloadName: file.FileName);
-                },
+                        contentType: file.ContentType ?? "application/zip",
+                        fileDownloadName: file.FileName),
                 notFound => NotFound("Subject not found."));
         }
 

@@ -32,6 +32,7 @@ namespace Graidex.Application.Services.Users.Teachers
         private readonly IValidator<ChangePasswordDto> changePasswordDtoValidator;
         private readonly IValidator<UploadImageDto> uploadImageDtoValidator;
         private readonly IFileStorageProvider fileStorage;
+        private readonly IContentTypeProvider contentTypeProvider;
 
         public TeacherService(
             ICurrentUserService currentUser,
@@ -42,7 +43,8 @@ namespace Graidex.Application.Services.Users.Teachers
             IValidator<TeacherInfoDto> teacherInfoDtoValidator,
             IValidator<ChangePasswordDto> changePasswordDtoValidator,
             IValidator<UploadImageDto> uploadImageDtoValidator,
-            IFileStorageProvider fileStorage)
+            IFileStorageProvider fileStorage,
+            IContentTypeProvider contentTypeProvider)
         {
             this.currentUser = currentUser;
             this.studentRepository = studentRepository;
@@ -53,6 +55,7 @@ namespace Graidex.Application.Services.Users.Teachers
             this.changePasswordDtoValidator = changePasswordDtoValidator;
             this.uploadImageDtoValidator = uploadImageDtoValidator;
             this.fileStorage = fileStorage;
+            this.contentTypeProvider = contentTypeProvider;
         }
 
         public async Task<OneOf<Success, UserNotFound, WrongPassword>> DeleteCurrent(string password)
@@ -109,6 +112,7 @@ namespace Graidex.Application.Services.Users.Teachers
             }
 
             var fileName = $"ProfileImage{Path.GetExtension(teacher.ProfileImage)}";
+            var contentType = this.contentTypeProvider.GetContentType(fileName);
 
             var stream =
                 await this.fileStorage.DownloadAsync(teacher.ProfileImage, ProfileImagePath);
@@ -116,6 +120,7 @@ namespace Graidex.Application.Services.Users.Teachers
             var downloadImageDto = new DownloadFileDto
             {
                 FileName = fileName,
+                ContentType = contentType,
                 Stream = stream,
             };
 
@@ -161,6 +166,7 @@ namespace Graidex.Application.Services.Users.Teachers
             }
 
             var fileName = $"{teacher.Email}{Path.GetExtension(teacher.ProfileImage)}";
+            var contentType = this.contentTypeProvider.GetContentType(fileName);
 
             var stream =
                 await this.fileStorage.DownloadAsync(teacher.ProfileImage, ProfileImagePath);
@@ -168,6 +174,7 @@ namespace Graidex.Application.Services.Users.Teachers
             var downloadImageDto = new DownloadFileDto
             {
                 FileName = fileName,
+                ContentType = contentType,
                 Stream = stream,
             };
 

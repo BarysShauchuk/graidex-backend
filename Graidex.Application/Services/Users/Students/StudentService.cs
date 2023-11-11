@@ -32,6 +32,7 @@ namespace Graidex.Application.Services.Users.Students
         private readonly IValidator<ChangePasswordDto> changePasswordDtoValidator;
         private readonly IValidator<UploadImageDto> uploadImageDtoValidator;
         private readonly IFileStorageProvider fileStorage;
+        private readonly IContentTypeProvider contentTypeProvider;
 
         public StudentService(
             ICurrentUserService currentUser,
@@ -42,7 +43,8 @@ namespace Graidex.Application.Services.Users.Students
             IValidator<StudentInfoDto> studentInfoDtoValidator,
             IValidator<ChangePasswordDto> changePasswordDtoValidator,
             IValidator<UploadImageDto> uploadImageDtoValidator,
-            IFileStorageProvider fileStorage)
+            IFileStorageProvider fileStorage,
+            IContentTypeProvider contentTypeProvider)
         {
             this.currentUser = currentUser;
             this.studentRepository = studentRepository;
@@ -53,6 +55,7 @@ namespace Graidex.Application.Services.Users.Students
             this.changePasswordDtoValidator = changePasswordDtoValidator;
             this.uploadImageDtoValidator = uploadImageDtoValidator;
             this.fileStorage = fileStorage;
+            this.contentTypeProvider = contentTypeProvider;
         }
 
         public async Task<OneOf<Success, UserNotFound, WrongPassword>> DeleteCurrentAsync(string password)
@@ -109,6 +112,7 @@ namespace Graidex.Application.Services.Users.Students
             }
 
             var fileName = $"ProfileImage{Path.GetExtension(student.ProfileImage)}";
+            var contentType = contentTypeProvider.GetContentType(fileName);
 
             var stream = 
                 await this.fileStorage.DownloadAsync(student.ProfileImage, ProfileImagePath);
@@ -116,6 +120,7 @@ namespace Graidex.Application.Services.Users.Students
             var downloadImageDto = new DownloadFileDto
             {
                 FileName = fileName,
+                ContentType = contentType,
                 Stream = stream,
             };
 
@@ -156,6 +161,7 @@ namespace Graidex.Application.Services.Users.Students
                 foreach (var stream in streams)
                 {
                     var entry = zipArchive.CreateEntry(stream.name);
+                    entry.Comment = contentTypeProvider.GetContentType(stream.name) ?? "";
                     using var entryStream = entry.Open();
                     stream.stream.CopyTo(entryStream);
                 }
@@ -166,6 +172,7 @@ namespace Graidex.Application.Services.Users.Students
             var downloadFileDto = new DownloadFileDto
             {
                 FileName = "ProfileImages.zip",
+                ContentType = "application/zip",
                 Stream = memoryStream,
             };
 

@@ -21,16 +21,13 @@ namespace Graidex.API.Controllers.Users
     {
         private readonly ITeacherAuthenticationService authenticationService;
         private readonly ITeacherService teacherService;
-        private readonly IContentTypeProvider contentTypeProvider;
 
         public TeacherController(
             ITeacherAuthenticationService authenticationService,
-            ITeacherService teacherService,
-            IContentTypeProvider contentTypeProvider)
+            ITeacherService teacherService)
         {
             this.authenticationService = authenticationService;
             this.teacherService = teacherService;
-            this.contentTypeProvider = contentTypeProvider;
         }
 
         [HttpPost("create")]
@@ -86,18 +83,11 @@ namespace Graidex.API.Controllers.Users
             var result = await this.teacherService.GetProfileImageByEmailAsync(teacherEmail);
 
             return result.Match<ActionResult>(
-                file =>
-                {
-                    this.contentTypeProvider.TryGetContentType(
-                        file.FileName,
-                        out var contentType);
-
-                    return File(
+                file => File(
                         fileStream: file.Stream,
-                        contentType: contentType ?? "image/?",
-                        fileDownloadName: file.FileName);
-                },
-                userNotFound => NotFound(userNotFound.Comment),
+                        contentType: file.ContentType ?? "image/?",
+                        fileDownloadName: file.FileName),
+            userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound("Profile image not found."));
         }
 
@@ -140,17 +130,10 @@ namespace Graidex.API.Controllers.Users
             var result = await this.teacherService.DownloadCurrentProfileImageAsync();
 
             return result.Match<ActionResult>(
-                file =>
-                {
-                    this.contentTypeProvider.TryGetContentType(
-                        file.FileName,
-                        out var contentType);
-
-                    return File(
+                file => File(
                         fileStream: file.Stream,
-                        contentType: contentType ?? "image/?",
-                        fileDownloadName: file.FileName);
-                },
+                        contentType: file.ContentType ?? "image/?",
+                        fileDownloadName: file.FileName),
                 userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound("Profile image not found."));
         }
