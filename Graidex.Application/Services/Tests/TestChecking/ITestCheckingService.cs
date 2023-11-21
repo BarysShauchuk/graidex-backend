@@ -9,5 +9,6 @@ namespace Graidex.Application.Services.Tests.TestChecking
     public interface ITestCheckingService
     {
         public Task CheckTestAttemptAsync(int testResultId);
+        public Task RecalculateTestResultEvaluation(int testResultId);
     }
 }

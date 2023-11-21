@@ -13,5 +13,10 @@ namespace Graidex.Application.Services.Tests.TestChecking
         {
             await Task.Delay(1_000);
         }
+
+        public async Task RecalculateTestResultEvaluation(int testResultId)
+        {
+            await Task.Delay(1);
+        }
     }
 }

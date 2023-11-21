@@ -115,7 +115,7 @@ namespace Graidex.API.Controllers
         }
 
         [HttpGet("get-visible-test/{testId}")]
-        [Authorize(Roles = "Student", Policy = "StudentOfTest")]
+        [Authorize(Roles = "Student", Policy = "StudentOfVisibleTest")]
         public async Task<ActionResult<GetVisibleTestDto>> GetVisibleTestById(int testId)
         {
             var result = await this.testService.GetVisibleTestByIdAsync(testId);
