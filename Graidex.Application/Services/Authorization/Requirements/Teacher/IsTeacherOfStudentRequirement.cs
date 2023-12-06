@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.Services.Authorization.Requirements
+namespace Graidex.Application.Services.Authorization.Requirements.Teacher
 {
     public class IsTeacherOfStudentRequirement : IAuthorizationRequirement
     {

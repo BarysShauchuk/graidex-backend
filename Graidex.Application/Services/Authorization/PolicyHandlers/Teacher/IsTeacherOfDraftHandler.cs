@@ -1,5 +1,5 @@
 ﻿using Graidex.Application.Interfaces;
-using Graidex.Application.Services.Authorization.Requirements;
+using Graidex.Application.Services.Authorization.Requirements.Teacher;
 using Graidex.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using System;
@@ -8,33 +8,33 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.Services.Authorization.PolicyHandlers
+namespace Graidex.Application.Services.Authorization.PolicyHandlers.Teacher
 {
-    public class IsTeacherOfTestHandler : AuthorizationHandler<IsTeacherOfTestRequirement>
+    public class IsTeacherOfDraftHandler : AuthorizationHandler<IsTeacherOfDraftRequirement>
     {
         private readonly ICurrentUserService currentUser;
         private readonly IRouteDataService routeData;
         private readonly ITeacherRepository teacherRepository;
         private readonly ISubjectRepository subjectRepository;
-        private readonly ITestRepository testRepository;
+        private readonly ITestDraftRepository testDraftRepository;
 
-        public IsTeacherOfTestHandler(
+        public IsTeacherOfDraftHandler(
             ICurrentUserService currentUser,
             IRouteDataService routeData,
             ITeacherRepository teacherRepository,
             ISubjectRepository subjectRepository,
-            ITestRepository testRepository)
+            ITestDraftRepository testDraftRepository)
         {
             this.currentUser = currentUser;
             this.routeData = routeData;
             this.teacherRepository = teacherRepository;
             this.subjectRepository = subjectRepository;
-            this.testRepository = testRepository;
+            this.testDraftRepository = testDraftRepository;
         }
 
         protected override async Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
-            IsTeacherOfTestRequirement requirement)
+            IsTeacherOfDraftRequirement requirement)
         {
             if (!context.User.IsInRole("Teacher"))
             {
@@ -42,29 +42,29 @@ namespace Graidex.Application.Services.Authorization.PolicyHandlers
                 return;
             }
 
-            string teacherEmail = this.currentUser.GetEmail();
-            var teacher = await this.teacherRepository.GetByEmail(teacherEmail);
+            string teacherEmail = currentUser.GetEmail();
+            var teacher = await teacherRepository.GetByEmail(teacherEmail);
             if (teacher is null)
             {
                 context.Fail();
                 return;
             }
 
-            int testId = Convert.ToInt32(this.routeData.RouteValues["testId"]);
-            if (testId == 0)
+            int draftId = Convert.ToInt32(routeData.RouteValues["draftId"]);
+            if (draftId == 0)
             {
                 context.Fail();
                 return;
             }
 
-            var test = await this.testRepository.GetById(testId);
-            if (test is null)
+            var draft = await testDraftRepository.GetById(draftId);
+            if (draft is null)
             {
                 context.Fail();
                 return;
             }
 
-            var subject = await subjectRepository.GetById(test.SubjectId);
+            var subject = await subjectRepository.GetById(draft.SubjectId);
             if (subject is null)
             {
                 context.Fail();

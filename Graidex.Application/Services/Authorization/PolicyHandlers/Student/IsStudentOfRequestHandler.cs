@@ -1,5 +1,6 @@
 ﻿using Graidex.Application.Interfaces;
-using Graidex.Application.Services.Authorization.Requirements;
+using Graidex.Application.Services.Authorization.Requirements.Student;
+using Graidex.Application.Services.Users;
 using Graidex.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using System;
@@ -8,33 +9,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.Services.Authorization.PolicyHandlers
+namespace Graidex.Application.Services.Authorization.PolicyHandlers.Student
 {
-    public class IsStudentOfTeacherHandler : AuthorizationHandler<IsStudentOfTeacherRequirement>
+    public class IsStudentOfRequestHandler : AuthorizationHandler<IsStudentOfRequestRequirement>
     {
         private readonly ICurrentUserService currentUser;
         private readonly IRouteDataService routeData;
         private readonly IStudentRepository studentRepository;
-        private readonly ITeacherRepository teacherRepository;
-        private readonly ISubjectRepository subjectRepository;
+        private readonly ISubjectRequestRepository subjectRequestRepository;
 
-        public IsStudentOfTeacherHandler(
+        public IsStudentOfRequestHandler(
             ICurrentUserService currentUser,
             IRouteDataService routeData,
             IStudentRepository studentRepository,
-            ITeacherRepository teacherRepository,
-            ISubjectRepository subjectRepository)
+            ISubjectRequestRepository subjectRequestRepository)
         {
             this.currentUser = currentUser;
             this.routeData = routeData;
             this.studentRepository = studentRepository;
-            this.teacherRepository = teacherRepository;
-            this.subjectRepository = subjectRepository;
+            this.subjectRequestRepository = subjectRequestRepository;
         }
 
         protected override async Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
-            IsStudentOfTeacherRequirement requirement)
+            IsStudentOfRequestRequirement requirement)
         {
             if (!context.User.IsInRole("Student"))
             {
@@ -42,34 +40,29 @@ namespace Graidex.Application.Services.Authorization.PolicyHandlers
                 return;
             }
 
-            string studentEmail = this.currentUser.GetEmail();
-            var student = await this.studentRepository.GetByEmail(studentEmail);
+            string studentEmail = currentUser.GetEmail();
+            var student = await studentRepository.GetByEmail(studentEmail);
             if (student is null)
             {
                 context.Fail();
                 return;
             }
 
-            string? teacherEmail = Convert.ToString(this.routeData.RouteValues["teacherEmail"]);
-            if (teacherEmail is null)
+            int subjectRequestId = Convert.ToInt32(routeData.RouteValues["subjectRequestId"]);
+            if (subjectRequestId == 0)
             {
                 context.Fail();
                 return;
             }
 
-            var teacher = await this.teacherRepository.GetByEmail(teacherEmail);
-            if (teacher is null)
+            var subjectRequest = await subjectRequestRepository.GetById(subjectRequestId);
+            if (subjectRequest is null)
             {
                 context.Fail();
                 return;
             }
 
-            bool haveCommonSubjects = this.subjectRepository
-                .GetAll()
-                .Where(x => x.TeacherId == teacher.Id)
-                .Any(x => x.Students.Any(x => x.Id == student.Id));
-
-            if (haveCommonSubjects)
+            if (subjectRequest.StudentId == student.Id)
             {
                 context.Succeed(requirement);
                 return;

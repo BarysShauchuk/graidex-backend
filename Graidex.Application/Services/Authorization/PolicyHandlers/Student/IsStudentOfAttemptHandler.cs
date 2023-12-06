@@ -1,5 +1,5 @@
 ﻿using Graidex.Application.Interfaces;
-using Graidex.Application.Services.Authorization.Requirements;
+using Graidex.Application.Services.Authorization.Requirements.Student;
 using Graidex.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using System;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.Services.Authorization.PolicyHandlers
+namespace Graidex.Application.Services.Authorization.PolicyHandlers.Student
 {
     public class IsStudentOfAttemptHandler : AuthorizationHandler<IsStudentOfAttemptRequirement>
     {
@@ -39,22 +39,22 @@ namespace Graidex.Application.Services.Authorization.PolicyHandlers
                 return;
             }
 
-            string studentEmail = this.currentUser.GetEmail();
-            var student = await this.studentRepository.GetByEmail(studentEmail);
+            string studentEmail = currentUser.GetEmail();
+            var student = await studentRepository.GetByEmail(studentEmail);
             if (student is null)
             {
                 context.Fail();
                 return;
             }
 
-            int testResultId = Convert.ToInt32(this.routeData.RouteValues["testResultId"]);
+            int testResultId = Convert.ToInt32(routeData.RouteValues["testResultId"]);
             if (testResultId == 0)
             {
                 context.Fail();
                 return;
             }
 
-            var testResult = await this.testResultRepository.GetById(testResultId);
+            var testResult = await testResultRepository.GetById(testResultId);
             if (testResult is null)
             {
                 context.Fail();

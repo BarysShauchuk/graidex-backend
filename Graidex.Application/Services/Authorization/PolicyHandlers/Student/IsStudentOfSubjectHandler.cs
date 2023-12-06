@@ -1,5 +1,5 @@
 ﻿using Graidex.Application.Interfaces;
-using Graidex.Application.Services.Authorization.Requirements;
+using Graidex.Application.Services.Authorization.Requirements.Student;
 using Graidex.Application.Services.Users;
 using Graidex.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -9,60 +9,60 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.Services.Authorization.PolicyHandlers
+namespace Graidex.Application.Services.Authorization.PolicyHandlers.Student
 {
-    public class IsTeacherOfSubjectHandler : AuthorizationHandler<IsTeacherOfSubjectRequirement>
+    public class IsStudentOfSubjectHandler : AuthorizationHandler<IsStudentOfSubjectRequirement>
     {
         private readonly ICurrentUserService currentUser;
         private readonly IRouteDataService routeData;
-        private readonly ITeacherRepository teacherRepository;
+        private readonly IStudentRepository studentRepository;
         private readonly ISubjectRepository subjectRepository;
 
-        public IsTeacherOfSubjectHandler(
+        public IsStudentOfSubjectHandler(
             ICurrentUserService currentUser,
             IRouteDataService routeData,
-            ITeacherRepository teacherRepository,
+            IStudentRepository studentRepository,
             ISubjectRepository subjectRepository)
         {
             this.currentUser = currentUser;
             this.routeData = routeData;
-            this.teacherRepository = teacherRepository;
+            this.studentRepository = studentRepository;
             this.subjectRepository = subjectRepository;
         }
 
         protected override async Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
-            IsTeacherOfSubjectRequirement requirement)
+            IsStudentOfSubjectRequirement requirement)
         {
-            if (!context.User.IsInRole("Teacher"))
+            if (!context.User.IsInRole("Student"))
             {
                 context.Fail();
                 return;
             }
 
-            string teacherEmail = this.currentUser.GetEmail();
-            var teacher = await this.teacherRepository.GetByEmail(teacherEmail);
-            if (teacher is null)
+            string studentEmail = currentUser.GetEmail();
+            var student = await studentRepository.GetByEmail(studentEmail);
+            if (student is null)
             {
                 context.Fail();
                 return;
             }
 
-            int subjectId = Convert.ToInt32(this.routeData.RouteValues["subjectId"]);
+            int subjectId = Convert.ToInt32(routeData.RouteValues["subjectId"]);
             if (subjectId == 0)
             {
                 context.Fail();
                 return;
             }
 
-            var subject = await this.subjectRepository.GetById(subjectId);
+            var subject = await subjectRepository.GetById(subjectId);
             if (subject is null)
             {
                 context.Fail();
                 return;
             }
 
-            if (subject.TeacherId == teacher.Id)
+            if (subject.Students.Any(x => x.Id == student.Id))
             {
                 context.Succeed(requirement);
                 return;
