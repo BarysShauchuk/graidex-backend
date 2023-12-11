@@ -127,24 +127,6 @@ namespace Graidex.Application.Services.Tests
             }
         }
 
-        public async Task<OneOf<List<TestAttemptQuestionForStudentDto>, ItemImmutable, NotFound>> GetAllQuestionsAsync(int testResultId)
-        {
-            var testAttempt = await this.testResultRepository.GetById(testResultId);
-            if (testAttempt is null)
-            {
-                return new NotFound();
-            }
-
-            var questionsList
-                = await this.testBaseQuestionsRepository.GetQuestionsListAsync(testAttempt.TestId);
-
-            var questions = questionsList.Questions
-                .Select(mapper.Map<TestAttemptQuestionForStudentDto>).ToList();
-
-            return questions;
-        }
-
-        // TODO: Change return type. Rename method?
         public async Task<OneOf<List<GetAnswerDto>, NotFound>> GetAllQuestionsWithSavedAnswersAsync(int testResultId)
         {
             var testAttempt = await this.testResultRepository.GetById(testResultId);
@@ -184,9 +166,9 @@ namespace Graidex.Application.Services.Tests
                 return new NotFound();
             }
 
-            if (DateTime.UtcNow > test.EndDateTime + new TimeSpan(0, ExtraMinutesForSubmission, 0)
-                || DateTime.UtcNow > testAttempt.StartTime + test.TimeLimit + new TimeSpan(0, ExtraMinutesForSubmission, 0)
-                || DateTime.UtcNow > testAttempt.EndTime + new TimeSpan(0, ExtraMinutesForSubmission, 0))
+            if (DateTime.UtcNow > test.EndDateTime.AddMinutes(ExtraMinutesForSubmission)
+                || DateTime.UtcNow > (testAttempt.StartTime + test.TimeLimit).AddMinutes(ExtraMinutesForSubmission)
+                || DateTime.UtcNow > testAttempt.EndTime.AddMinutes(ExtraMinutesForSubmission))
             {
                 return new ItemImmutable("This test attempt is already finished");
             }
