@@ -31,22 +31,10 @@ namespace Graidex.API.Controllers
             var result = await this.testResultService.StartTestAttemptAsync(testId);
 
             return result.Match<ActionResult>(
-                success => Ok(),
+                GetTestAttemptForStudentDto => Ok(GetTestAttemptForStudentDto),
                 userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound(),
                 outOfAttempts => BadRequest(outOfAttempts.Comment));
-        }
-
-        [HttpGet("get-all-questions/{testResultId}")]
-        [Authorize(Roles = "Student", Policy = "StudentOfAttempt")]
-        public async Task<ActionResult> GetAllQuestions(int testResultId)
-        {
-            var result = await this.testResultService.GetAllQuestionsAsync(testResultId);
-
-            return result.Match<ActionResult>(
-                questionDtos => Ok(questionDtos),
-                itemImmutable => BadRequest(itemImmutable.Comment),
-                notFound => NotFound());
         }
 
         [HttpGet("get-all-questions-with-answers/{testResultId}")]
@@ -56,7 +44,7 @@ namespace Graidex.API.Controllers
             var result = await this.testResultService.GetAllQuestionsWithSavedAnswersAsync(testResultId);
 
             return result.Match<ActionResult>(
-                questionsWithAnswersDtos => Ok(questionsWithAnswersDtos),
+                testAttemptForStudentDto => Ok(testAttemptForStudentDto),
                 notFound => NotFound());
         }
 
@@ -85,7 +73,7 @@ namespace Graidex.API.Controllers
 
         [HttpPut("get-test-result/{testResultId}")]
         [Authorize(Roles = "Teacher")]
-        public async Task<ActionResult> UpdateTestAttempt(int testResultId)
+        public async Task<ActionResult> GetTestResultForTeacherAttempt(int testResultId)
         {
             var result = await this.testResultService.GetTestResultByIdAsync(testResultId);
 

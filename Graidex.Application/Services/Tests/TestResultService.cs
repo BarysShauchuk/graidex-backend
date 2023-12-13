@@ -56,7 +56,7 @@ namespace Graidex.Application.Services.Tests
             this.mapper = mapper;
         }
 
-        public async Task<OneOf<Success, UserNotFound, NotFound, OutOfAttempts>> StartTestAttemptAsync(int testId)
+        public async Task<OneOf<GetTestAttemptForStudentDto, UserNotFound, NotFound, OutOfAttempts>> StartTestAttemptAsync(int testId)
         {
             string email = this.currentUser.GetEmail();
             var student = await studentRepository.GetByEmail(email);
@@ -108,7 +108,14 @@ namespace Graidex.Application.Services.Tests
 
             await this.testResultAnswersRepository.CreateAnswersListAsync(answersList);
 
-            return new Success();
+            var testAttemptDto = await this.GetAllQuestionsWithSavedAnswersAsync(testResult.Id);
+
+            if (testAttemptDto.IsT0)
+            {
+                return testAttemptDto.AsT0;
+            }
+
+            return new NotFound();
         }
 
         private static void ShuffleList<T>(IList<T> list, int? seed = null)
@@ -127,7 +134,7 @@ namespace Graidex.Application.Services.Tests
             }
         }
 
-        public async Task<OneOf<List<GetAnswerDto>, NotFound>> GetAllQuestionsWithSavedAnswersAsync(int testResultId)
+        public async Task<OneOf<GetTestAttemptForStudentDto, NotFound>> GetAllQuestionsWithSavedAnswersAsync(int testResultId)
         {
             var testAttempt = await this.testResultRepository.GetById(testResultId);
             if (testAttempt is null)
@@ -149,7 +156,13 @@ namespace Graidex.Application.Services.Tests
                 })
                 .ToList();
 
-            return questionsWithAnswers;
+            var testAttemptDto = new GetTestAttemptForStudentDto
+            {
+                Id = testResultId,
+                Answers = questionsWithAnswers,
+            };
+
+            return testAttemptDto;
         }
 
         public async Task<OneOf<Success, NotFound, ItemImmutable>> UpdateTestAttemptByIdAsync(int testResultId, int index, GetAnswerForStudentDto answerDto)
@@ -256,7 +269,7 @@ namespace Graidex.Application.Services.Tests
         }
 
         public async Task<OneOf<Success, NotFound, ItemImmutable>> LeaveFeedBackOnAnswerAsync(int testResultId, int index, LeaveFeedbackForAnswerDto feedbackDto)
-        {
+        {   
             var testResult = await this.testResultRepository.GetById(testResultId);
             if (testResult is null)
             {
