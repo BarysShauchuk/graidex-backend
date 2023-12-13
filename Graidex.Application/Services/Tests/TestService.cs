@@ -234,12 +234,6 @@ namespace Graidex.Application.Services.Tests
 
         public async Task<OneOf<Success, ValidationFailed, NotFound, ItemImmutable>> UpdateTestByIdAsync(int testId, UpdateTestDto updateTestDto)
         {   
-            var validationResult = this.updateTestDtoValidator.Validate(updateTestDto);
-            if (!validationResult.IsValid)
-            {
-                return new ValidationFailed(validationResult.Errors);
-            }
-
             var test = await this.testRepository.GetById(testId);
             if (test is null)
             {
@@ -260,6 +254,12 @@ namespace Graidex.Application.Services.Tests
                 || updateTestDto.TimeLimit != test.TimeLimit))
             {
                 return new ItemImmutable("Test has already ended");
+            }
+
+            var validationResult = this.updateTestDtoValidator.Validate(updateTestDto);
+            if (!validationResult.IsValid)
+            {
+                return new ValidationFailed(validationResult.Errors);
             }
 
             this.mapper.Map(updateTestDto, test);

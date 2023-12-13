@@ -32,7 +32,6 @@ namespace Graidex.Application.Validators.Tests.Test
                 .LessThan(x => x.EndDateTime - x.StartDateTime).WithMessage("Time limit must be less than the difference between start and end time");
 
             RuleFor(x => x.ReviewResult)
-                .NotEmpty()
                 .IsInEnum().WithMessage("Review result must be 1-'SetManually', 2-'AfterSubmission' or 3-'AfterAutoCheck'");
         }
     }
