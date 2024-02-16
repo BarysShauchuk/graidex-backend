@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.DTOs.Test.TestAttempt
 {
-    public class InitialTestAttemptDto
-    {
+    public class GetTestAttemptForStudentDto
+    {   
+        public int Id { get; set; }
+        public List<GetAnswerDto> Answers { get; set; } = new List<GetAnswerDto>();
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Graidex.Application.Interfaces;
-using Graidex.Application.Services.Authorization.Requirements;
-using Graidex.Application.Services.Users;
+using Graidex.Application.Services.Authorization.Requirements.Student;
 using Graidex.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using System;
@@ -9,30 +8,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.Services.Authorization.PolicyHandlers
+namespace Graidex.Application.Services.Authorization.PolicyHandlers.Student
 {
-    public class IsStudentOfSubjectHandler : AuthorizationHandler<IsStudentOfSubjectRequirement>
+    public class IsStudentOfVisibleTestHandler : AuthorizationHandler<IsStudentOfVisibleTestRequirement>
     {
         private readonly ICurrentUserService currentUser;
         private readonly IRouteDataService routeData;
         private readonly IStudentRepository studentRepository;
-        private readonly ISubjectRepository subjectRepository;
+        private readonly ITestRepository testRepository;
 
-        public IsStudentOfSubjectHandler(
+        public IsStudentOfVisibleTestHandler(
             ICurrentUserService currentUser,
             IRouteDataService routeData,
             IStudentRepository studentRepository,
-            ISubjectRepository subjectRepository)
+            ITestRepository testRepository)
         {
             this.currentUser = currentUser;
             this.routeData = routeData;
             this.studentRepository = studentRepository;
-            this.subjectRepository = subjectRepository;
+            this.testRepository = testRepository;
         }
 
         protected override async Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
-            IsStudentOfSubjectRequirement requirement)
+            IsStudentOfVisibleTestRequirement requirement)
         {
             if (!context.User.IsInRole("Student"))
             {
@@ -40,29 +39,35 @@ namespace Graidex.Application.Services.Authorization.PolicyHandlers
                 return;
             }
 
-            string studentEmail = this.currentUser.GetEmail();
-            var student = await this.studentRepository.GetByEmail(studentEmail);
+            string studentEmail = currentUser.GetEmail();
+            var student = await studentRepository.GetByEmail(studentEmail);
             if (student is null)
             {
                 context.Fail();
                 return;
             }
 
-            int subjectId = Convert.ToInt32(this.routeData.RouteValues["subjectId"]);
-            if (subjectId == 0)
+            int testId = Convert.ToInt32(routeData.RouteValues["testId"]);
+            if (testId == 0)
             {
                 context.Fail();
                 return;
             }
 
-            var subject = await this.subjectRepository.GetById(subjectId);
-            if (subject is null)
+            var test = await testRepository.GetById(testId);
+            if (test is null)
             {
                 context.Fail();
                 return;
             }
 
-            if (subject.Students.Any(x => x.Id == student.Id))
+            if (!test.AllowedStudents.Contains(student))
+            {
+                context.Fail();
+                return;
+            }
+
+            if (test.IsVisible || DateTime.UtcNow > test.StartDateTime && DateTime.UtcNow < test.EndDateTime)
             {
                 context.Succeed(requirement);
                 return;

@@ -3,6 +3,7 @@ using Graidex.Application.DTOs.Test.Answers.TestAttempt;
 using Graidex.Application.DTOs.Test.Questions;
 using Graidex.Application.DTOs.Test.Questions.QuestionsForStudent;
 using Graidex.Application.DTOs.Test.TestAttempt;
+using Graidex.Application.DTOs.Test.TestResult;
 using Graidex.Application.Factories;
 using Graidex.Application.Interfaces;
 using Graidex.Application.OneOfCustomTypes;
@@ -14,6 +15,7 @@ using OneOf;
 using OneOf.Types;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -54,7 +56,7 @@ namespace Graidex.Application.Services.Tests
             this.mapper = mapper;
         }
 
-        public async Task<OneOf<Success, UserNotFound, NotFound, OutOfAttempts>> StartTestAttemptAsync(int testId)
+        public async Task<OneOf<GetTestAttemptForStudentDto, UserNotFound, NotFound, OutOfAttempts>> StartTestAttemptAsync(int testId)
         {
             string email = this.currentUser.GetEmail();
             var student = await studentRepository.GetByEmail(email);
@@ -106,7 +108,14 @@ namespace Graidex.Application.Services.Tests
 
             await this.testResultAnswersRepository.CreateAnswersListAsync(answersList);
 
-            return new Success();
+            var testAttemptDto = await this.GetAllQuestionsWithSavedAnswersAsync(testResult.Id);
+
+            if (testAttemptDto.IsT0)
+            {
+                return testAttemptDto.AsT0;
+            }
+
+            return new NotFound();
         }
 
         private static void ShuffleList<T>(IList<T> list, int? seed = null)
@@ -125,25 +134,7 @@ namespace Graidex.Application.Services.Tests
             }
         }
 
-        public async Task<OneOf<List<TestAttemptQuestionForStudentDto>, ItemImmutable, NotFound>> GetAllQuestionsAsync(int testResultId)
-        {
-            var testAttempt = await this.testResultRepository.GetById(testResultId);
-            if (testAttempt is null)
-            {
-                return new NotFound();
-            }
-
-            var questionsList
-                = await this.testBaseQuestionsRepository.GetQuestionsListAsync(testAttempt.TestId);
-
-            var questions = questionsList.Questions
-                .Select(mapper.Map<TestAttemptQuestionForStudentDto>).ToList();
-
-            return questions;
-        }
-
-        // TODO: Change return type. Rename method?
-        public async Task<OneOf<List<GetAnswerDto>, NotFound>> GetAllQuestionsWithSavedAnswersAsync(int testResultId)
+        public async Task<OneOf<GetTestAttemptForStudentDto, NotFound>> GetAllQuestionsWithSavedAnswersAsync(int testResultId)
         {
             var testAttempt = await this.testResultRepository.GetById(testResultId);
             if (testAttempt is null)
@@ -165,10 +156,16 @@ namespace Graidex.Application.Services.Tests
                 })
                 .ToList();
 
-            return questionsWithAnswers;
+            var testAttemptDto = new GetTestAttemptForStudentDto
+            {
+                Id = testResultId,
+                Answers = questionsWithAnswers,
+            };
+
+            return testAttemptDto;
         }
 
-        public async Task<OneOf<Success, NotFound, ItemImmutable>> UpdateTestAttemptByIdAsync(int testResultId, int questionIndex, GetAnswerForStudentDto answerDto)
+        public async Task<OneOf<Success, NotFound, ItemImmutable>> UpdateTestAttemptByIdAsync(int testResultId, int index, GetAnswerForStudentDto answerDto)
         {
             var testAttempt = await this.testResultRepository.GetById(testResultId);
             if (testAttempt is null)
@@ -182,9 +179,9 @@ namespace Graidex.Application.Services.Tests
                 return new NotFound();
             }
 
-            if (DateTime.UtcNow > test.EndDateTime + new TimeSpan(0, ExtraMinutesForSubmission, 0)
-                || DateTime.UtcNow > testAttempt.StartTime + test.TimeLimit + new TimeSpan(0, ExtraMinutesForSubmission, 0)
-                || DateTime.UtcNow > testAttempt.EndTime + new TimeSpan(0, ExtraMinutesForSubmission, 0))
+            if (DateTime.UtcNow > test.EndDateTime.AddMinutes(ExtraMinutesForSubmission)
+                || DateTime.UtcNow > (testAttempt.StartTime + test.TimeLimit).AddMinutes(ExtraMinutesForSubmission)
+                || DateTime.UtcNow > testAttempt.EndTime.AddMinutes(ExtraMinutesForSubmission))
             {
                 return new ItemImmutable("This test attempt is already finished");
             }
@@ -194,16 +191,16 @@ namespace Graidex.Application.Services.Tests
 
             // TODO: Add validation 
 
-            await this.testResultAnswersRepository.UpdateAnswerAsync(testResultId, questionIndex, mapper.Map<Answer>(answerDto));
+            await this.testResultAnswersRepository.UpdateAnswerAsync(testResultId, index, mapper.Map<Answer>(answerDto));
 
             await this.testResultRepository.Update(testAttempt);
 
             return new Success();
         }
 
-        public async Task<OneOf<Success, NotFound>> SubmitTestAttemptByIdAsync(int testResultId, int questionIndex, GetAnswerForStudentDto answerDto)
+        public async Task<OneOf<Success, NotFound>> SubmitTestAttemptByIdAsync(int testResultId, int index, GetAnswerForStudentDto answerDto)
         {
-            var updateResult = await this.UpdateTestAttemptByIdAsync(testResultId, questionIndex, answerDto);
+            var updateResult = await this.UpdateTestAttemptByIdAsync(testResultId, index, answerDto);
             if (updateResult.IsT1)
             {
                 return new NotFound();
@@ -224,9 +221,72 @@ namespace Graidex.Application.Services.Tests
 
             // TODO: Add validation 
 
-            await this.testResultAnswersRepository.UpdateAnswerAsync(testResultId, questionIndex, mapper.Map<Answer>(answerDto));
+            await this.testResultAnswersRepository.UpdateAnswerAsync(testResultId, index, mapper.Map<Answer>(answerDto));
 
             await this.testResultRepository.Update(testAttempt);
+
+            return new Success();
+        }
+
+        public async Task<OneOf<GetTestResultForTeacherDto, NotFound, ItemImmutable>> GetTestResultByIdAsync(int testResultId)
+        {
+            var testResult = await this.testResultRepository.GetById(testResultId);
+            if (testResult is null)
+            {
+                return new NotFound();
+            }
+
+            var student = await this.studentRepository.GetById(testResult.StudentId);
+            if (student is null)
+            {
+                return new NotFound();
+            }
+
+            if (DateTime.UtcNow < testResult.EndTime) 
+            {
+                return new ItemImmutable("The test attempt is not finished yet");
+            }
+
+            var questions
+                = await this.testBaseQuestionsRepository.GetQuestionsListAsync(testResult.TestId);
+
+            var answers
+                = await this.testResultAnswersRepository.GetAnswersListAsync(testResultId);
+
+            var questionsWithAnswers = answers.Answers
+                .Select(answer => new GetResultAnswerForTeacherDto
+                {
+                    Question = mapper.Map<TestBaseQuestionDto>(questions.Questions[answer.QuestionIndex]),
+                    Answer = mapper.Map<GetResultAnswerDto>(answer)
+                })
+                .ToList();
+
+            var testResultDto = this.mapper.Map<GetTestResultForTeacherDto>(testResult);
+            testResultDto.ResultAnswers = questionsWithAnswers;
+            testResultDto.StudentEmail = student.Email;
+
+            return testResultDto;
+        }
+
+        public async Task<OneOf<Success, NotFound, ItemImmutable>> LeaveFeedBackOnAnswerAsync(int testResultId, int index, LeaveFeedbackForAnswerDto feedbackDto)
+        {   
+            var testResult = await this.testResultRepository.GetById(testResultId);
+            if (testResult is null)
+            {
+                return new NotFound();
+            }
+
+            if (DateTime.UtcNow < testResult.EndTime)
+            {
+                return new ItemImmutable("The test attempt is not finished yet");
+            }
+
+            // TODO: Add validation
+            // TODO: Add grade and total points recalculation
+
+            await this.testResultAnswersRepository.UpdateAnswerAsync(testResultId, index, mapper.Map<Answer>(feedbackDto));
+
+            await this.testResultRepository.Update(testResult);
 
             return new Success();
         }

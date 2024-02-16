@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Graidex.Application.DTOs.Test.Answers.TestAttempt;
+using Graidex.Application.DTOs.Test.Answers.TestResultAnswers;
 using Graidex.Application.DTOs.Test.Questions;
 using Graidex.Application.DTOs.Test.Questions.ChoiceOptions;
 using Graidex.Application.DTOs.Test.Questions.ConcreteQuestions;
@@ -7,6 +8,7 @@ using Graidex.Application.DTOs.Test.Questions.QuestionsForStudent;
 using Graidex.Application.DTOs.Test.Questions.QuestionsForStudent.ChoiceOptionsForStudent;
 using Graidex.Application.DTOs.Test.Questions.QuestionsForStudent.ConcreteQuestionsForStudent;
 using Graidex.Application.DTOs.Test.TestDraft;
+using Graidex.Application.DTOs.Test.TestResult;
 using Graidex.Domain.Models;
 using Graidex.Domain.Models.Tests;
 using Graidex.Domain.Models.Tests.Answers;
@@ -107,6 +109,21 @@ namespace Graidex.Application.AutoMapperProfiles
             CreateMap<GetOpenAnswerForStudentDto, OpenAnswer>();
             CreateMap<GetSingleChoiceAnswerForStudentDto, SingleChoiceAnswer>();
             CreateMap<GetMultipleChoiceAnswerForStudentDto, MultipleChoiceAnswer>();
+
+            CreateMap<TestResult, GetTestResultForTeacherDto>();
+
+            CreateMap<LeaveFeedbackForAnswerDto, Answer>();
+            CreateMap<LeaveFeedbackForAnswerDto, OpenAnswer>();
+            CreateMap<LeaveFeedbackForAnswerDto, SingleChoiceAnswer>();
+            CreateMap<LeaveFeedbackForAnswerDto, MultipleChoiceAnswer>();
+
+            CreateMap<Answer, GetResultAnswerDto>()
+                .Include<OpenAnswer, GetResultOpenAnswerDto>()
+                .Include<SingleChoiceAnswer, GetResultSingleChoiceAnswerDto>()
+                .Include<MultipleChoiceAnswer, GetResultMultipleChoiceAnswerDto>();
+            CreateMap<OpenAnswer, GetResultOpenAnswerDto>();
+            CreateMap<SingleChoiceAnswer, GetResultSingleChoiceAnswerDto>();
+            CreateMap<MultipleChoiceAnswer, GetResultMultipleChoiceAnswerDto>();
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Graidex.Application.Interfaces;
-using Graidex.Application.Services.Authorization.Requirements;
+using Graidex.Application.Services.Authorization.Requirements.Teacher;
 using Graidex.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using System;
@@ -8,66 +8,70 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.Services.Authorization.PolicyHandlers
+namespace Graidex.Application.Services.Authorization.PolicyHandlers.Teacher
 {
-    public class IsStudentOfVisibleTestHandler : AuthorizationHandler<IsStudentOfVisibleTestRequirement>
+    public class IsTeacherOfTestHandler : AuthorizationHandler<IsTeacherOfTestRequirement>
     {
         private readonly ICurrentUserService currentUser;
         private readonly IRouteDataService routeData;
-        private readonly IStudentRepository studentRepository;
+        private readonly ITeacherRepository teacherRepository;
+        private readonly ISubjectRepository subjectRepository;
         private readonly ITestRepository testRepository;
 
-        public IsStudentOfVisibleTestHandler(
+        public IsTeacherOfTestHandler(
             ICurrentUserService currentUser,
             IRouteDataService routeData,
-            IStudentRepository studentRepository,
+            ITeacherRepository teacherRepository,
+            ISubjectRepository subjectRepository,
             ITestRepository testRepository)
         {
             this.currentUser = currentUser;
             this.routeData = routeData;
-            this.studentRepository = studentRepository;
+            this.teacherRepository = teacherRepository;
+            this.subjectRepository = subjectRepository;
             this.testRepository = testRepository;
         }
 
         protected override async Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
-            IsStudentOfVisibleTestRequirement requirement)
+            IsTeacherOfTestRequirement requirement)
         {
-            if (!context.User.IsInRole("Student"))
+            if (!context.User.IsInRole("Teacher"))
             {
                 context.Fail();
                 return;
             }
 
-            string studentEmail = this.currentUser.GetEmail();
-            var student = await this.studentRepository.GetByEmail(studentEmail);
-            if (student is null)
+            string teacherEmail = currentUser.GetEmail();
+            var teacher = await teacherRepository.GetByEmail(teacherEmail);
+            if (teacher is null)
             {
                 context.Fail();
                 return;
             }
 
-            int testId = Convert.ToInt32(this.routeData.RouteValues["testId"]);
+            int testId = Convert.ToInt32(routeData.RouteValues["testId"]);
             if (testId == 0)
             {
                 context.Fail();
                 return;
             }
 
-            var test = await this.testRepository.GetById(testId);
+            var test = await testRepository.GetById(testId);
             if (test is null)
             {
                 context.Fail();
                 return;
             }
 
-            if (!test.AllowedStudents.Contains(student))
+            var subject = await subjectRepository.GetById(test.SubjectId);
+            if (subject is null)
             {
                 context.Fail();
                 return;
             }
 
-            if (test.IsVisible || (DateTime.UtcNow > test.StartDateTime && DateTime.UtcNow < test.EndDateTime))
+            if (subject.TeacherId == teacher.Id)
             {
                 context.Succeed(requirement);
                 return;
