@@ -12,6 +12,7 @@ namespace Graidex.Domain.Interfaces
         public Task CreateAnswersListAsync(TestResultAnswersList list);
         public Task<TestResultAnswersList> GetAnswersListAsync(int testResultId);
         public Task UpdateAnswerAsync(int testResultId, int index, Answer answer);
+        public Task UpdateAnswersListAsync(TestResultAnswersList list);
         public Task<Answer> GetAnswerAsync(int testResultId, int index);
     }
 }

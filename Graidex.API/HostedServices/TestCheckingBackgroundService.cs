@@ -1,7 +1,8 @@
 ﻿using Graidex.API.Extensions;
 using Graidex.Application.Interfaces;
-using Graidex.Application.Interfaces.TestCheckingQueue;
+using Graidex.Application.Services.TestChecking.TestCheckingQueue;
 using Graidex.Application.Services.Tests.TestChecking;
+using Graidex.Domain.Models.Tests;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks.Dataflow;
 
@@ -11,17 +12,16 @@ namespace Graidex.API.HostedServices
     {
         private readonly ILogger<TestCheckingBackgroundService> logger;
         private readonly ITestCheckingOutQueue queue;
-        private readonly ITestCheckingService testCheckingService;
-        private readonly List<Task> tasks = new();
+        private readonly IServiceProvider serviceProvider;
 
         public TestCheckingBackgroundService(
             ILogger<TestCheckingBackgroundService> logger,
             ITestCheckingOutQueue queue,
-            ITestCheckingService testCheckingService)
+            IServiceProvider serviceProvider)
         {
             this.logger = logger;
             this.queue = queue;
-            this.testCheckingService = testCheckingService;
+            this.serviceProvider = serviceProvider;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -40,15 +40,11 @@ namespace Graidex.API.HostedServices
                     int[] testsToCheck = await this.queue.GetPendingTestsAsync();
                     if (testsToCheck.Length == 0)
                     {
+                        await Task.Delay(1000, stoppingToken);
                         continue;
                     }
 
-                    tasks.Clear();
-                    foreach (var testId in testsToCheck)
-                    {
-                        tasks.Add(testCheckingService.CheckTestAttemptAsync(testId));
-                    }
-
+                    var tasks = testsToCheck.Select(testId => this.CheckTestAsync(testId));
                     await Task.WhenAll(tasks).WithAggregateException();
                 }
                 catch (AggregateException ex)
@@ -58,6 +54,7 @@ namespace Graidex.API.HostedServices
                         logger.LogError(innerEx, "Error occurred executing test checking.");
                     }
                 }
+                catch (OperationCanceledException) { }
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "Error occurred executing test checking.");
@@ -71,6 +68,15 @@ namespace Graidex.API.HostedServices
                 $"{nameof(TestCheckingBackgroundService)} is stopping.");
 
             await base.StopAsync(stoppingToken);
+        }
+
+        private async Task CheckTestAsync(int testResultId)
+        {
+            using var scope = this.serviceProvider.CreateScope();
+            var testCheckingService =
+                scope.ServiceProvider.GetRequiredService<ITestCheckingService>();
+
+            await testCheckingService.CheckTestAttemptAsync(testResultId);
         }
     }
 }

@@ -3,7 +3,6 @@ using Graidex.Application.DTOs.Test.Questions;
 using Graidex.Application.DTOs.Test.TestAttempt;
 using Graidex.Application.DTOs.Test.TestDraft;
 using Graidex.Application.Interfaces;
-using Graidex.Application.Interfaces.TestCheckingQueue;
 using Graidex.Application.OneOfCustomTypes;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models;
@@ -19,6 +18,7 @@ using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using FluentValidation;
+using Graidex.Application.Services.TestChecking.TestCheckingQueue;
 
 namespace Graidex.Application.Services.Tests
 {

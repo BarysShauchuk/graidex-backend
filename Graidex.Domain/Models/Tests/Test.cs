@@ -56,6 +56,7 @@ namespace Graidex.Domain.Models.Tests
         /// Gets or sets a rules for enabling the review of the test result by student.
         /// </summary>
         public ReviewResultOptions ReviewResult { get; set; }
+        // TODO: Implement logic for ReviewResultOptions
 
         /// <summary>
         /// Enumerates the rules for enabling the review of the test result by student.
