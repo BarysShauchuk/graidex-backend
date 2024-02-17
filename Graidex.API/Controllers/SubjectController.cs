@@ -105,7 +105,7 @@ namespace Graidex.API.Controllers
         [Authorize(Roles = "Student", Policy = "StudentOfSubject")]
         public async Task<ActionResult> GetVisibleContentById(int subjectId)
         {
-            var result = await this.subjectService.GetVisibleContentOfByIdAsync(subjectId);
+            var result = await this.subjectService.GetVisibleContentOfSubjectByIdAsync(subjectId);
             return result.Match<ActionResult>(
                 subjectContentDtos => Ok(subjectContentDtos),
                 userNotFound => NotFound(userNotFound.Comment),

@@ -225,7 +225,7 @@ namespace Graidex.Application.Services.Subjects
             return subjectContentDtos;
         }
 
-        public async Task<OneOf<List<SubjectContentDto>, UserNotFound, NotFound>> GetVisibleContentOfByIdAsync(int id)
+        public async Task<OneOf<List<SubjectContentDto>, UserNotFound, NotFound>> GetVisibleContentOfSubjectByIdAsync(int id)
         {
             string email = this.currentUser.GetEmail();
             var student = await this.studentRepository.GetByEmail(email);
