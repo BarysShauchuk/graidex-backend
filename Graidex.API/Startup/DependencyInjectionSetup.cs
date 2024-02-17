@@ -4,7 +4,6 @@ using Graidex.API.WebServices;
 using Graidex.Application;
 using Graidex.Application.Factories;
 using Graidex.Application.Interfaces;
-using Graidex.Application.Interfaces.TestCheckingQueue;
 using Graidex.Application.Services.Authentication;
 using Graidex.Application.Services.Authorization.PolicyHandlers.Student;
 using Graidex.Application.Services.Authorization.PolicyHandlers.Teacher;
@@ -12,6 +11,9 @@ using Graidex.Application.Services.Authorization.Requirements;
 using Graidex.Application.Services.Authorization.Requirements.Student;
 using Graidex.Application.Services.Authorization.Requirements.Teacher;
 using Graidex.Application.Services.Subjects;
+using Graidex.Application.Services.TestChecking;
+using Graidex.Application.Services.TestChecking.AnswerCheckers;
+using Graidex.Application.Services.TestChecking.TestCheckingQueue;
 using Graidex.Application.Services.Tests;
 using Graidex.Application.Services.Tests.TestChecking;
 using Graidex.Application.Services.Users.Students;
@@ -183,9 +185,11 @@ namespace Graidex.API.Startup
 
         public static IServiceCollection RegisterTestCheckingServices(this IServiceCollection services)
         {
-            //services.AddHostedService<TestCheckingBackgroundService>();
+            services.AddHostedService<TestCheckingBackgroundService>();
             services.RegisterTestCheckingQueue();
-            services.AddSingleton<ITestCheckingService, TestCheckingService>();
+
+            services.AddScoped<ITestCheckingService, TestCheckingService>();
+            services.RegisterTestCheckingHandlers();
 
             return services;
         }
@@ -199,6 +203,17 @@ namespace Graidex.API.Startup
 
             services.AddSingleton<ITestCheckingOutQueue>(
                 sp => sp.GetRequiredService<TestCheckingQueue>());
+
+            return services;
+        }
+
+        private static IServiceCollection RegisterTestCheckingHandlers(this IServiceCollection services)
+        {
+            services.AddSingleton<IAnswerChecker, OpenAnswerChecker>();
+            services.AddSingleton<IAnswerChecker, SingleChoiceAnswerChecker>();
+            services.AddSingleton<IAnswerChecker, MultipleChoiceAnswerChecker>();
+            
+            services.AddSingleton<IAnswerCheckHandler, AnswerCheckHandler>();
 
             return services;
         }

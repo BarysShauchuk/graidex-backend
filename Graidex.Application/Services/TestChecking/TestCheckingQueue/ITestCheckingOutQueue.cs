@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.Interfaces.TestCheckingQueue
+namespace Graidex.Application.Services.TestChecking.TestCheckingQueue
 {
     public interface ITestCheckingOutQueue
     {

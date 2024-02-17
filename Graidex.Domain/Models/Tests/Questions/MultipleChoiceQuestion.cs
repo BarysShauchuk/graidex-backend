@@ -15,7 +15,7 @@ namespace Graidex.Domain.Models.Tests.Questions
         /// <summary>
         /// Gets or sets the collection of choice options for the question.
         /// </summary>
-        public virtual ICollection<MultipleChoiceOption> Options { get; set; } = new List<MultipleChoiceOption>();
+        public virtual List<MultipleChoiceOption> Options { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the number of points awarded per correct option.

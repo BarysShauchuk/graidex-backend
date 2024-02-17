@@ -1,5 +1,4 @@
 ﻿using Graidex.Application.Interfaces;
-using Graidex.Application.Interfaces.TestCheckingQueue;
 using OneOf.Types;
 using System;
 using System.Collections.Concurrent;
@@ -9,7 +8,7 @@ using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.Services.Tests.TestChecking
+namespace Graidex.Application.Services.TestChecking.TestCheckingQueue
 {
     public class TestCheckingQueue : ITestCheckingInQueue, ITestCheckingOutQueue
     {
@@ -19,9 +18,9 @@ namespace Graidex.Application.Services.Tests.TestChecking
 
         public Task AddAsync(int testResultId)
         {
-            if (!this.ProcessingTests.Contains(testResultId))
+            if (!ProcessingTests.Contains(testResultId))
             {
-                this.PendingTests.Add(testResultId);
+                PendingTests.Add(testResultId);
             }
 
             return Task.CompletedTask;
@@ -29,10 +28,10 @@ namespace Graidex.Application.Services.Tests.TestChecking
 
         public Task<int[]> GetPendingTestsAsync()
         {
-            this.ProcessingTests = this.PendingTests;
-            this.PendingTests = new();
+            ProcessingTests = PendingTests;
+            PendingTests = new();
 
-            return Task.FromResult(this.ProcessingTests.ToArray());
+            return Task.FromResult(ProcessingTests.ToArray());
         }
     }
 }

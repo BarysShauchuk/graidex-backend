@@ -20,7 +20,7 @@ namespace Graidex.Domain.Models
 
         public bool IsVisible { get; set; }
 
-        public int SubjectId { get; set; }
+        public required int SubjectId { get; set; }
 
         public string? ItemType { get; set; }
 

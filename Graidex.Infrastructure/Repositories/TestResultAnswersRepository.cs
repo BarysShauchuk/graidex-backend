@@ -46,5 +46,13 @@ namespace Graidex.Infrastructure.Repositories
                 x => x.TestResultId == testResultId,
                 Builders<TestResultAnswersList>.Update.Set(x => x.Answers[index], answer));
         }
+
+        public async Task UpdateAnswersListAsync(TestResultAnswersList testResultAnswersList)
+        {
+            await this.client.TestResultAnswersLists
+                .ReplaceOneAsync(
+                    x => x.TestResultId == testResultAnswersList.TestResultId,
+                    testResultAnswersList);
+        }
     }
 }
