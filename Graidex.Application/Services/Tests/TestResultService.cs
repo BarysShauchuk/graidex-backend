@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Graidex.Application.DTOs.Test.Answers.TestAttempt;
 using Graidex.Application.DTOs.Test.Questions;
 using Graidex.Application.DTOs.Test.Questions.QuestionsForStudent;
@@ -34,6 +35,8 @@ namespace Graidex.Application.Services.Tests
         private readonly ITestResultAnswersRepository testResultAnswersRepository;
         private readonly IAnswerFactory answerFactory;
         private readonly IMapper mapper;
+        private readonly IValidator<GetAnswerForStudentDto> getAnswerForStudentDtoValidator;
+
         private const int ExtraMinutesForSubmission = 1;
 
         public TestResultService(
@@ -44,7 +47,8 @@ namespace Graidex.Application.Services.Tests
             ITestBaseQuestionsRepository testBaseQuestionsRepository,
             ITestResultAnswersRepository testResultAnswersRepository,
             IAnswerFactory answerFactory,
-            IMapper mapper)
+            IMapper mapper,
+            IValidator<GetAnswerForStudentDto> getAnswerForStudentDtoValidator)
         {
             this.currentUser = currentUser;
             this.studentRepository = studentRepository;
@@ -54,6 +58,7 @@ namespace Graidex.Application.Services.Tests
             this.testResultAnswersRepository = testResultAnswersRepository;
             this.answerFactory = answerFactory;
             this.mapper = mapper;
+            this.getAnswerForStudentDtoValidator = getAnswerForStudentDtoValidator;
         }
 
         public async Task<OneOf<GetTestAttemptForStudentDto, UserNotFound, NotFound, OutOfAttempts>> StartTestAttemptAsync(int testId)
@@ -95,8 +100,6 @@ namespace Graidex.Application.Services.Tests
 
             var questions = await this.testBaseQuestionsRepository.GetQuestionsListAsync(testId);
             var answers = questions.Questions.Select(this.answerFactory.CreateAnswer).ToList();
-
-            // TODO: Shuffle answers
 
             var answersList = new TestResultAnswersList
             {
@@ -165,7 +168,7 @@ namespace Graidex.Application.Services.Tests
             return testAttemptDto;
         }
 
-        public async Task<OneOf<Success, NotFound, ItemImmutable>> UpdateTestAttemptByIdAsync(int testResultId, int index, GetAnswerForStudentDto answerDto)
+        public async Task<OneOf<Success, NotFound, ItemImmutable, ValidationFailed>> UpdateTestAttemptByIdAsync(int testResultId, int index, GetAnswerForStudentDto answerDto)
         {
             var testAttempt = await this.testResultRepository.GetById(testResultId);
             if (testAttempt is null)
@@ -186,10 +189,11 @@ namespace Graidex.Application.Services.Tests
                 return new ItemImmutable("This test attempt is already finished");
             }
 
-            // TODO: Add answers update logic
-            // Get answer from repo, validate types, update answer
-
-            // TODO: Add validation 
+            var validationResult = this.getAnswerForStudentDtoValidator.Validate(answerDto);
+            if (!validationResult.IsValid)
+            {
+                return new ValidationFailed(validationResult.Errors);
+            }
 
             await this.testResultAnswersRepository.UpdateAnswerAsync(testResultId, index, mapper.Map<Answer>(answerDto));
 
@@ -198,7 +202,7 @@ namespace Graidex.Application.Services.Tests
             return new Success();
         }
 
-        public async Task<OneOf<Success, NotFound>> SubmitTestAttemptByIdAsync(int testResultId, int index, GetAnswerForStudentDto answerDto)
+        public async Task<OneOf<Success, NotFound, ValidationFailed>> SubmitTestAttemptByIdAsync(int testResultId, int index, GetAnswerForStudentDto answerDto)
         {
             var updateResult = await this.UpdateTestAttemptByIdAsync(testResultId, index, answerDto);
             if (updateResult.IsT1)
@@ -219,7 +223,11 @@ namespace Graidex.Application.Services.Tests
 
             testAttempt.EndTime = DateTime.UtcNow;
 
-            // TODO: Add validation 
+            var validationResult = this.getAnswerForStudentDtoValidator.Validate(answerDto);
+            if (!validationResult.IsValid)
+            {
+                return new ValidationFailed(validationResult.Errors);
+            }
 
             await this.testResultAnswersRepository.UpdateAnswerAsync(testResultId, index, mapper.Map<Answer>(answerDto));
 

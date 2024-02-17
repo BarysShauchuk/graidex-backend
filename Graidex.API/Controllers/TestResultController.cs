@@ -57,7 +57,8 @@ namespace Graidex.API.Controllers
             return result.Match<ActionResult>(
                 success => Ok(),
                 notFound => NotFound(),
-                itemImmutable => BadRequest(itemImmutable.Comment));
+                itemImmutable => BadRequest(itemImmutable.Comment),
+                validationFailed => BadRequest(validationFailed.Errors));
         }
 
         [HttpPut("submit-test-attempt/{testResultId}")]
@@ -68,7 +69,8 @@ namespace Graidex.API.Controllers
 
             return result.Match<ActionResult>(
                 success => Ok(),
-                notFound => NotFound());
+                notFound => NotFound(),
+                validationFailed => BadRequest(validationFailed.Errors));
         }
 
         [HttpPut("get-test-result/{testResultId}")]
