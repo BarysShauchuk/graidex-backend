@@ -23,5 +23,6 @@ namespace Graidex.Application.Services.Tests
         public Task<OneOf<Success, NotFound, ValidationFailed>> SubmitTestAttemptByIdAsync(int testResultId, int index, GetAnswerForStudentDto answerDto);
         public Task<OneOf<GetTestResultForTeacherDto, NotFound, ItemImmutable>> GetTestResultByIdAsync(int testResultId);
         public Task<OneOf<Success, NotFound, ItemImmutable>> LeaveFeedBackOnAnswerAsync(int testResultId, int index, LeaveFeedbackForAnswerDto feedbackDto);
+        public Task<OneOf<GetStudentAttemptsDescriptionDto, UserNotFound, NotFound>> GetStudentAttemptsDescription(int testId);
     }
 }

@@ -297,5 +297,53 @@ namespace Graidex.Application.Services.Tests
 
             return new Success();
         }
+
+        public async Task<OneOf<GetStudentAttemptsDescriptionDto, UserNotFound, NotFound>> GetStudentAttemptsDescription(int testId)
+        {   
+            string email = this.currentUser.GetEmail();
+            var student = await studentRepository.GetByEmail(email);
+            if (student is null)
+            {
+                return this.currentUser.UserNotFound("Student");
+            }
+
+            var test = await this.testRepository.GetById(testId);
+            if (test is null)
+            {
+                return new NotFound();
+            }
+
+            List<int> submittedTestResultsIds = this.testResultRepository.GetAll()
+            .Where(x => x.TestId == test.Id 
+                        && x.StudentId == student.Id 
+                        && x.EndTime < DateTime.UtcNow)
+            .Select(y => y.Id).ToList();
+
+            int? currentTestResultId = this.testResultRepository.GetAll()
+            .Where(x => x.TestId == test.Id 
+                        && x.StudentId == student.Id 
+                        && x.EndTime > DateTime.UtcNow)
+            .Select(y => y.Id).FirstOrDefault();
+
+            if (currentTestResultId == 0)
+            {
+                currentTestResultId = null;
+            }
+
+            int numberOfAvailableTestAttempts = 1 - this.testResultRepository.GetAll()
+            .Where(x => x.TestId == test.Id && x.StudentId == student.Id)
+            .Count();
+
+            GetStudentAttemptsDescriptionDto studentAttemptsDesctiptionDto = new GetStudentAttemptsDescriptionDto
+            {
+                SubmittedTestResultIds = submittedTestResultsIds,
+
+                CurrentTestResultId = currentTestResultId,
+
+                NumberOfAvailableTestAttempts = numberOfAvailableTestAttempts
+            };
+
+            return studentAttemptsDesctiptionDto;
+        }
     }
 }

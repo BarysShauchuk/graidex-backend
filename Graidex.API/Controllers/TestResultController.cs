@@ -31,7 +31,7 @@ namespace Graidex.API.Controllers
             var result = await this.testResultService.StartTestAttemptAsync(testId);
 
             return result.Match<ActionResult>(
-                GetTestAttemptForStudentDto => Ok(GetTestAttemptForStudentDto),
+                getTestAttemptForStudentDto => Ok(getTestAttemptForStudentDto),
                 userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound(),
                 outOfAttempts => BadRequest(outOfAttempts.Comment));
@@ -95,6 +95,18 @@ namespace Graidex.API.Controllers
                 success => Ok(),
                 notFound => NotFound(),
                 itemImmutable => BadRequest(itemImmutable.Comment));
+        }
+
+        [HttpGet("get-student-attempts-description/{testId}")]
+        [Authorize(Roles = "Student", Policy = "StudentOfVisibleTest")]
+        public async Task<ActionResult> GetStudentAttemptsDescription(int testId)
+        {
+            var result = await this.testResultService.GetStudentAttemptsDescription(testId);
+
+            return result.Match<ActionResult>(
+                getStudentAttemptsDescriptionDto => Ok(getStudentAttemptsDescriptionDto),
+                userNotFound => NotFound(userNotFound.Comment),
+                notFound => NotFound());
         }
     }
 }
