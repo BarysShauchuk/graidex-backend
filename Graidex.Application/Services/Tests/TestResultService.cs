@@ -96,7 +96,7 @@ namespace Graidex.Application.Services.Tests
 
             await this.testResultRepository.Add(testResult);
 
-            // TODO: Add null check
+            // TODO [v1/IMP-3]: Add null check
 
             var questions = await this.testBaseQuestionsRepository.GetQuestionsListAsync(testId);
             var answers = questions.Questions.Select(this.answerFactory.CreateAnswer).ToList();
@@ -289,8 +289,8 @@ namespace Graidex.Application.Services.Tests
                 return new ItemImmutable("The test attempt is not finished yet");
             }
 
-            // TODO: Add validation
-            // TODO: Add grade and total points recalculation
+            // TODO [v1/IMP-3]: Add validation
+            // TODO [v1/LG-2]: Add grade and total points recalculation
 
             await this.testResultAnswersRepository.UpdateAnswerAsync(testResultId, index, mapper.Map<Answer>(feedbackDto));
 

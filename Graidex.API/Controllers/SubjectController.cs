@@ -113,7 +113,7 @@ namespace Graidex.API.Controllers
         }
 
         [HttpPut("set-subject-content-visibility/{contentId}")]
-        [Authorize(Roles = "Teacher", Policy = "")] // TODO: Add policy TeacherOfSubjectContent
+        [Authorize(Roles = "Teacher", Policy = "")] // TODO [v1/IMP-3]: Add policy TeacherOfSubjectContent
         public async Task<ActionResult> ChangeContentVisibilityById(int contentId, bool isVisible)
         {
             var result = 
@@ -126,7 +126,7 @@ namespace Graidex.API.Controllers
         }
 
         [HttpPut("set-subject-content-order-index/{contentId}")]
-        [Authorize(Roles = "Teacher", Policy = "")] // TODO: Add policy TeacherOfSubjectContent
+        [Authorize(Roles = "Teacher", Policy = "")] // [v1/IMP-3] TODO: Add policy TeacherOfSubjectContent
         public async Task<ActionResult> ChangeContentOrderIndexById(int contentId, double orderIndex)
         {
             var result =
