@@ -35,7 +35,7 @@ namespace Graidex.Application.DTOs.Test.TestDraft
 
         public bool AutoCheckAfterSubmission { get; set; }
 
-        // TODO: Validate using Enum.IsDefined();
+        // TODO [v1/IMP-2]: Validate using Enum.IsDefined();
         public ReviewResultOptions ReviewResult { get; set; }
 
         public double OrderIndex { get; set; }

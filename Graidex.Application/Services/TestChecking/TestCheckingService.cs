@@ -78,7 +78,7 @@ namespace Graidex.Application.Services.Tests.TestChecking
         public async Task RecalculateTestResultEvaluation(int testResultId)
         {
             await Task.Delay(1);
-            // TODO: Implement or remove and use CheckTestAttemptAsync
+            // TODO [v1/LG-2]: Implement or remove and use CheckTestAttemptAsync
         }
     }
 }

@@ -48,7 +48,6 @@ namespace Graidex.Application.Validators.Extensions
                 .EmailAddress();
         }
 
-        // TODO: Add a rule for a specific format of the custom id?
         /// <summary>
         /// An extension method to add rules for user custom id.
         /// </summary>

@@ -50,13 +50,14 @@ namespace Graidex.Domain.Models.Tests
         /// </summary>
         public bool AutoCheckAfterSubmission { get; set; }
 
-        // TODO: Add public bool ShuffleQuestions { get; set; }
+        // TODO [v1/IMP-1]: Add public bool ShuffleQuestions { get; set; }
 
         /// <summary>
         /// Gets or sets a rules for enabling the review of the test result by student.
         /// </summary>
         public ReviewResultOptions ReviewResult { get; set; }
-        // TODO: Implement logic for ReviewResultOptions
+
+        // TODO [v1/IMP-2]: Implement logic for ReviewResultOptions
 
         /// <summary>
         /// Enumerates the rules for enabling the review of the test result by student.

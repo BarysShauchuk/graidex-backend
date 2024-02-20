@@ -243,10 +243,10 @@ namespace Graidex.Application.Services.Subjects
             
             var subjectContents = await this.subjectRepository.GetContentById(subject.Id);
 
-            // TODO: should only be for selected students
+            // TODO [v1/LG-1]: should only be for selected students
             var visibleContent  = subjectContents.Where(x => x.IsVisible == true).ToList();
 
-            // TODO: how to notify teacher about test visibility?
+            // TODO [v1/LG-1]: how to notify teacher about test visibility?
             var activeContent = this.testRepository.GetAll().Where(x =>
                 x.SubjectId == id
                 && !x.IsVisible
