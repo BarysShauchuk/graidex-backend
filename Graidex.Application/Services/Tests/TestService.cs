@@ -392,9 +392,33 @@ namespace Graidex.Application.Services.Tests
 
             var students = this.studentRepository.GetAll().Where(x => studentEmails.Contains(x.Email) && subject.Students.Contains(x) && !test.AllowedStudents.Contains(x));
 
-            foreach ( var student in students )
+            foreach (var student in students)
             {
                 test.AllowedStudents.Add(student);
+            }
+
+            await this.testRepository.Update(test);
+
+            return new Success();
+        }
+
+        public async Task<OneOf<Success, NotFound, ItemImmutable>> RemoveStudentsFromTestAsync(int testId, List<String> studentEmails)
+        {
+            var test = await this.testRepository.GetById(testId);
+            if (test is null)
+            {
+                return new NotFound();
+            }
+
+            if (DateTime.UtcNow >= test.StartDateTime)
+            {
+                return new ItemImmutable("Test has already started");
+            }
+
+            var students = this.studentRepository.GetAll().Where(x => studentEmails.Contains(x.Email) && test.AllowedStudents.Contains(x));
+            foreach (var student in students)
+            {
+                test.AllowedStudents.Remove(student);
             }
 
             await this.testRepository.Update(test);

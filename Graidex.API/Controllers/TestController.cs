@@ -207,5 +207,17 @@ namespace Graidex.API.Controllers
                 success => Ok(),
                 notFound => NotFound());
         }
+
+        [HttpDelete("remove-students/{testId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfTest")]
+        public async Task<ActionResult> RemoveStudentsFromTest(int testId, List<String> studentEmails)
+        {
+            var result = await this.testService.RemoveStudentsFromTestAsync(testId, studentEmails);
+
+            return result.Match<ActionResult>(
+                success => Ok(),
+                notFound => NotFound(),
+                testImmutable => BadRequest(testImmutable.Comment));
+        }
     }
 }

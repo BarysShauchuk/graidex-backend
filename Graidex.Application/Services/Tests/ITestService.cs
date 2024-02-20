@@ -37,16 +37,16 @@ namespace Graidex.Application.Services.Tests
 
         public Task<OneOf<Success, NotFound, ItemImmutable>> DeleteTestByIdAsync(int testId);
 
-        // public Task<OneOf<Success, Error>> StartTestAttemptAsync(InitialTestAttemptDto testAttempt);
-
-        // public Task<OneOf<Success, Error>> SubmitTestAttemptAsync(FinalTestAttemptDto testAttempt);
-
         public Task<OneOf<List<TestBaseQuestionDto>, NotFound>> GetTestQuestionsAsync(int testId);
+
         public Task<OneOf<Success, ValidationFailed, ItemImmutable, NotFound>> UpdateTestQuestionsAsync(int testId, List<TestBaseQuestionDto> testQuestions);
 
         public Task<OneOf<List<TestBaseQuestionDto>, NotFound>> GetTestDraftQuestionsAsync(int testId);
+
         public Task<OneOf<Success, ValidationFailed, NotFound>> UpdateTestDraftQuestionsAsync(int testId, List<TestBaseQuestionDto> testQuestions);
 
         public Task<OneOf<Success, NotFound>> AddStudentsToTestAsync(int testId, List<String> studentEmails);
+
+        public Task<OneOf<Success, NotFound, ItemImmutable>> RemoveStudentsFromTestAsync(int testId, List<String> studentEmails);
     }
 }
