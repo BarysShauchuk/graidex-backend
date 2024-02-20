@@ -11,17 +11,8 @@ using Graidex.Application.OneOfCustomTypes;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Tests;
 using Graidex.Domain.Models.Tests.Answers;
-using Graidex.Domain.Models.Tests.Questions;
 using OneOf;
 using OneOf.Types;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Graidex.Application.Services.Tests
 {
@@ -195,7 +186,15 @@ namespace Graidex.Application.Services.Tests
                 return new ValidationFailed(validationResult.Errors);
             }
 
-            await this.testResultAnswersRepository.UpdateAnswerAsync(testResultId, index, mapper.Map<Answer>(answerDto));
+            var answerFromDb = await this.testResultAnswersRepository.GetAnswerAsync(testResultId, index);
+            if (answerFromDb is null)
+            {
+                return new NotFound();
+            }
+
+            var answer = this.mapper.Map(answerDto, answerFromDb);
+
+            await this.testResultAnswersRepository.UpdateAnswerAsync(testResultId, index, answer);
 
             await this.testResultRepository.Update(testAttempt);
 
