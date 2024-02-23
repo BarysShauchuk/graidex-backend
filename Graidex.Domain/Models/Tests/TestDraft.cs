@@ -18,5 +18,11 @@ namespace Graidex.Domain.Models.Tests
         /// Gets or sets the date and time of the last update of the test.
         /// </summary>
         public DateTime LastUpdate { get; set; }
+
+        public TestDraft CreateExactClone()
+        {
+            var shallowCopy = (TestDraft)this.MemberwiseClone();
+            return shallowCopy;
+        }
     }
 }

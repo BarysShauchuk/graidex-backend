@@ -19,6 +19,7 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 using FluentValidation;
 using Graidex.Application.Services.TestChecking.TestCheckingQueue;
+using Graidex.Application.Factories.Tests;
 
 namespace Graidex.Application.Services.Tests
 {
@@ -39,6 +40,9 @@ namespace Graidex.Application.Services.Tests
         private readonly IValidator<UpdateTestDraftDto> updateTestDraftDtoValidator;
         private readonly IValidator<CreateTestDto> createTestDtoValidator;
         private readonly IValidator<UpdateTestDto> updateTestDtoValidator;
+        private readonly IValidator<DuplicateTestDraftDto> duplicateTestDraftDtoValidator;
+        private readonly IValidator<CreateTestDraftFromTestDto> createTestDraftFromTestDtoValidator;
+        private readonly ITestBaseFactory testBaseFactory;
 
         public TestService(
             ICurrentUserService currentUser,
@@ -55,8 +59,11 @@ namespace Graidex.Application.Services.Tests
             IValidator<CreateTestDraftDto> createTestDraftDtoValidator,
             IValidator<UpdateTestDraftDto> updateTestDraftDtoValidator,
             IValidator<CreateTestDto> createTestDtoValidator,
-            IValidator<UpdateTestDto> updateTestDtoValidator)
-        {   
+            IValidator<UpdateTestDto> updateTestDtoValidator,
+            IValidator<DuplicateTestDraftDto> duplicateTestDraftDtoValidator,
+            IValidator<CreateTestDraftFromTestDto> createTestDraftFromTestDtoValidator,
+            ITestBaseFactory testBaseFactory)
+        {
             this.currentUser = currentUser;
             this.teacherRepository = teacherRepository;
             this.studentRepository = studentRepository;
@@ -72,6 +79,9 @@ namespace Graidex.Application.Services.Tests
             this.updateTestDraftDtoValidator = updateTestDraftDtoValidator;
             this.createTestDtoValidator = createTestDtoValidator;
             this.updateTestDtoValidator = updateTestDtoValidator;
+            this.duplicateTestDraftDtoValidator = duplicateTestDraftDtoValidator;
+            this.createTestDraftFromTestDtoValidator = createTestDraftFromTestDtoValidator;
+            this.testBaseFactory = testBaseFactory;
         }
 
         public async Task<OneOf<List<TestBaseQuestionDto>, NotFound>> GetTestQuestionsAsync(int testId)
@@ -81,7 +91,7 @@ namespace Graidex.Application.Services.Tests
         }
 
         public async Task<OneOf<GetTestDraftDto, ValidationFailed>> CreateTestDraftForSubjectAsync(int subjectId, CreateTestDraftDto createTestDraftDto)
-        {   
+        {
             var validationResult = this.createTestDraftDtoValidator.Validate(createTestDraftDto);
             if (!validationResult.IsValid)
             {
@@ -95,43 +105,65 @@ namespace Graidex.Application.Services.Tests
 
             await this.testDraftRepository.Add(testDraft);
 
+            // TODO: create questions list
+
             return this.mapper.Map<GetTestDraftDto>(testDraft);
         }
 
-        public async Task<OneOf<GetTestDraftDto, NotFound>> CreateTestDraftFromTestAsync(int testId)
+        public async Task<OneOf<GetTestDraftDto, ValidationFailed, NotFound>> CreateTestDraftFromTestAsync(int testId, CreateTestDraftFromTestDto createTestDraftFromTestDto)
         {
+            var validationResult = this.createTestDraftFromTestDtoValidator.Validate(createTestDraftFromTestDto);
+            if (!validationResult.IsValid)
+            {
+                return new ValidationFailed(validationResult.Errors);
+            }
+
             var test = await this.testRepository.GetById(testId);
             if (test is null)
             {
                 return new NotFound();
             }
 
-            var createTestDraftDto = this.mapper.Map<CreateTestDraftDto>(test);
-
-            var testDraft = this.mapper.Map<TestDraft>(createTestDraftDto);
-            testDraft.SubjectId = test.SubjectId;
-            testDraft.LastUpdate = DateTime.UtcNow;
+            var testDraft = this.testBaseFactory.CreateTestDraft(test);
+            testDraft.Title = createTestDraftFromTestDto.Title;
+            testDraft.OrderIndex = createTestDraftFromTestDto.OrderIndex;
 
             await this.testDraftRepository.Add(testDraft);
 
-            return this.mapper.Map<GetTestDraftDto> (testDraft);    
+            var questions =
+                await this.testBaseQuestionsRepository.GetQuestionsListAsync(testId);
+            questions.TestBaseId = testDraft.Id;
+            await this.testBaseQuestionsRepository.UpdateQuestionsListAsync(questions);
+
+            return this.mapper.Map<GetTestDraftDto>(testDraft);
         }
 
-        public async Task<OneOf<GetTestDraftDto, NotFound>> DuplicateTestDraftAsync(int draftId)
+        public async Task<OneOf<GetTestDraftDto, ValidationFailed, NotFound>> DuplicateTestDraftAsync(int draftId, DuplicateTestDraftDto duplicateTestDraftDto)
         {
+            var validationResult = this.duplicateTestDraftDtoValidator.Validate(duplicateTestDraftDto);
+            if (!validationResult.IsValid)
+            {
+                return new ValidationFailed(validationResult.Errors);
+            }
+
             var testDraft = await this.testDraftRepository.GetById(draftId);
             if (testDraft is null)
             {
                 return new NotFound();
             }
 
-            var duplicateDraftDto = this.mapper.Map<DuplicateDraftDto>(testDraft);
+            var clone = this.testBaseFactory.DuplicateTestDraft(testDraft);
+            clone.Title = duplicateTestDraftDto.Title;
+            clone.OrderIndex = duplicateTestDraftDto.OrderIndex;
 
-            var duplicateDraft = this.mapper.Map<TestDraft>(duplicateDraftDto);
+            await this.testDraftRepository.Add(clone);
 
-            await this.testDraftRepository.Add(duplicateDraft);
+            var questions = 
+                await this.testBaseQuestionsRepository.GetQuestionsListAsync(draftId);
+            questions.TestBaseId = clone.Id;
+            await this.testBaseQuestionsRepository.UpdateQuestionsListAsync(questions);
 
-            return this.mapper.Map<GetTestDraftDto>(duplicateDraft);
+            return this.mapper.Map<GetTestDraftDto>(clone);
         }
 
         public async Task<OneOf<GetTestDraftDto, NotFound>> GetTestDraftByIdAsync(int draftId)
@@ -180,8 +212,8 @@ namespace Graidex.Application.Services.Tests
             return new Success();
         }
 
-        public async Task<OneOf<GetTestDto, ValidationFailed, NotFound>> CreateTestForDraftAsync(int draftId, CreateTestDto createTestDto)
-        {   
+        public async Task<OneOf<GetTestDto, ValidationFailed, NotFound, ConditionFailed>> CreateTestFromTestDraftAsync(int draftId, CreateTestDto createTestDto)
+        {
             var validationResult = this.createTestDtoValidator.Validate(createTestDto);
             if (!validationResult.IsValid)
             {
@@ -194,19 +226,26 @@ namespace Graidex.Application.Services.Tests
                 return new NotFound();
             }
 
-            var testDraftDto = this.mapper.Map<DraftToTestDto>(testDraft);
+            var questions = 
+                await this.testBaseQuestionsRepository.GetQuestionsListAsync(draftId);
 
-            var test = this.mapper.Map<Test>(testDraftDto);
-            mapper.Map(createTestDto, test);
+            if (questions.Questions.Count < 1)
+            {
+                return new ConditionFailed("There should be at least one question to create test.");
+            }
+
+            var parameters = this.mapper.Map<TestDraftToTestParameters>(createTestDto);
+            var test = this.testBaseFactory.CreateTest(testDraft, parameters);
+
+            test.Title = createTestDto.Title;
+            test.IsVisible = createTestDto.IsVisible;
+            test.OrderIndex = createTestDto.OrderIndex;
 
             await this.testRepository.Add(test);
 
-            var questions = await this.GetTestDraftQuestionsAsync(draftId);
-            if (questions.IsT0)
-            {
-                await this.UpdateTestQuestionsAsync(test.Id, questions.AsT0);
-            }
-            
+            questions.TestBaseId = test.Id;
+            await this.testBaseQuestionsRepository.UpdateQuestionsListAsync(questions);
+
             return this.mapper.Map<GetTestDto>(test);
         }
 
