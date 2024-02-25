@@ -106,11 +106,13 @@ namespace Graidex.Infrastructure.Repositories
         public async Task UpdateContentVisibilityById(int contentId, bool isVisible)
         {
             var rowsAffected = await context.Database.ExecuteSqlRawAsync(
-                $"""
+                """
                 UPDATE SubjectContents 
-                SET IsVisible = {(isVisible ? 1 : 0)}
-                WHERE Id = {contentId}
-                """);
+                SET IsVisible = @p0
+                WHERE Id = @p1
+                """, 
+                isVisible ? 1 : 0, 
+                contentId);
 
             if (rowsAffected == 0)
             {
@@ -163,11 +165,13 @@ namespace Graidex.Infrastructure.Repositories
         public async Task UpdateContentOrderById(int id, double orderIndex)
         {
             var rowsAffected = await context.Database.ExecuteSqlRawAsync(
-                $"""
+                """
                 UPDATE SubjectContents 
-                SET OrderIndex = {orderIndex}
-                WHERE Id = {id}
-                """);
+                SET OrderIndex = @p0
+                WHERE Id = @p1
+                """,
+                orderIndex,
+                id);
 
             if (rowsAffected == 0)
             {
@@ -183,13 +187,14 @@ namespace Graidex.Infrastructure.Repositories
         public async Task RefreshSubjectContentOrderingById(int subjectId)
         {
             var rowsAffected = await context.Database.ExecuteSqlRawAsync(
-                $"""
+                """
                 UPDATE SubjectContents
                 SET OrderIndex = i
                 FROM (SELECT OrderIndex, ROW_NUMBER() OVER ( ORDER BY OrderIndex) AS i
                       FROM SubjectContents
-                      WHERE SubjectId = {subjectId}) SubjectContents
-                """);
+                      WHERE SubjectId = @p0) SubjectContents
+                """,
+                subjectId);
         }
     }
 }

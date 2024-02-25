@@ -26,7 +26,7 @@ This is a student testing system that provides teachers with an effective evalua
 ```json
 {
   "AppSettings": {
-    "Token":  "[The key token string]",
+    "Token":  "[Key token string, 512 bits or more]",
     "FrontendUrl": "[Url for frontend]",
     "MongoDb": {
       "DatabaseName": "GraidexDb"
