@@ -5,7 +5,7 @@ using Graidex.Application.DTOs.Test.Questions;
 using Graidex.Application.DTOs.Test.Questions.QuestionsForStudent;
 using Graidex.Application.DTOs.Test.TestAttempt;
 using Graidex.Application.DTOs.Test.TestResult;
-using Graidex.Application.Factories;
+using Graidex.Application.Factories.Answers;
 using Graidex.Application.Interfaces;
 using Graidex.Application.OneOfCustomTypes;
 using Graidex.Domain.Interfaces;

@@ -19,6 +19,10 @@ namespace Graidex.Application.Validators.Tests.Test
         /// </summary>
         public CreateTestDtoValidator() 
         {
+            RuleFor(x => x.Title)
+                .NotEmpty()
+                .Length(1, 50);
+
             RuleFor(x => x.StartDateTime)
                 .NotEmpty()
                 .GreaterThan(DateTime.UtcNow).WithMessage("Start time must not be earlier than current time");

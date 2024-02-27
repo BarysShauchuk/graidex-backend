@@ -9,6 +9,7 @@ using Graidex.Application.DTOs.Test.Questions.QuestionsForStudent.ChoiceOptionsF
 using Graidex.Application.DTOs.Test.Questions.QuestionsForStudent.ConcreteQuestionsForStudent;
 using Graidex.Application.DTOs.Test.TestDraft;
 using Graidex.Application.DTOs.Test.TestResult;
+using Graidex.Application.Factories.Tests;
 using Graidex.Domain.Models;
 using Graidex.Domain.Models.Tests;
 using Graidex.Domain.Models.Tests.Answers;
@@ -36,16 +37,12 @@ namespace Graidex.Application.AutoMapperProfiles
             CreateMap<CreateTestDraftDto, TestDraft>();
             CreateMap<TestDraft, GetTestDraftDto>();
             CreateMap<UpdateTestDraftDto, TestDraft>();
-            CreateMap<TestDraft, DraftToTestDto>();
-            CreateMap<DraftToTestDto, Test>();
             CreateMap<CreateTestDto, Test>();
+            CreateMap<CreateTestDto, TestDraftToTestParameters>();
             CreateMap<Test, GetTestDto>()
                 .ForMember(dest => dest.AllowedStudents, act => act.MapFrom(src => src.AllowedStudents.Select(x => x.Email)));
             CreateMap<Test, GetVisibleTestDto>();
             CreateMap<UpdateTestDto, Test>();
-            CreateMap<Test, CreateTestDraftDto>();
-            CreateMap<TestDraft, DuplicateDraftDto>();
-            CreateMap<DuplicateDraftDto, TestDraft>();
 
 
 
