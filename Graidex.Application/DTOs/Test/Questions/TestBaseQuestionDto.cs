@@ -17,6 +17,6 @@ namespace Graidex.Application.DTOs.Test.Questions
         /// Gets or sets the text of the question.
         /// </summary>
         public required string Text { get; set; }
-        public string DefaultComment { get; set; } = string.Empty;
+        public string DefaultFeedback { get; set; } = string.Empty;
     }
 }

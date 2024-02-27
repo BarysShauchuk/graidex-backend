@@ -53,7 +53,7 @@ namespace Graidex.Infrastructure.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("Subjects");
+                    b.ToTable("Subjects", (string)null);
                 });
 
             modelBuilder.Entity("Graidex.Domain.Models.SubjectContent", b =>
@@ -85,7 +85,7 @@ namespace Graidex.Infrastructure.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("SubjectContents");
+                    b.ToTable("SubjectContents", (string)null);
 
                     b.UseTptMappingStrategy();
                 });
@@ -113,7 +113,7 @@ namespace Graidex.Infrastructure.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("SubjectRequests");
+                    b.ToTable("SubjectRequests", (string)null);
                 });
 
             modelBuilder.Entity("Graidex.Domain.Models.Tests.TestResult", b =>
@@ -154,7 +154,7 @@ namespace Graidex.Infrastructure.Migrations
 
                     b.HasIndex("TestId");
 
-                    b.ToTable("TestResults");
+                    b.ToTable("TestResults", (string)null);
                 });
 
             modelBuilder.Entity("Graidex.Domain.Models.Users.Student", b =>
@@ -195,7 +195,7 @@ namespace Graidex.Infrastructure.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Students");
+                    b.ToTable("Students", (string)null);
                 });
 
             modelBuilder.Entity("Graidex.Domain.Models.Users.Teacher", b =>
@@ -232,7 +232,7 @@ namespace Graidex.Infrastructure.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Teachers");
+                    b.ToTable("Teachers", (string)null);
                 });
 
             modelBuilder.Entity("StudentSubject", b =>
@@ -247,7 +247,7 @@ namespace Graidex.Infrastructure.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("StudentSubject");
+                    b.ToTable("StudentSubject", (string)null);
                 });
 
             modelBuilder.Entity("StudentTest", b =>
@@ -262,7 +262,7 @@ namespace Graidex.Infrastructure.Migrations
 
                     b.HasIndex("TestId");
 
-                    b.ToTable("StudentTest");
+                    b.ToTable("StudentTest", (string)null);
                 });
 
             modelBuilder.Entity("Graidex.Domain.Models.Tests.Test", b =>
