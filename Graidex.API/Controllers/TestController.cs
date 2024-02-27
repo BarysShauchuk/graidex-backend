@@ -134,6 +134,18 @@ namespace Graidex.API.Controllers
             return result.Match<ActionResult>(
                 success => Ok(),
                 validationFailed => BadRequest(validationFailed.Errors),
+                notFound => NotFound());
+        }
+
+        [HttpPut("update-test-time/{testId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfTest")]
+        public async Task<ActionResult> UpdateTestTime(int testId, UpdateTestTimeDto updateTestTimeDto)
+        {
+            var result = await this.testService.UpdateTestTimeByIdAsync(testId, updateTestTimeDto);
+
+            return result.Match<ActionResult>(
+                success => Ok(),
+                validationFailed => BadRequest(validationFailed.Errors),
                 notFound => NotFound(),
                 testImmutable => BadRequest(testImmutable.Comment));
         }

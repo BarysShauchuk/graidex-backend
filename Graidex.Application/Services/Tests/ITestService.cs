@@ -33,7 +33,8 @@ namespace Graidex.Application.Services.Tests
 
         public Task<OneOf<GetVisibleTestDto, NotFound>> GetVisibleTestByIdAsync(int testId);
 
-        public Task<OneOf<Success, ValidationFailed, NotFound, ItemImmutable>> UpdateTestByIdAsync(int testId, UpdateTestDto updateTestDto);
+        public Task<OneOf<Success, ValidationFailed, NotFound>> UpdateTestByIdAsync(int testId, UpdateTestDto updateTestDto);
+        public Task<OneOf<Success, ValidationFailed, NotFound, ItemImmutable>> UpdateTestTimeByIdAsync(int testId, UpdateTestTimeDto updateTestTimeDto);
 
         public Task<OneOf<Success, NotFound, ItemImmutable>> DeleteTestByIdAsync(int testId);
 

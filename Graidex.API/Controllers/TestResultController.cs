@@ -34,7 +34,7 @@ namespace Graidex.API.Controllers
                 GetTestAttemptForStudentDto => Ok(GetTestAttemptForStudentDto),
                 userNotFound => NotFound(userNotFound.Comment),
                 notFound => NotFound(),
-                outOfAttempts => BadRequest(outOfAttempts.Comment));
+                conditionFailed => BadRequest(conditionFailed.Comment));
         }
 
         [HttpGet("get-all-questions-with-answers/{testResultId}")]
@@ -63,14 +63,13 @@ namespace Graidex.API.Controllers
 
         [HttpPut("submit-test-attempt/{testResultId}")]
         [Authorize(Roles = "Student", Policy = "StudentOfAttempt")]
-        public async Task<ActionResult> SubmitTestAttempt(int testResultId, int index, GetAnswerForStudentDto answerDto)
+        public async Task<ActionResult> SubmitTestAttempt(int testResultId)
         {
-            var result = await this.testResultService.SubmitTestAttemptByIdAsync(testResultId, index, answerDto);
+            var result = await this.testResultService.SubmitTestAttemptByIdAsync(testResultId);
 
             return result.Match<ActionResult>(
                 success => Ok(),
-                notFound => NotFound(),
-                validationFailed => BadRequest(validationFailed.Errors));
+                notFound => NotFound());
         }
 
         [HttpPut("get-test-result/{testResultId}")]
