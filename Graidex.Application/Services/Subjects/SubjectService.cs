@@ -222,6 +222,23 @@ namespace Graidex.Application.Services.Subjects
 
             var subjectContentDtos = this.mapper.Map<List<SubjectContentDto>>(subjectContents);
 
+            var hiddenRunningTests = this.testRepository
+                .GetAll()
+                .Where(x => x.SubjectId == id
+                            && x.StartDateTime < DateTime.UtcNow
+                            && x.EndDateTime > DateTime.UtcNow
+                            && !x.IsVisible)
+                .Select(x => x.Id)
+                .ToList();
+
+            foreach (var content in subjectContentDtos)
+            {
+                if (hiddenRunningTests.Contains(content.Id))
+                {
+                    content.WarningMessage = "The test is running, but hidden for students";
+                }
+            }
+
             return subjectContentDtos;
         }
 
@@ -239,22 +256,9 @@ namespace Graidex.Application.Services.Subjects
             {
                 return new NotFound();
             }
-
             
             var subjectContents = await this.subjectRepository.GetContentById(subject.Id);
-
-            // TODO [v1/LG-1]: should only be for selected students
             var visibleContent  = subjectContents.Where(x => x.IsVisible == true).ToList();
-
-            // TODO [v1/LG-1]: how to notify teacher about test visibility?
-            var activeContent = this.testRepository.GetAll().Where(x =>
-                x.SubjectId == id
-                && !x.IsVisible
-                && x.AllowedStudents.Any(x => x.Id == student.Id) 
-                && x.StartDateTime < DateTime.UtcNow
-                && x.EndDateTime > DateTime.UtcNow);
-
-            visibleContent.AddRange(activeContent.ToList());
 
             var subjectContentDtos = this.mapper.Map<List<SubjectContentDto>>(visibleContent);
 

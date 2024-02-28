@@ -41,5 +41,7 @@ namespace Graidex.Application.DTOs.Subject
         /// Gets or sets the ordering index for the subject.
         /// </summary>
         public double OrderIndex { get; set; }
+
+        public string? WarningMessage { get; set; }
     }
 }
