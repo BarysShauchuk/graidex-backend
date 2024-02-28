@@ -12,7 +12,7 @@ namespace Graidex.Application.Services.TestChecking.AnswerCheckers
     {
         protected override Task EvaluateAsync(OpenQuestion question, OpenAnswer answer)
         {
-            answer.Feedback = question.DefaultComment;
+            answer.Feedback = question.DefaultFeedback;
             answer.Points = 0;
 
             // TODO [v2/?]: Implement AI-check here

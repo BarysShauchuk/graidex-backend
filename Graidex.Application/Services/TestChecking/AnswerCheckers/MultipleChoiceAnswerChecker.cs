@@ -31,7 +31,7 @@ namespace Graidex.Application.Services.TestChecking.AnswerCheckers
                 answer.Points = question.MaxPoints;
             }
 
-            answer.Feedback = question.DefaultComment;
+            answer.Feedback = question.DefaultFeedback;
 
             return Task.CompletedTask;
         }
