@@ -20,7 +20,7 @@ namespace Graidex.Application.Factories
                 _ => throw new NotImplementedException()
             };
 
-            answer.Feedback = question.DefaultFeedback;
+            answer.Feedback = question.DefaultComment;
             answer.QuestionIndex = index;
 
             return answer;
