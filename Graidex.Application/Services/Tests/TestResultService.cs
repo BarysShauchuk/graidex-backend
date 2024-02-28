@@ -38,6 +38,7 @@ namespace Graidex.Application.Services.Tests
         private readonly IMapper mapper;
         private readonly IValidator<GetAnswerForStudentDto> getAnswerForStudentDtoValidator;
         private readonly ITestCheckingInQueue testCheckingQueue;
+        private readonly ITestResultRecalculationService testResultRecalculationService;
         private const int ExtraMinutesForSubmission = 1;
 
         public TestResultService(
@@ -50,7 +51,8 @@ namespace Graidex.Application.Services.Tests
             IAnswerFactory answerFactory,
             IMapper mapper,
             IValidator<GetAnswerForStudentDto> getAnswerForStudentDtoValidator,
-            ITestCheckingInQueue testCheckingQueue)
+            ITestCheckingInQueue testCheckingQueue,
+            ITestResultRecalculationService testResultRecalculationService)
         {
             this.currentUser = currentUser;
             this.studentRepository = studentRepository;
@@ -62,6 +64,7 @@ namespace Graidex.Application.Services.Tests
             this.mapper = mapper;
             this.getAnswerForStudentDtoValidator = getAnswerForStudentDtoValidator;
             this.testCheckingQueue = testCheckingQueue;
+            this.testResultRecalculationService = testResultRecalculationService;
         }
 
         public async Task<OneOf<GetTestAttemptForStudentDto, UserNotFound, NotFound, ConditionFailed>> StartTestAttemptAsync(int testId)
@@ -123,7 +126,10 @@ namespace Graidex.Application.Services.Tests
                 Answers = answers
             };
 
-            ShuffleList(answersList.Answers, testResult.Id);
+            if (test.ShuffleQuestions)
+            {
+                ShuffleList(answersList.Answers, testResult.Id);
+            }
 
             await this.testResultAnswersRepository.CreateAnswersListAsync(answersList);
 
@@ -158,14 +164,23 @@ namespace Graidex.Application.Services.Tests
             }
         }
 
-        public async Task<OneOf<GetTestAttemptForStudentDto, NotFound>> GetAllQuestionsWithSavedAnswersAsync(int testResultId)
+        public async Task<OneOf<GetTestAttemptForStudentDto, NotFound, ConditionFailed>> GetAllQuestionsWithSavedAnswersAsync(int testResultId)
         {
-            // TODO [v1/IMP-2]: Add ReviewResultOptions
-
             var testAttempt = await this.testResultRepository.GetById(testResultId);
             if (testAttempt is null)
             {
                 return new NotFound();
+            }
+
+            var test = await this.testRepository.GetById(testAttempt.TestId);
+            if (test is null)
+            {
+                return new NotFound();
+            }
+
+            if (DateTime.UtcNow > testAttempt.EndTime && !testAttempt.CanReview)
+            {
+                return new ConditionFailed("The test attempt is already finished");
             }
 
             var questions
@@ -185,6 +200,8 @@ namespace Graidex.Application.Services.Tests
             var testAttemptDto = new GetTestAttemptForStudentDto
             {
                 Id = testResultId,
+                StartTime = testAttempt.StartTime,
+                EndTime = testAttempt.EndTime,
                 Answers = questionsWithAnswers,
             };
 
@@ -195,12 +212,6 @@ namespace Graidex.Application.Services.Tests
         {
             var testAttempt = await this.testResultRepository.GetById(testResultId);
             if (testAttempt is null)
-            {
-                return new NotFound();
-            }
-
-            var test = await this.testRepository.GetById(testAttempt.TestId);
-            if (test is null)
             {
                 return new NotFound();
             }
@@ -229,28 +240,61 @@ namespace Graidex.Application.Services.Tests
                 return new NotFound();
             }
 
+            var test = await this.testRepository.GetById(testAttempt.TestId);
+            if (test is null)
+            {
+                return new NotFound();
+            }
+
             if (DateTime.UtcNow < testAttempt.EndTime)
             {
                 testAttempt.EndTime = DateTime.UtcNow;
             }
 
+            if (test.ReviewResult == Test.ReviewResultOptions.AfterSubmission)
+            {
+                testAttempt.CanReview = true;
+            }
+
             await this.testResultRepository.Update(testAttempt);
 
-            // TODO [v1/IMP-2]: Check AutoCheckAfterSubmission 
+            if (test.AutoCheckAfterSubmission)
+            {
+                await this.testCheckingQueue.AddAsync(testResultId);
+            }
 
-            await this.testCheckingQueue.AddAsync(testResultId);
             return new Success();
         }
 
-        // TODO [v1/IMP-2]: Add to the interface and controller
-        public async Task AddTestResultToCheckQueue(int testResultId)
+        public async Task<OneOf<Success, ConditionFailed>> AddTestResultsToCheckingQueueAsync(int testId, IEnumerable<int> testResultIds)
         {
-            // TODO [v1/IMP-2]: Check if test attempt is currently checking
+            var allTestResultsOfTest = this.testResultRepository
+                .GetAll()
+                .Where(x => x.TestId == testId)
+                .Select(x => new { id = x.Id, isEnded = x.EndTime <= DateTime.UtcNow })
+                .ToList();
 
-            await this.testCheckingQueue.AddAsync(testResultId);
+            var allTestResultIdsOfTest = allTestResultsOfTest.Select(x => x.id).ToList();
+
+            if (testResultIds.Any(x => !allTestResultIdsOfTest.Contains(x)))
+            {
+                return new ConditionFailed($"Not all test results belong to the test");
+            }
+
+            if (!allTestResultsOfTest.All(x => x.isEnded))
+            {
+                return new ConditionFailed("Not all test attempts are ended");
+            }
+
+            foreach (var testResultId in testResultIds)
+            {
+                await this.testCheckingQueue.AddAsync(testResultId);
+            }
+
+            return new Success();
         }
 
-        public async Task<OneOf<GetTestResultForTeacherDto, NotFound, ItemImmutable>> GetTestResultByIdAsync(int testResultId)
+        public async Task<OneOf<GetTestResultForTeacherDto, NotFound, ConditionFailed>> GetTestResultByIdAsync(int testResultId)
         {
             var testResult = await this.testResultRepository.GetById(testResultId);
             if (testResult is null)
@@ -266,7 +310,7 @@ namespace Graidex.Application.Services.Tests
 
             if (DateTime.UtcNow < testResult.EndTime) 
             {
-                return new ItemImmutable("The test attempt is not finished yet");
+                return new ConditionFailed("The test attempt is not finished yet");
             }
 
             var questions

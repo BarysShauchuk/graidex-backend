@@ -188,7 +188,15 @@ namespace Graidex.API.Startup
             services.AddHostedService<TestCheckingBackgroundService>();
             services.RegisterTestCheckingQueue();
 
-            services.AddScoped<ITestCheckingService, TestCheckingService>();
+
+            services.AddScoped<TestCheckingService>();
+
+            services.AddScoped<ITestCheckingService>(
+                sp => sp.GetRequiredService<TestCheckingService>());
+
+            services.AddScoped<ITestResultRecalculationService>(
+                sp => sp.GetRequiredService<TestCheckingService>());
+
             services.RegisterTestCheckingHandlers();
 
             return services;

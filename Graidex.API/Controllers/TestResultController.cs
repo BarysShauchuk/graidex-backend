@@ -45,7 +45,8 @@ namespace Graidex.API.Controllers
 
             return result.Match<ActionResult>(
                 testAttemptForStudentDto => Ok(testAttemptForStudentDto),
-                notFound => NotFound());
+                notFound => NotFound(),
+                conditionFailed => BadRequest(conditionFailed.Comment));
         }
 
         [HttpPut("update-test-attempt/{testResultId}")]
@@ -72,6 +73,17 @@ namespace Graidex.API.Controllers
                 notFound => NotFound());
         }
 
+        [HttpPut("add-test-results-to-checking-queue/{testId}")]
+        [Authorize (Roles = "Teacher", Policy = "TeacherOfTest")]
+        public async Task<ActionResult> AddTestResultsToCheckingQueue(int testId, IEnumerable<int> testResultIds)
+        {
+            var result = await this.testResultService.AddTestResultsToCheckingQueueAsync(testId, testResultIds);
+
+            return result.Match<ActionResult>(
+                success => Ok(),
+                conditionFailed => BadRequest(conditionFailed.Comment));
+        }
+
         [HttpPut("get-test-result/{testResultId}")]
         [Authorize(Roles = "Teacher")]
         public async Task<ActionResult> GetTestResultForTeacherAttempt(int testResultId)
@@ -81,7 +93,7 @@ namespace Graidex.API.Controllers
             return result.Match<ActionResult>(
                 testResultDto => Ok(testResultDto),
                 notFound => NotFound(),
-                itemImmutable => BadRequest(itemImmutable.Comment));
+                conditionFailed => BadRequest(conditionFailed.Comment));
         }
 
         [HttpPut("leave-feedback-on-answer/{testResultId}")]
