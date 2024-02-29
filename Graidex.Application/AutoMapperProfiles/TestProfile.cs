@@ -43,6 +43,10 @@ namespace Graidex.Application.AutoMapperProfiles
                 .ForMember(dest => dest.AllowedStudents, act => act.MapFrom(src => src.AllowedStudents.Select(x => x.Email)));
             CreateMap<Test, GetVisibleTestDto>();
             CreateMap<UpdateTestDto, Test>();
+            CreateMap<UpdateTestTimeDto, Test>();
+            CreateMap<Test, CreateTestDraftDto>();
+            CreateMap<TestDraft, DuplicateDraftDto>();
+            CreateMap<DuplicateDraftDto, TestDraft>();
 
 
 

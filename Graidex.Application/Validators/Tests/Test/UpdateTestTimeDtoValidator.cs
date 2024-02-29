@@ -5,24 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Graidex.Domain.Models.Tests.Test;
 
 namespace Graidex.Application.Validators.Tests.Test
 {
-    /// <summary>
-    /// Represents a validator for <see cref="CreateTestDto"/>.
-    /// </summary>
-    public class CreateTestDtoValidator : AbstractValidator<CreateTestDto>
+    public class UpdateTestTimeDtoValidator : AbstractValidator<UpdateTestTimeDto>
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateTestDtoValidator"/>.
-        /// </summary>
-        public CreateTestDtoValidator() 
-        {
-            RuleFor(x => x.Title)
-                .NotEmpty()
-                .Length(1, 50);
-
+        public UpdateTestTimeDtoValidator() 
+        { 
             RuleFor(x => x.StartDateTime)
                 .NotEmpty()
                 .GreaterThan(DateTime.UtcNow).WithMessage("Start time must not be earlier than current time");
@@ -34,9 +23,6 @@ namespace Graidex.Application.Validators.Tests.Test
             RuleFor(x => x.TimeLimit)
                 .NotEmpty()
                 .LessThanOrEqualTo(x => x.EndDateTime - x.StartDateTime).WithMessage("Time limit must be less than the difference between start and end time");
-
-            RuleFor(x => x.ReviewResult)
-                .IsInEnum().WithMessage("Review result must be 1-'SetManually', 2-'AfterSubmission' or 3-'AfterAutoCheck'");
         }
     }
 }

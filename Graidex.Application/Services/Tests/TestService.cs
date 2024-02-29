@@ -40,6 +40,7 @@ namespace Graidex.Application.Services.Tests
         private readonly IValidator<UpdateTestDraftDto> updateTestDraftDtoValidator;
         private readonly IValidator<CreateTestDto> createTestDtoValidator;
         private readonly IValidator<UpdateTestDto> updateTestDtoValidator;
+        private readonly IValidator<UpdateTestTimeDto> updateTestTimeDtoValidator;
         private readonly IValidator<DuplicateTestDraftDto> duplicateTestDraftDtoValidator;
         private readonly IValidator<CreateTestDraftFromTestDto> createTestDraftFromTestDtoValidator;
         private readonly ITestBaseFactory testBaseFactory;
@@ -60,6 +61,7 @@ namespace Graidex.Application.Services.Tests
             IValidator<UpdateTestDraftDto> updateTestDraftDtoValidator,
             IValidator<CreateTestDto> createTestDtoValidator,
             IValidator<UpdateTestDto> updateTestDtoValidator,
+            IValidator<UpdateTestTimeDto> updateTestTimeDtoValidator,
             IValidator<DuplicateTestDraftDto> duplicateTestDraftDtoValidator,
             IValidator<CreateTestDraftFromTestDto> createTestDraftFromTestDtoValidator,
             ITestBaseFactory testBaseFactory)
@@ -79,6 +81,7 @@ namespace Graidex.Application.Services.Tests
             this.updateTestDraftDtoValidator = updateTestDraftDtoValidator;
             this.createTestDtoValidator = createTestDtoValidator;
             this.updateTestDtoValidator = updateTestDtoValidator;
+            this.updateTestTimeDtoValidator = updateTestTimeDtoValidator;
             this.duplicateTestDraftDtoValidator = duplicateTestDraftDtoValidator;
             this.createTestDraftFromTestDtoValidator = createTestDraftFromTestDtoValidator;
             this.testBaseFactory = testBaseFactory;
@@ -129,7 +132,7 @@ namespace Graidex.Application.Services.Tests
             testDraft.OrderIndex = createTestDraftFromTestDto.OrderIndex;
 
             await this.testDraftRepository.Add(testDraft);
-
+            
             var questions =
                 await this.testBaseQuestionsRepository.GetQuestionsListAsync(testId);
             questions.TestBaseId = testDraft.Id;
@@ -271,40 +274,51 @@ namespace Graidex.Application.Services.Tests
             return this.mapper.Map<GetVisibleTestDto>(test);
         }
 
-        public async Task<OneOf<Success, ValidationFailed, NotFound, ItemImmutable>> UpdateTestByIdAsync(int testId, UpdateTestDto updateTestDto)
-        {   
-            var test = await this.testRepository.GetById(testId);
-            if (test is null)
-            {
-                return new NotFound();
-            }
-
-            if (DateTime.UtcNow >= test.StartDateTime 
-                && DateTime.UtcNow < test.EndDateTime 
-                && (updateTestDto.StartDateTime != test.StartDateTime || updateTestDto.TimeLimit < test.TimeLimit))
-            {   
-                return new ItemImmutable("Test has already started");
-            }
-
-            if (DateTime.UtcNow >= test.EndDateTime
-                && (updateTestDto.GradeToPass != test.GradeToPass
-                || updateTestDto.StartDateTime != test.StartDateTime
-                || updateTestDto.EndDateTime != test.EndDateTime
-                || updateTestDto.TimeLimit != test.TimeLimit))
-            {
-                return new ItemImmutable("Test has already ended");
-            }
-
+        public async Task<OneOf<Success, ValidationFailed, NotFound>> UpdateTestByIdAsync(int testId, UpdateTestDto updateTestDto)
+        {
             var validationResult = this.updateTestDtoValidator.Validate(updateTestDto);
             if (!validationResult.IsValid)
             {
                 return new ValidationFailed(validationResult.Errors);
             }
 
+            var test = await this.testRepository.GetById(testId);
+            if (test is null)
+            {
+                return new NotFound();
+            }
+
             this.mapper.Map(updateTestDto, test);
 
             await testRepository.Update(test);
 
+            return new Success();
+        }
+
+        public async Task<OneOf<Success, ValidationFailed, NotFound, ItemImmutable>> UpdateTestTimeByIdAsync(int testId, UpdateTestTimeDto updateTestTimeDto)
+        {
+            var test = await this.testRepository.GetById(testId);
+            if (test is null)
+            {
+                return new NotFound();
+            }
+
+            if (DateTime.UtcNow >= test.StartDateTime)
+            {
+                return new ItemImmutable("Test has already started");
+            }
+
+            var validationResult =
+                this.updateTestTimeDtoValidator.Validate(updateTestTimeDto);
+
+            if (!validationResult.IsValid)
+            {
+                return new ValidationFailed(validationResult.Errors);
+            }
+
+            this.mapper.Map(updateTestTimeDto, test);
+
+            await testRepository.Update(test);
             return new Success();
         }
 
