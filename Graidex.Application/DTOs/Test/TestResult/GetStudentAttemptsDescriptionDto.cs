@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Graidex.Application.DTOs.Test.TestAttempt;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace Graidex.Application.DTOs.Test.TestResult
 {
     public class GetStudentAttemptsDescriptionDto
     {
-        public required List<int> SubmittedTestResultIds { get; set; }
+        public required List<TestResultPreviewForStudentDto> SubmittedTestResults { get; set; }
         public int? CurrentTestResultId { get; set; }
         public required int NumberOfAvailableTestAttempts { get; set; }
     }

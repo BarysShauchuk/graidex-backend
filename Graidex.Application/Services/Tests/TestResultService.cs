@@ -389,11 +389,23 @@ namespace Graidex.Application.Services.Tests
                 return new NotFound();
             }
 
-            List<int> submittedTestResultsIds = this.testResultRepository.GetAll()
+            var submittedTestResults = this.testResultRepository.GetAll()
             .Where(x => x.TestId == test.Id 
                         && x.StudentId == student.Id 
                         && x.EndTime < DateTime.UtcNow)
-            .Select(y => y.Id).ToList();
+            .ToList();
+
+            var submittedTestResultsDtos 
+                = this.mapper.Map<List<TestResultPreviewForStudentDto>>(submittedTestResults);
+
+            foreach (var testResultDto in submittedTestResultsDtos)
+            {
+                if (testResultDto.CanReview)
+                {
+                    testResultDto.TotalPoints = null;
+                    testResultDto.Grade = null;
+                }
+            }
 
             int? currentTestResultId = this.testResultRepository.GetAll()
             .Where(x => x.TestId == test.Id 
@@ -406,20 +418,21 @@ namespace Graidex.Application.Services.Tests
                 currentTestResultId = null;
             }
 
-            int numberOfAvailableTestAttempts = 1 - this.testResultRepository.GetAll()
+            int maxNumberOfAttempts = 1;
+            int numberOfAvailableTestAttempts = maxNumberOfAttempts - this.testResultRepository.GetAll()
             .Where(x => x.TestId == test.Id && x.StudentId == student.Id)
             .Count();
 
-            GetStudentAttemptsDescriptionDto studentAttemptsDesctiptionDto = new GetStudentAttemptsDescriptionDto
+            var studentAttemptsDescriptionDto = new GetStudentAttemptsDescriptionDto
             {
-                SubmittedTestResultIds = submittedTestResultsIds,
+                SubmittedTestResults = submittedTestResultsDtos,
 
                 CurrentTestResultId = currentTestResultId,
 
                 NumberOfAvailableTestAttempts = numberOfAvailableTestAttempts
             };
 
-            return studentAttemptsDesctiptionDto;
+            return studentAttemptsDescriptionDto;
         }
     }
 }

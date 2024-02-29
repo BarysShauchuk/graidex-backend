@@ -7,6 +7,7 @@ using Graidex.Application.DTOs.Test.Questions.ConcreteQuestions;
 using Graidex.Application.DTOs.Test.Questions.QuestionsForStudent;
 using Graidex.Application.DTOs.Test.Questions.QuestionsForStudent.ChoiceOptionsForStudent;
 using Graidex.Application.DTOs.Test.Questions.QuestionsForStudent.ConcreteQuestionsForStudent;
+using Graidex.Application.DTOs.Test.TestAttempt;
 using Graidex.Application.DTOs.Test.TestDraft;
 using Graidex.Application.DTOs.Test.TestResult;
 using Graidex.Application.Factories.Tests;
@@ -110,6 +111,7 @@ namespace Graidex.Application.AutoMapperProfiles
             CreateMap<GetMultipleChoiceAnswerForStudentDto, MultipleChoiceAnswer>();
 
             CreateMap<TestResult, GetTestResultForTeacherDto>();
+            CreateMap<TestResult, TestResultPreviewForStudentDto>();
 
             CreateMap<LeaveFeedbackForAnswerDto, Answer>()
                 .Include<LeaveFeedbackForAnswerDto, OpenAnswer>()
