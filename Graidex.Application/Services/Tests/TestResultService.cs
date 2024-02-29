@@ -5,24 +5,15 @@ using Graidex.Application.DTOs.Test.Questions;
 using Graidex.Application.DTOs.Test.Questions.QuestionsForStudent;
 using Graidex.Application.DTOs.Test.TestAttempt;
 using Graidex.Application.DTOs.Test.TestResult;
-using Graidex.Application.Factories;
+using Graidex.Application.Factories.Answers;
 using Graidex.Application.Interfaces;
 using Graidex.Application.OneOfCustomTypes;
 using Graidex.Application.Services.TestChecking.TestCheckingQueue;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Tests;
 using Graidex.Domain.Models.Tests.Answers;
-using Graidex.Domain.Models.Tests.Questions;
 using OneOf;
 using OneOf.Types;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Graidex.Application.Services.Tests
 {
@@ -227,7 +218,15 @@ namespace Graidex.Application.Services.Tests
                 return new ValidationFailed(validationResult.Errors);
             }
 
-            await this.testResultAnswersRepository.UpdateAnswerAsync(testResultId, index, mapper.Map<Answer>(answerDto));
+            var answerFromDb = await this.testResultAnswersRepository.GetAnswerAsync(testResultId, index);
+            if (answerFromDb is null)
+            {
+                return new NotFound();
+            }
+
+            var answer = this.mapper.Map(answerDto, answerFromDb);
+
+            await this.testResultAnswersRepository.UpdateAnswerAsync(testResultId, index, answer);
 
             return new Success();
         }
@@ -355,6 +354,54 @@ namespace Graidex.Application.Services.Tests
             await this.testResultRepository.Update(testResult);
 
             return new Success();
+        }
+
+        public async Task<OneOf<GetStudentAttemptsDescriptionDto, UserNotFound, NotFound>> GetStudentAttemptsDescription(int testId)
+        {   
+            string email = this.currentUser.GetEmail();
+            var student = await studentRepository.GetByEmail(email);
+            if (student is null)
+            {
+                return this.currentUser.UserNotFound("Student");
+            }
+
+            var test = await this.testRepository.GetById(testId);
+            if (test is null)
+            {
+                return new NotFound();
+            }
+
+            List<int> submittedTestResultsIds = this.testResultRepository.GetAll()
+            .Where(x => x.TestId == test.Id 
+                        && x.StudentId == student.Id 
+                        && x.EndTime < DateTime.UtcNow)
+            .Select(y => y.Id).ToList();
+
+            int? currentTestResultId = this.testResultRepository.GetAll()
+            .Where(x => x.TestId == test.Id 
+                        && x.StudentId == student.Id 
+                        && x.EndTime > DateTime.UtcNow)
+            .Select(y => y.Id).FirstOrDefault();
+
+            if (currentTestResultId == 0)
+            {
+                currentTestResultId = null;
+            }
+
+            int numberOfAvailableTestAttempts = 1 - this.testResultRepository.GetAll()
+            .Where(x => x.TestId == test.Id && x.StudentId == student.Id)
+            .Count();
+
+            GetStudentAttemptsDescriptionDto studentAttemptsDesctiptionDto = new GetStudentAttemptsDescriptionDto
+            {
+                SubmittedTestResultIds = submittedTestResultsIds,
+
+                CurrentTestResultId = currentTestResultId,
+
+                NumberOfAvailableTestAttempts = numberOfAvailableTestAttempts
+            };
+
+            return studentAttemptsDesctiptionDto;
         }
     }
 }

@@ -2,7 +2,8 @@
 using Graidex.API.HostedServices;
 using Graidex.API.WebServices;
 using Graidex.Application;
-using Graidex.Application.Factories;
+using Graidex.Application.Factories.Answers;
+using Graidex.Application.Factories.Tests;
 using Graidex.Application.Interfaces;
 using Graidex.Application.Services.Authentication;
 using Graidex.Application.Services.Authorization.PolicyHandlers.Student;
@@ -179,6 +180,7 @@ namespace Graidex.API.Startup
         public static IServiceCollection RegisterFactories(this IServiceCollection services)
         {
             services.AddScoped<IAnswerFactory, AnswerFactory>();
+            services.AddScoped<ITestBaseFactory, TestBaseFactory>();
 
             return services;
         }

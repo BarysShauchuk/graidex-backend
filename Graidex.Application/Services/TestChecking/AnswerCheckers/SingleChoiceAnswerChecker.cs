@@ -13,7 +13,7 @@ namespace Graidex.Application.Services.TestChecking.AnswerCheckers
         protected override Task EvaluateAsync(
             SingleChoiceQuestion question, SingleChoiceAnswer answer)
         {
-            answer.Feedback = question.DefaultComment;
+            answer.Feedback = question.DefaultFeedback;
             if (question.CorrectOptionIndex == answer.ChoiceOptionIndex)
             {
                 answer.Points = question.MaxPoints;

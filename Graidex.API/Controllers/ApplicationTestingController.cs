@@ -114,12 +114,5 @@ namespace Graidex.API.Controllers
 
             return Ok();
         }
-
-        [HttpPost("test-4")]
-        public async Task<ActionResult> Test4()
-        {
-            throw new EntityNotFoundException();
-            return Ok();
-        }
     }
 }

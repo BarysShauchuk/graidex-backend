@@ -17,9 +17,9 @@ namespace Graidex.Application.Services.Tests
 
         public Task<OneOf<GetTestDraftDto, ValidationFailed>> CreateTestDraftForSubjectAsync(int subjectId, CreateTestDraftDto createTestDraftDto);
 
-        public Task<OneOf<GetTestDraftDto, NotFound>> CreateTestDraftFromTestAsync(int testId);
+        public Task<OneOf<GetTestDraftDto, ValidationFailed, NotFound>> CreateTestDraftFromTestAsync(int testId, CreateTestDraftFromTestDto createTestDraftFromTestDto);
 
-        public Task<OneOf<GetTestDraftDto, NotFound>> DuplicateTestDraftAsync(int draftId);
+        public Task<OneOf<GetTestDraftDto, ValidationFailed, NotFound>> DuplicateTestDraftAsync(int draftId, DuplicateTestDraftDto duplicateTestDraftDto);
 
         public Task<OneOf<GetTestDraftDto, NotFound>> GetTestDraftByIdAsync(int draftId);
 
@@ -27,7 +27,7 @@ namespace Graidex.Application.Services.Tests
 
         public Task<OneOf<Success, NotFound>> DeleteTestDraftByIdAsync(int draftId);
 
-        public Task<OneOf<GetTestDto, ValidationFailed, NotFound>> CreateTestForDraftAsync(int draftId, CreateTestDto createTestDto);
+        public Task<OneOf<GetTestDto, ValidationFailed, NotFound, ConditionFailed>> CreateTestFromTestDraftAsync(int draftId, CreateTestDto createTestDto);
 
         public Task<OneOf<GetTestDto, NotFound>> GetTestByIdAsync(int testId);
 
@@ -38,16 +38,16 @@ namespace Graidex.Application.Services.Tests
 
         public Task<OneOf<Success, NotFound, ItemImmutable>> DeleteTestByIdAsync(int testId);
 
-        // public Task<OneOf<Success, Error>> StartTestAttemptAsync(InitialTestAttemptDto testAttempt);
-
-        // public Task<OneOf<Success, Error>> SubmitTestAttemptAsync(FinalTestAttemptDto testAttempt);
-
         public Task<OneOf<List<TestBaseQuestionDto>, NotFound>> GetTestQuestionsAsync(int testId);
+
         public Task<OneOf<Success, ValidationFailed, ItemImmutable, NotFound>> UpdateTestQuestionsAsync(int testId, List<TestBaseQuestionDto> testQuestions);
 
         public Task<OneOf<List<TestBaseQuestionDto>, NotFound>> GetTestDraftQuestionsAsync(int testId);
+
         public Task<OneOf<Success, ValidationFailed, NotFound>> UpdateTestDraftQuestionsAsync(int testId, List<TestBaseQuestionDto> testQuestions);
 
         public Task<OneOf<Success, NotFound>> AddStudentsToTestAsync(int testId, List<String> studentEmails);
+
+        public Task<OneOf<Success, NotFound, ItemImmutable>> RemoveStudentsFromTestAsync(int testId, List<String> studentEmails);
     }
 }

@@ -22,6 +22,6 @@ namespace Graidex.Domain.Models.Tests.Questions
         public virtual int MaxPoints { get; set; }
 
         // TODO [v1/RF-1]: Change to DefaultFeedback
-        public string DefaultComment { get; set; } = string.Empty;
+        public string DefaultFeedback { get; set; } = string.Empty;
     }
 }

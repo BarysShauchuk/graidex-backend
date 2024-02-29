@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.Factories
+namespace Graidex.Application.Factories.Answers
 {
     public class AnswerFactory : IAnswerFactory
     {
@@ -20,7 +20,7 @@ namespace Graidex.Application.Factories
                 _ => throw new NotImplementedException()
             };
 
-            answer.Feedback = question.DefaultComment;
+            answer.Feedback = question.DefaultFeedback;
             answer.QuestionIndex = index;
 
             return answer;
