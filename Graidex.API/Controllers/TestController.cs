@@ -37,23 +37,25 @@ namespace Graidex.API.Controllers
 
         [HttpPost("create-draft-from-test/{testId}")]
         [Authorize(Roles = "Teacher", Policy = "TeacherOfTest")]
-        public async Task<ActionResult<GetTestDraftDto>> CreateDraftFromTest(int testId)
+        public async Task<ActionResult<GetTestDraftDto>> CreateDraftFromTest(int testId, CreateTestDraftFromTestDto createTestDraftFromTestDto)
         {
-            var result = await this.testService.CreateTestDraftFromTestAsync(testId);
+            var result = await this.testService.CreateTestDraftFromTestAsync(testId, createTestDraftFromTestDto);
 
             return result.Match<ActionResult<GetTestDraftDto>>(
                 getTestDraftDto => Ok(getTestDraftDto),
+                validationFailed => BadRequest(validationFailed.Errors),
                 notFound => NotFound());
         }
 
         [HttpPost("duplicate-draft/{draftId}")]
         [Authorize(Roles = "Teacher", Policy = "TeacherOfDraft")]
-        public async Task<ActionResult<GetTestDraftDto>> DuplicateDraft(int draftId)
+        public async Task<ActionResult<GetTestDraftDto>> DuplicateDraft(int draftId, DuplicateTestDraftDto duplicateTestDraftDto)
         {
-            var result = await this.testService.DuplicateTestDraftAsync(draftId);
+            var result = await this.testService.DuplicateTestDraftAsync(draftId, duplicateTestDraftDto);
 
             return result.Match<ActionResult<GetTestDraftDto>>(
                 getTestDraftDto => Ok(getTestDraftDto),
+                validationFailed => BadRequest(validationFailed.Errors),
                 notFound => NotFound());
         }
 
@@ -95,12 +97,13 @@ namespace Graidex.API.Controllers
         [Authorize(Roles = "Teacher", Policy = "TeacherOfDraft")]
         public async Task<ActionResult<GetTestDto>> CreateTest(int draftId, CreateTestDto createTestDto)
         {
-            var result = await this.testService.CreateTestForDraftAsync(draftId, createTestDto);
+            var result = await this.testService.CreateTestFromTestDraftAsync(draftId, createTestDto);
 
             return result.Match<ActionResult<GetTestDto>>(
                 getTestDto => Ok(getTestDto),
                 validationFailed => BadRequest(validationFailed.Errors),
-                notFound => NotFound());
+                notFound => NotFound(),
+                conditionFailed => BadRequest(conditionFailed.Comment));
         }
 
         [HttpGet("get-test/{testId}")]
@@ -130,6 +133,18 @@ namespace Graidex.API.Controllers
         public async Task<ActionResult> UpdateTest(int testId, UpdateTestDto updateTestDto)
         {
             var result = await this.testService.UpdateTestByIdAsync(testId, updateTestDto);
+
+            return result.Match<ActionResult>(
+                success => Ok(),
+                validationFailed => BadRequest(validationFailed.Errors),
+                notFound => NotFound());
+        }
+
+        [HttpPut("update-test-time/{testId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfTest")]
+        public async Task<ActionResult> UpdateTestTime(int testId, UpdateTestTimeDto updateTestTimeDto)
+        {
+            var result = await this.testService.UpdateTestTimeByIdAsync(testId, updateTestTimeDto);
 
             return result.Match<ActionResult>(
                 success => Ok(),

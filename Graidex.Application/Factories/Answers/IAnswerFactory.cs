@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Graidex.Application.Factories
+namespace Graidex.Application.Factories.Answers
 {
     public interface IAnswerFactory
     {

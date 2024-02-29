@@ -17,9 +17,9 @@ namespace Graidex.Application.Services.Tests
 
         public Task<OneOf<GetTestDraftDto, ValidationFailed>> CreateTestDraftForSubjectAsync(int subjectId, CreateTestDraftDto createTestDraftDto);
 
-        public Task<OneOf<GetTestDraftDto, NotFound>> CreateTestDraftFromTestAsync(int testId);
+        public Task<OneOf<GetTestDraftDto, ValidationFailed, NotFound>> CreateTestDraftFromTestAsync(int testId, CreateTestDraftFromTestDto createTestDraftFromTestDto);
 
-        public Task<OneOf<GetTestDraftDto, NotFound>> DuplicateTestDraftAsync(int draftId);
+        public Task<OneOf<GetTestDraftDto, ValidationFailed, NotFound>> DuplicateTestDraftAsync(int draftId, DuplicateTestDraftDto duplicateTestDraftDto);
 
         public Task<OneOf<GetTestDraftDto, NotFound>> GetTestDraftByIdAsync(int draftId);
 
@@ -27,13 +27,14 @@ namespace Graidex.Application.Services.Tests
 
         public Task<OneOf<Success, NotFound>> DeleteTestDraftByIdAsync(int draftId);
 
-        public Task<OneOf<GetTestDto, ValidationFailed, NotFound>> CreateTestForDraftAsync(int draftId, CreateTestDto createTestDto);
+        public Task<OneOf<GetTestDto, ValidationFailed, NotFound, ConditionFailed>> CreateTestFromTestDraftAsync(int draftId, CreateTestDto createTestDto);
 
         public Task<OneOf<GetTestDto, NotFound>> GetTestByIdAsync(int testId);
 
         public Task<OneOf<GetVisibleTestDto, NotFound>> GetVisibleTestByIdAsync(int testId);
 
-        public Task<OneOf<Success, ValidationFailed, NotFound, ItemImmutable>> UpdateTestByIdAsync(int testId, UpdateTestDto updateTestDto);
+        public Task<OneOf<Success, ValidationFailed, NotFound>> UpdateTestByIdAsync(int testId, UpdateTestDto updateTestDto);
+        public Task<OneOf<Success, ValidationFailed, NotFound, ItemImmutable>> UpdateTestTimeByIdAsync(int testId, UpdateTestTimeDto updateTestTimeDto);
 
         public Task<OneOf<Success, NotFound, ItemImmutable>> DeleteTestByIdAsync(int testId);
 

@@ -1,4 +1,5 @@
 ﻿using Graidex.Application.Services.TestChecking;
+using Graidex.Application.Services.TestChecking.TestCheckingQueue;
 using Graidex.Domain.Exceptions;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Tests;
@@ -12,21 +13,24 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.Services.Tests.TestChecking
 {
-    public class TestCheckingService : ITestCheckingService
+    public class TestCheckingService : ITestCheckingService, ITestResultRecalculationService
     {
         private readonly ITestBaseQuestionsRepository testQuestionsRepository;
         private readonly ITestResultRepository testResultRepository;
+        private readonly ITestRepository testRepository;
         private readonly ITestResultAnswersRepository testResultAnswersRepository;
         private readonly IAnswerCheckHandler answerCheckHandler;
 
         public TestCheckingService(
             ITestBaseQuestionsRepository testQuestionsRepository,
             ITestResultRepository testResultRepository,
+            ITestRepository testRepository,
             ITestResultAnswersRepository testResultAnswersRepository,
             IAnswerCheckHandler answerCheckHandler)
         {
             this.testQuestionsRepository = testQuestionsRepository;
             this.testResultRepository = testResultRepository;
+            this.testRepository = testRepository;
             this.testResultAnswersRepository = testResultAnswersRepository;
             this.answerCheckHandler = answerCheckHandler;
         }
@@ -34,12 +38,19 @@ namespace Graidex.Application.Services.Tests.TestChecking
         public async Task CheckTestAttemptAsync(int testResultId)
         {
             var testResult = await this.testResultRepository.GetById(testResultId);
-
             if (testResult is null)
             {
                 throw new EntityNotFoundException(
                     $"{nameof(TestResult)} with id={testResultId} wasn't found.", 
                     typeof(TestResult));
+            }
+
+            var test = await this.testRepository.GetById(testResult.TestId);
+            if (test is null)
+            {
+                throw new EntityNotFoundException(
+                    $"{nameof(Test)} with id={testResult.TestId} wasn't found.", 
+                    typeof(Test));
             }
 
             var studentAnswers
@@ -48,37 +59,35 @@ namespace Graidex.Application.Services.Tests.TestChecking
             var testQuestions
                 = await this.testQuestionsRepository.GetQuestionsListAsync(testResult.TestId);
 
-            var tasks = new List<Task<(int points, int maxPoints)>>();
+            var tasks = new List<Task>();
             foreach (var answer in studentAnswers.Answers)
             {
                 var question = testQuestions.Questions[answer.QuestionIndex];
-                tasks.Add(this.EvaluateAnswerAsync(question, answer));
+                tasks.Add(this.answerCheckHandler.EvaluateAsync(question, answer));
             }
 
-            var results = await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks);
 
-            int points = results.Sum(x => x.points);
-            int maxPoints = results.Sum(x => x.maxPoints);
+            this.RecalculateTestResultEvaluation(testResult, testQuestions, studentAnswers);
 
-            testResult.TotalPoints = points;
-            testResult.Grade = (int)Math.Round(points*10d / maxPoints);
             testResult.IsAutoChecked = true;
+
+            if (test.ReviewResult == Test.ReviewResultOptions.AfterAutoCheck)
+            {
+                testResult.CanReview = true;
+            }
             
             await this.testResultRepository.Update(testResult);
             await this.testResultAnswersRepository.UpdateAnswersListAsync(studentAnswers);
         }
 
-        private async Task<(int points, int maxPoints)> EvaluateAnswerAsync(
-            Question question, Answer answer)
+        public void RecalculateTestResultEvaluation(TestResult testResult, TestBaseQuestionsList testQuestions, TestResultAnswersList testResultAnswers)
         {
-            await this.answerCheckHandler.EvaluateAsync(question, answer);
-            return (answer.Points, question.MaxPoints);
-        }
+            int points = testResultAnswers.Answers.Sum(x => x.Points);
+            int maxPoints = testQuestions.Questions.Sum(x => x.MaxPoints);
 
-        public async Task RecalculateTestResultEvaluation(int testResultId)
-        {
-            await Task.Delay(1);
-            // TODO [v1/LG-2]: Implement or remove and use CheckTestAttemptAsync
+            testResult.TotalPoints = points;
+            testResult.Grade = (int)Math.Round(points * 10d / maxPoints);
         }
     }
 }
