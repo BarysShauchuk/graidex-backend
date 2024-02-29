@@ -73,7 +73,7 @@ namespace Graidex.API.Controllers
                 validationFailed => BadRequest(validationFailed.Errors));
         }
 
-        [HttpPut("get-test-result/{testResultId}")]
+        [HttpGet("get-test-result/{testResultId}")]
         [Authorize(Roles = "Teacher")]
         public async Task<ActionResult> GetTestResultForTeacherAttempt(int testResultId)
         {
@@ -87,9 +87,9 @@ namespace Graidex.API.Controllers
 
         [HttpPut("leave-feedback-on-answer/{testResultId}")]
         [Authorize(Roles = "Teacher")]
-        public async Task<ActionResult> LeaveFeedBack(int testResultId, int index, LeaveFeedbackForAnswerDto feedbackDto)
+        public async Task<ActionResult> LeaveFeedBack(int testResultId, List<LeaveFeedbackForAnswerDto> feedbackDtos)
         {
-            var result = await this.testResultService.LeaveFeedBackOnAnswerAsync(testResultId, index, feedbackDto);
+            var result = await this.testResultService.LeaveFeedBackOnAnswerAsync(testResultId, feedbackDtos);
 
             return result.Match<ActionResult>(
                 success => Ok(),

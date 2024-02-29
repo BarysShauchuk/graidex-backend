@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Internal;
 using FluentValidation;
 using Graidex.Application.DTOs.Test.Answers.TestAttempt;
 using Graidex.Application.DTOs.Test.Questions;
@@ -13,6 +14,7 @@ using Graidex.Domain.Models.Tests;
 using Graidex.Domain.Models.Tests.Answers;
 using OneOf;
 using OneOf.Types;
+using System.Collections;
 
 namespace Graidex.Application.Services.Tests
 {
@@ -228,7 +230,15 @@ namespace Graidex.Application.Services.Tests
                 return new ValidationFailed(validationResult.Errors);
             }
 
-            await this.testResultAnswersRepository.UpdateAnswerAsync(testResultId, index, mapper.Map<Answer>(answerDto));
+            var answerFromDb = await this.testResultAnswersRepository.GetAnswerAsync(testResultId, index);
+            if (answerFromDb is null)
+            {
+                return new NotFound();
+            }
+
+            var answer = this.mapper.Map(answerDto, answerFromDb);
+
+            await this.testResultAnswersRepository.UpdateAnswerAsync(testResultId, index, answer);
 
             await this.testResultRepository.Update(testAttempt);
 
@@ -275,7 +285,7 @@ namespace Graidex.Application.Services.Tests
             return testResultDto;
         }
 
-        public async Task<OneOf<Success, NotFound, ItemImmutable>> LeaveFeedBackOnAnswerAsync(int testResultId, int index, LeaveFeedbackForAnswerDto feedbackDto)
+        public async Task<OneOf<Success, NotFound, ItemImmutable>> LeaveFeedBackOnAnswerAsync(int testResultId, List<LeaveFeedbackForAnswerDto> feedbackDtos)
         {   
             var testResult = await this.testResultRepository.GetById(testResultId);
             if (testResult is null)
@@ -288,10 +298,26 @@ namespace Graidex.Application.Services.Tests
                 return new ItemImmutable("The test attempt is not finished yet");
             }
 
+            var answers = await this.testResultAnswersRepository.GetAnswersListAsync(testResultId);
+            if (answers is null)
+            {
+                return new NotFound();
+            }
+
+            foreach (var feedbackDto in feedbackDtos)
+            {
+                var answer = answers.Answers.FirstOrDefault(x => x.QuestionIndex == feedbackDto.QuestionIndex);
+                if (answer is null)
+                {
+                    return new NotFound();
+                }
+                var answerWithFeedback = mapper.Map(feedbackDto, answer);
+            }
+
+            await this.testResultAnswersRepository.UpdateAnswersListAsync(new TestResultAnswersList { TestResultId = testResultId, Answers = answers.Answers });
+
             // TODO [v1/IMP-3]: Add validation
             // TODO [v1/LG-2]: Add grade and total points recalculation
-
-            await this.testResultAnswersRepository.UpdateAnswerAsync(testResultId, index, mapper.Map<Answer>(feedbackDto));
 
             await this.testResultRepository.Update(testResult);
 
