@@ -61,7 +61,7 @@ namespace Graidex.Application.Services.Tests
             IValidator<UpdateTestDraftDto> updateTestDraftDtoValidator,
             IValidator<CreateTestDto> createTestDtoValidator,
             IValidator<UpdateTestDto> updateTestDtoValidator,
-            IValidator<UpdateTestTimeDto> updateTestTimeDtoValidator
+            IValidator<UpdateTestTimeDto> updateTestTimeDtoValidator,
             IValidator<DuplicateTestDraftDto> duplicateTestDraftDtoValidator,
             IValidator<CreateTestDraftFromTestDto> createTestDraftFromTestDtoValidator,
             ITestBaseFactory testBaseFactory)
