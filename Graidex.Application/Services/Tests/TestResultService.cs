@@ -400,7 +400,7 @@ namespace Graidex.Application.Services.Tests
 
             foreach (var testResultDto in submittedTestResultsDtos)
             {
-                if (testResultDto.CanReview)
+                if (!testResultDto.CanReview)
                 {
                     testResultDto.TotalPoints = null;
                     testResultDto.Grade = null;
