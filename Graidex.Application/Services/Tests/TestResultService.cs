@@ -13,6 +13,7 @@ using Graidex.Application.Services.TestChecking.TestCheckingQueue;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Tests;
 using Graidex.Domain.Models.Tests.Answers;
+using Graidex.Domain.Models.Tests.Questions;
 using OneOf;
 using OneOf.Types;
 using System.Collections;
@@ -364,10 +365,13 @@ namespace Graidex.Application.Services.Tests
                 var answerWithFeedback = mapper.Map(feedbackDto, answer);
             }
 
+            var questions = await this.testBaseQuestionsRepository.GetQuestionsListAsync(testResult.TestId);
+            this.testResultRecalculationService.RecalculateTestResultEvaluation(
+                testResult, questions, answers);
+
             await this.testResultAnswersRepository.UpdateAnswersListAsync(new TestResultAnswersList { TestResultId = testResultId, Answers = answers.Answers });
 
             // TODO [v1/IMP-3]: Add validation
-            // TODO [v1/LG-2]: Add grade and total points recalculation
 
             await this.testResultRepository.Update(testResult);
 
@@ -396,7 +400,7 @@ namespace Graidex.Application.Services.Tests
             .ToList();
 
             var submittedTestResultsDtos 
-                = this.mapper.Map<List<TestResultPreviewForStudentDto>>(submittedTestResults);
+                = this.mapper.Map<List<GetTestResultPreviewForStudentDto>>(submittedTestResults);
 
             foreach (var testResultDto in submittedTestResultsDtos)
             {
@@ -407,15 +411,17 @@ namespace Graidex.Application.Services.Tests
                 }
             }
 
-            int? currentTestResultId = this.testResultRepository.GetAll()
+            var currentTestResult = this.testResultRepository.GetAll()
             .Where(x => x.TestId == test.Id 
                         && x.StudentId == student.Id 
                         && x.EndTime > DateTime.UtcNow)
-            .Select(y => y.Id).FirstOrDefault();
+            .FirstOrDefault();
 
-            if (currentTestResultId == 0)
+            GetTestAttemptPreviewDto? currentTestAttempt = null;
+            if (currentTestResult is not null)
             {
-                currentTestResultId = null;
+                currentTestAttempt 
+                    = this.mapper.Map<GetTestAttemptPreviewDto>(currentTestResult);
             }
 
             int maxNumberOfAttempts = 1;
@@ -426,9 +432,7 @@ namespace Graidex.Application.Services.Tests
             var studentAttemptsDescriptionDto = new GetStudentAttemptsDescriptionDto
             {
                 SubmittedTestResults = submittedTestResultsDtos,
-
-                CurrentTestResultId = currentTestResultId,
-
+                CurrentTestAttempt = currentTestAttempt,
                 NumberOfAvailableTestAttempts = numberOfAvailableTestAttempts
             };
 

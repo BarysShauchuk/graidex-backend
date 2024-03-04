@@ -20,6 +20,8 @@ namespace Graidex.Application.DTOs.Test.TestDraft
 
         public int GradeToPass { get; set; }
 
+        public int MaxPoints { get; set; }
+
         public string? ItemType { get; set; }
 
         public required DateTime StartDateTime { get; set; }

@@ -9,8 +9,8 @@ namespace Graidex.Application.DTOs.Test.TestResult
 {
     public class GetStudentAttemptsDescriptionDto
     {
-        public required List<TestResultPreviewForStudentDto> SubmittedTestResults { get; set; }
-        public int? CurrentTestResultId { get; set; }
-        public required int NumberOfAvailableTestAttempts { get; set; }
+        public required List<GetTestResultPreviewForStudentDto> SubmittedTestResults { get; set; }
+        public GetTestAttemptPreviewDto? CurrentTestAttempt { get; set; }
+        public int NumberOfAvailableTestAttempts { get; set; }
     }
 }

@@ -17,6 +17,7 @@ namespace Graidex.Application.Factories.Tests
                 Title = test.Title,
                 Description = test.Description,
                 GradeToPass = test.GradeToPass,
+                MaxPoints = test.MaxPoints,
                 SubjectId = test.SubjectId,
                 LastUpdate = DateTime.UtcNow,
             };
@@ -47,6 +48,7 @@ namespace Graidex.Application.Factories.Tests
                 TimeLimit = parameters.TimeLimit,
                 AutoCheckAfterSubmission = parameters.AutoCheckAfterSubmission,
                 ReviewResult = parameters.ReviewResult,
+                MaxPoints = parameters.MaxPoints,
             };
 
             return test;
