@@ -41,6 +41,7 @@ namespace Graidex.Application.Factories.Tests
                 Title = testDraft.Title,
                 Description = testDraft.Description,
                 GradeToPass = testDraft.GradeToPass,
+                MaxPoints = testDraft.MaxPoints,
                 SubjectId = testDraft.SubjectId,
 
                 StartDateTime = parameters.StartDateTime,
@@ -48,7 +49,6 @@ namespace Graidex.Application.Factories.Tests
                 TimeLimit = parameters.TimeLimit,
                 AutoCheckAfterSubmission = parameters.AutoCheckAfterSubmission,
                 ReviewResult = parameters.ReviewResult,
-                MaxPoints = parameters.MaxPoints,
             };
 
             return test;
