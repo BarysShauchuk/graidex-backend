@@ -17,7 +17,7 @@ namespace Graidex.Domain.Models.Tests
         /// <summary>
         /// Gets or sets the date and time of the last update of the test.
         /// </summary>
-        public DateTime LastUpdate { get; set; }
+        public DateTimeOffset LastUpdate { get; set; }
 
         public TestDraft CreateExactClone()
         {

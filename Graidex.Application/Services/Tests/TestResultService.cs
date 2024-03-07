@@ -138,7 +138,7 @@ namespace Graidex.Application.Services.Tests
             return new NotFound();
         }
 
-        private static DateTime MinDateTime(DateTime a, DateTime b)
+        private static DateTimeOffset MinDateTime(DateTimeOffset a, DateTimeOffset b)
         {
             return a < b ? a : b;
         }

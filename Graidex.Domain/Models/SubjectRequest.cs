@@ -12,6 +12,6 @@ namespace Graidex.Domain.Models
         public int Id { get; set; }
         public required int StudentId { get; set; }
         public required int SubjectId { get; set; }
-        public required DateTime Date { get; set; }
+        public required DateTimeOffset Date { get; set; }
     }
 }
