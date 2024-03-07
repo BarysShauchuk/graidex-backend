@@ -8,16 +8,22 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.Validators.Tests.TestResult
 {
-    public class LeaveFeedbackOnAnswerDtoValidator : AbstractValidator<LeaveFeedbackForAnswerDto>
+    public class LeaveFeedbackOnAnswerDtoListValidator : AbstractValidator<List<LeaveFeedbackForAnswerDto>>
     {
-        public LeaveFeedbackOnAnswerDtoValidator() 
+        public LeaveFeedbackOnAnswerDtoListValidator() 
         {
-            RuleFor(x => x.Points)
-                .NotEmpty();
+            RuleForEach(list => list)
+                .ChildRules(item =>
+                {
+                    item.RuleFor(x => x.QuestionIndex)
+                        .GreaterThanOrEqualTo(0);
 
-            RuleFor(x => x.Feedback)
-                .NotEmpty()
-                .MaximumLength(500).WithMessage("Feedback should not exceed 500 characters");
+                    item.RuleFor(x => x.Points)
+                        .GreaterThanOrEqualTo(0);
+
+                    item.RuleFor(x => x.Feedback)
+                        .MaximumLength(500);
+                });
         }
     }
 }

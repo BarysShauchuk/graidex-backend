@@ -31,6 +31,7 @@ namespace Graidex.Application.Services.Tests
         private readonly IAnswerFactory answerFactory;
         private readonly IMapper mapper;
         private readonly IValidator<GetAnswerForStudentDto> getAnswerForStudentDtoValidator;
+        private readonly IValidator<List<LeaveFeedbackForAnswerDto>> leaveFeedbackOnAnswerDtoListValidator;
         private readonly ITestCheckingInQueue testCheckingQueue;
         private readonly ITestResultRecalculationService testResultRecalculationService;
         private const int ExtraMinutesForSubmission = 1;
@@ -45,6 +46,7 @@ namespace Graidex.Application.Services.Tests
             IAnswerFactory answerFactory,
             IMapper mapper,
             IValidator<GetAnswerForStudentDto> getAnswerForStudentDtoValidator,
+            IValidator<List<LeaveFeedbackForAnswerDto>> leaveFeedbackOnAnswerDtoListValidator,
             ITestCheckingInQueue testCheckingQueue,
             ITestResultRecalculationService testResultRecalculationService)
         {
@@ -57,6 +59,7 @@ namespace Graidex.Application.Services.Tests
             this.answerFactory = answerFactory;
             this.mapper = mapper;
             this.getAnswerForStudentDtoValidator = getAnswerForStudentDtoValidator;
+            this.leaveFeedbackOnAnswerDtoListValidator = leaveFeedbackOnAnswerDtoListValidator;
             this.testCheckingQueue = testCheckingQueue;
             this.testResultRecalculationService = testResultRecalculationService;
         }
@@ -108,8 +111,6 @@ namespace Graidex.Application.Services.Tests
             };
 
             await this.testResultRepository.Add(testResult);
-
-            // TODO [v1/IMP-3]: Add null check
 
             var questions = await this.testBaseQuestionsRepository.GetQuestionsListAsync(testId);
             var answers = questions.Questions.Select(this.answerFactory.CreateAnswer).ToList();
@@ -336,8 +337,14 @@ namespace Graidex.Application.Services.Tests
             return testResultDto;
         }
 
-        public async Task<OneOf<Success, NotFound, ItemImmutable>> LeaveFeedBackOnAnswerAsync(int testResultId, List<LeaveFeedbackForAnswerDto> feedbackDtos)
-        {   
+        public async Task<OneOf<Success, ValidationFailed, NotFound, ConditionFailed>> LeaveFeedBackOnAnswerAsync(int testResultId, List<LeaveFeedbackForAnswerDto> feedbackDtos)
+        {
+            var validationResult = this.leaveFeedbackOnAnswerDtoListValidator.Validate(feedbackDtos);
+            if (!validationResult.IsValid)
+            {
+                return new ValidationFailed(validationResult.Errors);
+            }
+
             var testResult = await this.testResultRepository.GetById(testResultId);
             if (testResult is null)
             {
@@ -346,32 +353,43 @@ namespace Graidex.Application.Services.Tests
 
             if (DateTime.UtcNow < testResult.EndTime)
             {
-                return new ItemImmutable("The test attempt is not finished yet");
+                return new ConditionFailed("The test attempt is not finished yet");
             }
 
-            var answers = await this.testResultAnswersRepository.GetAnswersListAsync(testResultId);
-            if (answers is null)
+            var answersList = await this.testResultAnswersRepository.GetAnswersListAsync(testResultId);
+            if (answersList is null)
+            {
+                return new NotFound();
+            }
+
+            var questionsList = await this.testBaseQuestionsRepository.GetQuestionsListAsync(testResult.TestId);
+            if (questionsList is null)
             {
                 return new NotFound();
             }
 
             foreach (var feedbackDto in feedbackDtos)
             {
-                var answer = answers.Answers.FirstOrDefault(x => x.QuestionIndex == feedbackDto.QuestionIndex);
+                var answer = answersList.Answers.FirstOrDefault(x => x.QuestionIndex == feedbackDto.QuestionIndex);
                 if (answer is null)
                 {
                     return new NotFound();
                 }
+
+                var question = questionsList.Questions[feedbackDto.QuestionIndex];
+                if (feedbackDto.Points > question.MaxPoints)
+                {
+                    return new ConditionFailed("Points cannot be greater than the maximum points for the question");
+                }
+
                 var answerWithFeedback = mapper.Map(feedbackDto, answer);
             }
 
             var questions = await this.testBaseQuestionsRepository.GetQuestionsListAsync(testResult.TestId);
             this.testResultRecalculationService.RecalculateTestResultEvaluation(
-                testResult, questions, answers);
+                testResult, questions, answersList);
 
-            await this.testResultAnswersRepository.UpdateAnswersListAsync(new TestResultAnswersList { TestResultId = testResultId, Answers = answers.Answers });
-
-            // TODO [v1/IMP-3]: Add validation
+            await this.testResultAnswersRepository.UpdateAnswersListAsync(new TestResultAnswersList { TestResultId = testResultId, Answers = answersList.Answers });
 
             await this.testResultRepository.Update(testResult);
 

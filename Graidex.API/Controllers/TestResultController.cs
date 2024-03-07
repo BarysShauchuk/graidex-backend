@@ -104,8 +104,9 @@ namespace Graidex.API.Controllers
 
             return result.Match<ActionResult>(
                 success => Ok(),
+                validationFailed => BadRequest(validationFailed.Errors),
                 notFound => NotFound(),
-                itemImmutable => BadRequest(itemImmutable.Comment));
+                conditionFailed => BadRequest(conditionFailed.Comment));
         }
 
         [HttpGet("get-student-attempts-description/{testId}")]
