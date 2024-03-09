@@ -14,9 +14,9 @@ namespace Graidex.Application.DTOs.Test.TestResult
 
         public bool CanReview { get; set; }
 
-        public DateTime StartTime { get; set; }
+        public DateTimeOffset StartTime { get; set; }
 
-        public DateTime EndTime { get; set; }
+        public DateTimeOffset EndTime { get; set; }
 
         public required int TestId { get; set; }
 

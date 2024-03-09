@@ -27,9 +27,9 @@ namespace Graidex.Application.DTOs.Test.TestDraft
 
         public bool IsVisible { get; set; }
 
-        public required DateTime StartDateTime { get; set; }
+        public required DateTimeOffset StartDateTime { get; set; }
 
-        public DateTime EndDateTime { get; set; }
+        public DateTimeOffset EndDateTime { get; set; }
 
         public TimeSpan TimeLimit { get; set; }
         

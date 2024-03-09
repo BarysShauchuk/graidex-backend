@@ -29,12 +29,12 @@ namespace Graidex.Domain.Models.Tests
         /// <summary>
         /// Gets or sets the time of the start of the test.
         /// </summary>
-        public DateTime StartTime { get; set; }
+        public DateTimeOffset StartTime { get; set; }
 
         /// <summary>
         /// Gets or sets the time of the end of the test.
         /// </summary>
-        public DateTime EndTime { get; set; }
+        public DateTimeOffset EndTime { get; set; }
 
         /// <summary>
         /// Gets or sets id of the test the result belongs to.
