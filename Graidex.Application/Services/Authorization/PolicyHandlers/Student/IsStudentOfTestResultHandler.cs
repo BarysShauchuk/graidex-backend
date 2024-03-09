@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.Services.Authorization.PolicyHandlers.Student
 {
-    public class IsStudentOfAttemptHandler : AuthorizationHandler<IsStudentOfAttemptRequirement>
+    public class IsStudentOfTestResultHandler : AuthorizationHandler<IsStudentOfTestResultRequirement>
     {
         private readonly ICurrentUserService currentUser;
         private readonly IRouteDataService routeData;
         private readonly IStudentRepository studentRepository;
         private readonly ITestResultRepository testResultRepository;
 
-        public IsStudentOfAttemptHandler(
+        public IsStudentOfTestResultHandler(
             ICurrentUserService currentUser,
             IRouteDataService routeData,
             IStudentRepository studentRepository,
@@ -31,7 +31,7 @@ namespace Graidex.Application.Services.Authorization.PolicyHandlers.Student
 
         protected override async Task HandleRequirementAsync(
             AuthorizationHandlerContext context,
-            IsStudentOfAttemptRequirement requirement)
+            IsStudentOfTestResultRequirement requirement)
         {
             if (!context.User.IsInRole("Student"))
             {

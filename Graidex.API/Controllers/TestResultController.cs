@@ -38,7 +38,7 @@ namespace Graidex.API.Controllers
         }
 
         [HttpGet("get-all-questions-with-answers/{testResultId}")]
-        [Authorize(Roles = "Student", Policy = "StudentOfAttempt")]
+        [Authorize(Roles = "Student", Policy = "StudentOfTestResult")]
         public async Task<ActionResult> GetAllQuestionsWithSavedAnswers(int testResultId)
         {
             var result = await this.testResultService.GetAllQuestionsWithSavedAnswersAsync(testResultId);
@@ -50,7 +50,7 @@ namespace Graidex.API.Controllers
         }
 
         [HttpPut("update-test-attempt/{testResultId}")]
-        [Authorize(Roles = "Student", Policy = "StudentOfAttempt")]
+        [Authorize(Roles = "Student", Policy = "StudentOfTestResult")]
         public async Task<ActionResult> UpdateTestAttempt(int testResultId, int index, GetAnswerForStudentDto answerDto)
         {
             var result = await this.testResultService.UpdateTestAttemptByIdAsync(testResultId, index, answerDto);
@@ -63,7 +63,7 @@ namespace Graidex.API.Controllers
         }
 
         [HttpPut("submit-test-attempt/{testResultId}")]
-        [Authorize(Roles = "Student", Policy = "StudentOfAttempt")]
+        [Authorize(Roles = "Student", Policy = "StudentOfTestResult")]
         public async Task<ActionResult> SubmitTestAttempt(int testResultId)
         {
             var result = await this.testResultService.SubmitTestAttemptByIdAsync(testResultId);
@@ -85,7 +85,7 @@ namespace Graidex.API.Controllers
         }
 
         [HttpGet("get-test-result/{testResultId}")]
-        [Authorize(Roles = "Teacher")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfTestResult")]
         public async Task<ActionResult> GetTestResultForTeacherAttempt(int testResultId)
         {
             var result = await this.testResultService.GetTestResultByIdAsync(testResultId);
@@ -96,8 +96,20 @@ namespace Graidex.API.Controllers
                 conditionFailed => BadRequest(conditionFailed.Comment));
         }
 
+        [HttpGet("get-test-result-for-student/{testResultId}")]
+        [Authorize(Roles = "Student", Policy = "StudentOfTestResult")]
+        public async Task<ActionResult> GetTestResultForStudentAttempt(int testResultId)
+        {
+            var result = await this.testResultService.GetTestResultForStudentByIdAsync(testResultId);
+
+            return result.Match<ActionResult>(
+                getTestResultForStudentDto => Ok(getTestResultForStudentDto),
+                notFound => NotFound(),
+                conditionFailed => BadRequest(conditionFailed.Comment));
+        }
+
         [HttpPut("leave-feedback-on-answer/{testResultId}")]
-        [Authorize(Roles = "Teacher")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfTestResult")]
         public async Task<ActionResult> LeaveFeedBack(int testResultId, List<LeaveFeedbackForAnswerDto> feedbackDtos)
         {
             var result = await this.testResultService.LeaveFeedBackOnAnswerAsync(testResultId, feedbackDtos);

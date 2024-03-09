@@ -323,7 +323,7 @@ namespace Graidex.Application.Services.Tests
                 = await this.testResultAnswersRepository.GetAnswersListAsync(testResultId);
 
             var questionsWithAnswers = answers.Answers
-                .Select(answer => new GetResultAnswerForTeacherDto
+                .Select(answer => new GetResultAnswerForReviewDto
                 {
                     Question = mapper.Map<TestBaseQuestionDto>(questions.Questions[answer.QuestionIndex]),
                     Answer = mapper.Map<GetResultAnswerDto>(answer)
@@ -333,6 +333,39 @@ namespace Graidex.Application.Services.Tests
             var testResultDto = this.mapper.Map<GetTestResultForTeacherDto>(testResult);
             testResultDto.ResultAnswers = questionsWithAnswers;
             testResultDto.StudentEmail = student.Email;
+
+            return testResultDto;
+        }
+
+        public async Task<OneOf<GetTestResultForStudentDto, NotFound, ConditionFailed>> GetTestResultForStudentByIdAsync(int testResultId)
+        {
+            var testResult = await this.testResultRepository.GetById(testResultId);
+            if (testResult is null)
+            {
+                return new NotFound();
+            }
+
+            if (testResult.CanReview == false)
+            {
+                return new ConditionFailed("The test attempt review is not allowed");
+            }
+
+            var questions
+                = await this.testBaseQuestionsRepository.GetQuestionsListAsync(testResult.TestId);
+
+            var answers
+                = await this.testResultAnswersRepository.GetAnswersListAsync(testResultId);
+
+            var questionsWithAnswers = answers.Answers
+                .Select(answer => new GetResultAnswerForReviewDto
+                {
+                    Question = mapper.Map<TestBaseQuestionDto>(questions.Questions[answer.QuestionIndex]),
+                    Answer = mapper.Map<GetResultAnswerDto>(answer)
+                })
+                .ToList();
+
+            var testResultDto = this.mapper.Map<GetTestResultForStudentDto>(testResult);
+            testResultDto.ResultAnswers = questionsWithAnswers;
 
             return testResultDto;
         }
