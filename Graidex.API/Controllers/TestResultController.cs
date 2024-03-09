@@ -1,15 +1,8 @@
-﻿using Amazon.Auth.AccessControlPolicy;
-using Graidex.Application.DTOs.Test.Answers.TestAttempt;
-using Graidex.Application.DTOs.Test.TestAttempt;
+﻿using Graidex.Application.DTOs.Test.Answers.TestAttempt;
 using Graidex.Application.DTOs.Test.TestResult;
-using Graidex.Application.OneOfCustomTypes;
 using Graidex.Application.Services.Tests;
-using Graidex.Domain.Models.Tests;
-using Graidex.Domain.Models.Tests.Answers;
-using Graidex.Domain.Models.Tests.Questions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 
 namespace Graidex.API.Controllers
 {
@@ -94,6 +87,17 @@ namespace Graidex.API.Controllers
                 testResultDto => Ok(testResultDto),
                 notFound => NotFound(),
                 conditionFailed => BadRequest(conditionFailed.Comment));
+        }
+
+        [HttpGet("get-all-test-results/{testId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfTest")]
+        public async Task<ActionResult> GetAllTestResultsByTestId(int testId)
+        {
+            var result = await this.testResultService.GetAllTestResultsByTestIdAsync(testId);
+
+            return result.Match<ActionResult>(
+                testResultListedDtos => Ok(testResultListedDtos),
+                notFound => NotFound());
         }
 
         [HttpPut("leave-feedback-on-answer/{testResultId}")]
