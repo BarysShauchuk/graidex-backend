@@ -1,4 +1,5 @@
-﻿using Graidex.Application.Services.TestChecking;
+﻿using Graidex.API.Hubs;
+using Graidex.Application.Services.TestChecking;
 using Graidex.Application.Services.TestChecking.TestCheckingQueue;
 using Graidex.Application.Services.Tests.TestChecking;
 using Graidex.Domain.Exceptions;
@@ -7,6 +8,7 @@ using Graidex.Domain.Models.Tests.Answers;
 using Graidex.Domain.Models.Tests.Questions;
 using Graidex.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Graidex.API.Controllers
@@ -21,6 +23,7 @@ namespace Graidex.API.Controllers
         private readonly IConfiguration configuration;
         private readonly IAnswerCheckHandler answerCheckersContainer;
         private readonly ITestCheckingInQueue testCheckingQueue;
+        private readonly IHubContext<NotificationsHub, INotificationsClient> hubContext;
 
         public ApplicationTestingController(
             GraidexDbContext dbContext,
@@ -28,7 +31,8 @@ namespace Graidex.API.Controllers
             ISubjectRepository subjectRepository,
             IConfiguration configuration,
             IAnswerCheckHandler answerCheckHandler,
-            ITestCheckingInQueue testCheckingQueue)
+            ITestCheckingInQueue testCheckingQueue,
+            IHubContext<NotificationsHub, INotificationsClient> hubContext)
         {
             this.dbContext = dbContext;
             this.mongoDbClient = mongoDbClient;
@@ -36,6 +40,7 @@ namespace Graidex.API.Controllers
             this.configuration = configuration;
             this.answerCheckersContainer = answerCheckHandler;
             this.testCheckingQueue = testCheckingQueue;
+            this.hubContext = hubContext;
         }
 
         [HttpDelete("drop-data")]
@@ -100,17 +105,8 @@ namespace Graidex.API.Controllers
         [HttpPost("test-3")]
         public async Task<ActionResult> Test3()
         {
-            Question question = new SingleChoiceQuestion
-            {
-                Text = "Test question",
-            };
-
-            Answer answer = new SingleChoiceAnswer
-            {
-                
-            };
-
-            await this.answerCheckersContainer.EvaluateAsync(question, answer);
+            var time = DateTimeOffset.Now;
+            await hubContext.Clients.All.ReceiveApplicationTestNotification($"Current server time: {time}");
 
             return Ok();
         }

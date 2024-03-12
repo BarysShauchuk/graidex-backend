@@ -31,6 +31,7 @@ namespace Graidex.API.HostedServices
             return ProcessTestCheckingAsync(stoppingToken);
         }
 
+        // TODO: Refactor this method to use TPL Dataflow?
         private async Task ProcessTestCheckingAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)

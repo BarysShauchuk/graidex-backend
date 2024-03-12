@@ -21,6 +21,7 @@ using Graidex.Application.Services.Users.Students;
 using Graidex.Application.Services.Users.Teachers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Tokens;
 
@@ -38,6 +39,7 @@ namespace Graidex.API.Startup
             services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
+                {
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
@@ -46,7 +48,24 @@ namespace Graidex.API.Startup
                                 configuration.GetRequiredSection("AppSettings:Token").Value!)),
                         ValidateIssuer = false,
                         ValidateAudience = false,
-                    });
+                    };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) &&
+                                (path.StartsWithSegments("/notifications"))) // TODO: Move to appsettings.json file
+                            {
+                                context.Token = accessToken;
+                            }
+
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
 
             return services;
         }
@@ -198,7 +217,6 @@ namespace Graidex.API.Startup
             services.AddHostedService<TestCheckingBackgroundService>();
             services.RegisterTestCheckingQueue();
 
-
             services.AddScoped<TestCheckingService>();
 
             services.AddScoped<ITestCheckingService>(
@@ -232,6 +250,19 @@ namespace Graidex.API.Startup
             services.AddSingleton<IAnswerChecker, MultipleChoiceAnswerChecker>();
             
             services.AddSingleton<IAnswerCheckHandler, AnswerCheckHandler>();
+
+            return services;
+        }
+
+        public static IServiceCollection RegisterSchedulerServices(this IServiceCollection services)
+        {
+            services.AddHostedService<SchedulerBackgroundService>();
+            return services;
+        }
+
+        public static IServiceCollection RegisterNotificationsServices(this IServiceCollection services)
+        {
+            // services.AddSingleton<IUserIdProvider, NameBasedUserIdProvider>();
 
             return services;
         }
