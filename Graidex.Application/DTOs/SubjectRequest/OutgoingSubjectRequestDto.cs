@@ -10,6 +10,6 @@ namespace Graidex.Application.DTOs.SubjectRequest
     {
         public required int Id { get; set; }
         public required string StudentEmail { get; set; }
-        public required DateTime Date { get; set; }
+        public required DateTimeOffset Date { get; set; }
     }
 }

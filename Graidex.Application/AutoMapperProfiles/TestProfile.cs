@@ -111,7 +111,9 @@ namespace Graidex.Application.AutoMapperProfiles
             CreateMap<GetMultipleChoiceAnswerForStudentDto, MultipleChoiceAnswer>();
 
             CreateMap<TestResult, GetTestResultForTeacherDto>();
-            CreateMap<TestResult, TestResultPreviewForStudentDto>();
+            CreateMap<TestResult, GetTestResultForStudentDto>();
+            CreateMap<TestResult, GetTestResultPreviewForStudentDto>();
+            CreateMap<TestResult, GetTestAttemptPreviewDto>();
 
             CreateMap<LeaveFeedbackForAnswerDto, Answer>()
                 .Include<LeaveFeedbackForAnswerDto, OpenAnswer>()

@@ -22,7 +22,8 @@ namespace Graidex.Application.Validators.Tests.Test
 
             RuleFor(x => x.TimeLimit)
                 .NotEmpty()
-                .LessThanOrEqualTo(x => x.EndDateTime - x.StartDateTime).WithMessage("Time limit must be less than the difference between start and end time");
+                .LessThanOrEqualTo(x => x.EndDateTime - x.StartDateTime).WithMessage("Time limit must be less than the difference between start and end time")
+                .LessThanOrEqualTo(TimeSpan.FromDays(14));
         }
     }
 }

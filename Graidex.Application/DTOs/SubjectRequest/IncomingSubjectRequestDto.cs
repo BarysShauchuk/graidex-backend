@@ -11,6 +11,6 @@ namespace Graidex.Application.DTOs.SubjectRequest
     {
         public int Id { get; set; }
         public required SubjectInfoDto SubjectInfo { get; set; }
-        public required DateTime Date { get; set; }
+        public required DateTimeOffset Date { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using Graidex.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Graidex.Infrastructure.Migrations
 {
     [DbContext(typeof(GraidexDbContext))]
-    partial class GraidexDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240228193403_Test_TimeLimit_TimeSpanToTicks")]
+    partial class Test_TimeLimit_TimeSpanToTicks
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -98,8 +101,8 @@ namespace Graidex.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTimeOffset>("Date")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("StudentId")
                         .HasColumnType("int");
@@ -127,8 +130,8 @@ namespace Graidex.Infrastructure.Migrations
                     b.Property<bool>("CanReview")
                         .HasColumnType("bit");
 
-                    b.Property<DateTimeOffset>("EndTime")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Grade")
                         .HasColumnType("int");
@@ -136,8 +139,8 @@ namespace Graidex.Infrastructure.Migrations
                     b.Property<bool>("IsAutoChecked")
                         .HasColumnType("bit");
 
-                    b.Property<DateTimeOffset>("StartTime")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("StudentId")
                         .HasColumnType("int");
@@ -277,23 +280,17 @@ namespace Graidex.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTimeOffset>("EndDateTime")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("EndDateTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("GradeToPass")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MaxPoints")
                         .HasColumnType("int");
 
                     b.Property<int>("ReviewResult")
                         .HasColumnType("int");
 
-                    b.Property<bool>("ShuffleQuestions")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset>("StartDateTime")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("StartDateTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<long>("TimeLimit")
                         .HasColumnType("bigint");
@@ -313,11 +310,8 @@ namespace Graidex.Infrastructure.Migrations
                     b.Property<int>("GradeToPass")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset>("LastUpdate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int>("MaxPoints")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("datetime2");
 
                     b.ToTable("TestDrafts", (string)null);
                 });

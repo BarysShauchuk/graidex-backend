@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using Graidex.Application.Services.TestChecking.TestCheckingQueue;
 using Graidex.Application.Factories.Tests;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Graidex.Application.Services.Tests
 {
@@ -107,8 +108,6 @@ namespace Graidex.Application.Services.Tests
             testDraft.LastUpdate = DateTime.UtcNow;
 
             await this.testDraftRepository.Add(testDraft);
-
-            // TODO: create questions list
 
             return this.mapper.Map<GetTestDraftDto>(testDraft);
         }
@@ -366,7 +365,10 @@ namespace Graidex.Application.Services.Tests
                 Questions = testQuestions.Select(mapper.Map<Question>).ToList()
             };
 
+            test.MaxPoints = testQuestionsList.Questions.Sum(x => x.MaxPoints);
+
             await this.testBaseQuestionsRepository.UpdateQuestionsListAsync(testQuestionsList);
+            await this.testRepository.Update(test);
 
             return new Success();
         }
@@ -379,8 +381,8 @@ namespace Graidex.Application.Services.Tests
 
         public async Task<OneOf<Success, ValidationFailed, NotFound>> UpdateTestDraftQuestionsAsync(int testDraftId, List<TestBaseQuestionDto> testQuestions)
         {
-            bool testExists = this.testDraftRepository.GetAll().Any(x => x.Id == testDraftId);
-            if (!testExists)
+            var testDraft = await this.testDraftRepository.GetById(testDraftId);
+            if (testDraft is null)
             {
                 return new NotFound();
             }
@@ -397,7 +399,10 @@ namespace Graidex.Application.Services.Tests
                 Questions = testQuestions.Select(mapper.Map<Question>).ToList()
             };
 
+            testDraft.MaxPoints = testQuestionsList.Questions.Sum(x => x.MaxPoints);
+
             await this.testBaseQuestionsRepository.UpdateQuestionsListAsync(testQuestionsList);
+            await this.testDraftRepository.Update(testDraft);
 
             return new Success();
         }

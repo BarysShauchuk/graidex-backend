@@ -9,10 +9,11 @@ namespace Graidex.Application.Factories.Tests
 {
     public class TestDraftToTestParameters
     {
-        public DateTime StartDateTime { get; set; }
-        public DateTime EndDateTime { get; set; }
+        public DateTimeOffset StartDateTime { get; set; }
+        public DateTimeOffset EndDateTime { get; set; }
         public TimeSpan TimeLimit { get; set; }
         public bool AutoCheckAfterSubmission { get; set; }
+        public bool ShuffleQuestions { get; set; }
         public ReviewResultOptions ReviewResult { get; set; }
     }
 }

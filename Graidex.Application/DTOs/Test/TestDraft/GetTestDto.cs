@@ -21,13 +21,15 @@ namespace Graidex.Application.DTOs.Test.TestDraft
 
         public int GradeToPass { get; set; }
 
+        public int MaxPoints { get; set; }
+
         public string? ItemType { get; set; }
 
         public bool IsVisible { get; set; }
 
-        public required DateTime StartDateTime { get; set; }
+        public required DateTimeOffset StartDateTime { get; set; }
 
-        public DateTime EndDateTime { get; set; }
+        public DateTimeOffset EndDateTime { get; set; }
 
         public TimeSpan TimeLimit { get; set; }
         

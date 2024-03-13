@@ -21,5 +21,10 @@ namespace Graidex.Domain.Models.Tests
         /// Gets or sets the minimum grade to pass this test.
         /// </summary>
         public int GradeToPass { get; set; }
+
+        /// <summary>
+        /// Gets or sets maximum amount of points that can be earned in the test.
+        /// </summary>
+        public int MaxPoints { get; set; }
     }
 }

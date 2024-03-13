@@ -62,7 +62,9 @@ namespace Graidex.API.Startup
             services.AddScoped<IAuthorizationHandler, IsTeacherOfDraftHandler>();
             services.AddScoped<IAuthorizationHandler, IsTeacherOfTestHandler>();
             services.AddScoped<IAuthorizationHandler, IsStudentOfVisibleTestHandler>();
-            services.AddScoped<IAuthorizationHandler, IsStudentOfAttemptHandler>();
+            services.AddScoped<IAuthorizationHandler, IsStudentOfTestResultHandler>();
+            services.AddScoped<IAuthorizationHandler, IsTeacherOfSubjectContentHandler>();
+            services.AddScoped<IAuthorizationHandler, IsTeacherOfTestResultHandler>();
 
             services.AddAuthorization(options =>
             {
@@ -129,11 +131,25 @@ namespace Graidex.API.Startup
                     policyBuilder.AddRequirements(new IsStudentOfVisibleTestRequirement());
                 });
 
-                options.AddPolicy("StudentOfAttempt", policyBuilder =>
+                options.AddPolicy("StudentOfTestResult", policyBuilder =>
                 {
                     policyBuilder.RequireAuthenticatedUser();
                     policyBuilder.RequireRole("Student");
-                    policyBuilder.AddRequirements(new IsStudentOfAttemptRequirement());
+                    policyBuilder.AddRequirements(new IsStudentOfTestResultRequirement());
+                });
+
+                options.AddPolicy("TeacherOfSubjectContent", policyBuilder =>
+                {
+                    policyBuilder.RequireAuthenticatedUser();
+                    policyBuilder.RequireRole("Teacher");
+                    policyBuilder.AddRequirements(new IsTeacherOfSubjectContentRequirement());
+                });
+
+                options.AddPolicy("TeacherOfTestResult", policyBuilder =>
+                {
+                    policyBuilder.RequireAuthenticatedUser();
+                    policyBuilder.RequireRole("Teacher");
+                    policyBuilder.AddRequirements(new IsTeacherOfTestResultRequirement());
                 });
             });
 

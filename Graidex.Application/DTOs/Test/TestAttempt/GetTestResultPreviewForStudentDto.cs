@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.DTOs.Test.TestAttempt
 {
-    public class TestResultPreviewForStudentDto
+    public class GetTestResultPreviewForStudentDto
     {
         public int Id { get; set; }
         public bool CanReview { get; set; }
 
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public DateTimeOffset StartTime { get; set; }
+        public DateTimeOffset EndTime { get; set; }
 
         public int? TotalPoints { get; set; }
         public int? Grade { get; set; }

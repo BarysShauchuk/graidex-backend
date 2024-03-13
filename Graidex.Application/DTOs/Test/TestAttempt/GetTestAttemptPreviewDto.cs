@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.DTOs.Test.TestAttempt
 {
-    public class GetTestAttemptForStudentDto
-    {   
+    public class GetTestAttemptPreviewDto
+    {
         public int Id { get; set; }
         public DateTimeOffset StartTime { get; set; }
         public DateTimeOffset EndTime { get; set; }
-        public List<GetAnswerDto> Answers { get; set; } = new List<GetAnswerDto>();
     }
 }

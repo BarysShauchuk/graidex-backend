@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.DTOs.Test.TestResult
 {
-    public class GetResultAnswerForTeacherDto
+    public class GetResultAnswerForReviewDto
     {
         public required TestBaseQuestionDto Question { get; set; }
         public required GetResultAnswerDto Answer { get; set; }

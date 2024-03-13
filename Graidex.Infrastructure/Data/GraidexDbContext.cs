@@ -93,6 +93,12 @@ namespace Graidex.Infrastructure.Data
             modelBuilder.Entity<Test>()
                 .HasMany(test => test.AllowedStudents)
                 .WithMany();
+
+            modelBuilder.Entity<Test>()
+                .Property(test => test.TimeLimit)
+                .HasConversion(
+                    timeSpan => timeSpan.Ticks,
+                    ticks => TimeSpan.FromTicks(ticks));
         }
 
         private static void ConfigureTestResults(ModelBuilder modelBuilder)
