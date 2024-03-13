@@ -6,6 +6,7 @@ using Graidex.Application.DTOs.Test.Questions;
 using Graidex.Application.DTOs.Test.Questions.QuestionsForStudent;
 using Graidex.Application.DTOs.Test.TestAttempt;
 using Graidex.Application.DTOs.Test.TestResult;
+using Graidex.Application.DTOs.Users.Students;
 using Graidex.Application.Factories.Answers;
 using Graidex.Application.Interfaces;
 using Graidex.Application.OneOfCustomTypes;
@@ -16,7 +17,6 @@ using Graidex.Domain.Models.Tests.Answers;
 using Graidex.Domain.Models.Tests.Questions;
 using OneOf;
 using OneOf.Types;
-using System.Collections;
 
 namespace Graidex.Application.Services.Tests
 {
@@ -337,6 +337,30 @@ namespace Graidex.Application.Services.Tests
             return testResultDto;
         }
 
+        public async Task<OneOf<List<GetTestResultListedForTeacherDto>, NotFound>> GetAllTestResultsByTestIdAsync(int testId) 
+        {
+            var test = await this.testRepository.GetById(testId);
+            if (test is null)
+            {
+                return new NotFound();
+            }
+            
+            var students = this.studentRepository.GetAll().Where(student => test.AllowedStudents.Contains(student)).ToList();
+
+            var testResults = this.testResultRepository.GetAll().Where(testResult => testResult.TestId == testId).ToList();
+
+            var resultsDtos = testResults.Select(result => new GetTestResultListedForTeacherDto 
+            {Id = result.Id,
+             Student = mapper.Map<StudentInfoDto>(students.Find(student => student.Id == result.StudentId)),
+             StartTime = result.StartTime,
+             EndTime = result.EndTime,
+             Grade = result.Grade,
+             CanReview = result.CanReview
+            }).ToList();
+
+            return resultsDtos;
+        }
+
         public async Task<OneOf<GetTestResultForStudentDto, NotFound, ConditionFailed>> GetTestResultForStudentByIdAsync(int testResultId)
         {
             var testResult = await this.testResultRepository.GetById(testResultId);
@@ -344,7 +368,7 @@ namespace Graidex.Application.Services.Tests
             {
                 return new NotFound();
             }
-
+            
             if (testResult.CanReview == false)
             {
                 return new ConditionFailed("The test attempt review is not allowed");
