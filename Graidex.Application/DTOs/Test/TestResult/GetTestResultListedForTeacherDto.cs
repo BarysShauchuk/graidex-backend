@@ -13,9 +13,9 @@ namespace Graidex.Application.DTOs.Test.TestResult
 
         public required StudentInfoDto Student { get; set; }
 
-        public required DateTime StartTime { get; set; }
+        public required DateTimeOffset StartTime { get; set; }
 
-        public required DateTime EndTime { get; set;}
+        public required DateTimeOffset EndTime { get; set;}
 
         public required int Grade { get; set; }
 

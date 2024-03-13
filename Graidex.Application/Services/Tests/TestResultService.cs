@@ -350,12 +350,13 @@ namespace Graidex.Application.Services.Tests
             var testResults = this.testResultRepository.GetAll().Where(testResult => testResult.TestId == testId).ToList();
 
             var resultsDtos = testResults.Select(result => new GetTestResultListedForTeacherDto 
-            {Id = result.Id,
-             Student = mapper.Map<StudentInfoDto>(students.Find(student => student.Id == result.StudentId)),
-             StartTime = result.StartTime,
-             EndTime = result.EndTime,
-             Grade = result.Grade,
-             CanReview = result.CanReview
+            {
+                Id = result.Id,
+                Student = mapper.Map<StudentInfoDto>(students.Find(student => student.Id == result.StudentId)),
+                StartTime = result.StartTime,
+                EndTime = result.EndTime,
+                Grade = result.Grade,
+                CanReview = result.CanReview
             }).ToList();
 
             return resultsDtos;
