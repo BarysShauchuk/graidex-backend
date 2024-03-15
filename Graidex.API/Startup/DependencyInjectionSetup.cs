@@ -262,7 +262,6 @@ namespace Graidex.API.Startup
 
         public static IServiceCollection RegisterNotificationsServices(this IServiceCollection services)
         {
-            // services.AddSingleton<IUserIdProvider, NameBasedUserIdProvider>();
 
             return services;
         }
