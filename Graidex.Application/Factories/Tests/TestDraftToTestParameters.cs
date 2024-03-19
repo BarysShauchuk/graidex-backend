@@ -14,6 +14,6 @@ namespace Graidex.Application.Factories.Tests
         public TimeSpan TimeLimit { get; set; }
         public bool AutoCheckAfterSubmission { get; set; }
         public bool ShuffleQuestions { get; set; }
-        public ReviewResultOptions ReviewResult { get; set; }
+        public ShowToStudentOptions ReviewResult { get; set; }
     }
 }

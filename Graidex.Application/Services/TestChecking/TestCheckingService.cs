@@ -1,5 +1,5 @@
 ﻿using Graidex.Application.Services.TestChecking;
-using Graidex.Application.Services.TestChecking.TestCheckingQueue;
+using Graidex.Application.Services.TestChecking.AnswerCheckers;
 using Graidex.Domain.Exceptions;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Tests;
@@ -13,29 +13,17 @@ using System.Threading.Tasks;
 
 namespace Graidex.Application.Services.Tests.TestChecking
 {
-    public class TestCheckingService : ITestCheckingService, ITestResultRecalculationService
+    public class TestCheckingService : ITestCheckingService
     {
-        private readonly ITestBaseQuestionsRepository testQuestionsRepository;
-        private readonly ITestResultRepository testResultRepository;
-        private readonly ITestRepository testRepository;
-        private readonly ITestResultAnswersRepository testResultAnswersRepository;
-        private readonly IAnswerCheckHandler answerCheckHandler;
+        private readonly Dictionary<(Type, Type), IAnswerChecker> answerCheckers = [];
 
-        public TestCheckingService(
-            ITestBaseQuestionsRepository testQuestionsRepository,
-            ITestResultRepository testResultRepository,
-            ITestRepository testRepository,
-            ITestResultAnswersRepository testResultAnswersRepository,
-            IAnswerCheckHandler answerCheckHandler)
+        public TestCheckingService(IEnumerable<IAnswerChecker> answerCheckers)
         {
-            this.testQuestionsRepository = testQuestionsRepository;
-            this.testResultRepository = testResultRepository;
-            this.testRepository = testRepository;
-            this.testResultAnswersRepository = testResultAnswersRepository;
-            this.answerCheckHandler = answerCheckHandler;
+            this.answerCheckers = answerCheckers
+                .ToDictionary(x => (x.QuestionType, x.AnswerType));
         }
 
-        public async Task CheckTestAttemptAsync(int testResultId)
+        /*public async Task CheckTestAttemptAsync(int testResultId)
         {
             var testResult = await this.testResultRepository.GetById(testResultId);
             if (testResult is null)
@@ -70,15 +58,33 @@ namespace Graidex.Application.Services.Tests.TestChecking
 
             this.RecalculateTestResultEvaluation(testResult, testQuestions, studentAnswers);
 
-            testResult.IsAutoChecked = true;
+            testResult.RequireTeacherReview = true;
 
-            if (test.ReviewResult == Test.ReviewResultOptions.AfterAutoCheck)
+            *//*if (test.ShowToStudent == Test.ShowToStudentOptions.AfterAutoCheck)
             {
-                testResult.CanReview = true;
-            }
+                testResult.ShowToStudent = true;
+            }*//*
             
             await this.testResultRepository.Update(testResult);
             await this.testResultAnswersRepository.UpdateAnswersListAsync(studentAnswers);
+        }*/
+
+        public void CheckAnswer(Question question, Answer answer)
+        {
+            answer.Feedback = question.DefaultFeedback;
+
+            if (!this.answerCheckers.TryGetValue(
+                (question.GetType(), answer.GetType()), out var answerChecker))
+            {
+                return;
+            }
+
+            answerChecker.Evaluate(question, answer);
+        }
+
+        public int CalculateGrade(int points, int maxPoints)
+        {
+            return (int)Math.Round(points * 10d / maxPoints);
         }
 
         public void RecalculateTestResultEvaluation(TestResult testResult, TestBaseQuestionsList testQuestions, TestResultAnswersList testResultAnswers)
@@ -87,7 +93,7 @@ namespace Graidex.Application.Services.Tests.TestChecking
             int maxPoints = testQuestions.Questions.Sum(x => x.MaxPoints);
 
             testResult.TotalPoints = points;
-            testResult.Grade = (int)Math.Round(points * 10d / maxPoints);
+            testResult.Grade = this.CalculateGrade(points, maxPoints);
         }
     }
 }

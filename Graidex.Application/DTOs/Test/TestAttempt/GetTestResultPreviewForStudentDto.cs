@@ -9,7 +9,8 @@ namespace Graidex.Application.DTOs.Test.TestAttempt
     public class GetTestResultPreviewForStudentDto
     {
         public int Id { get; set; }
-        public bool CanReview { get; set; }
+        public bool ShowToStudent { get; set; }
+        public bool RequireTeacherReview { get; set; }
 
         public DateTimeOffset StartTime { get; set; }
         public DateTimeOffset EndTime { get; set; }

@@ -17,7 +17,7 @@ namespace Graidex.Application.DTOs.Test.TestDraft
         public bool AutoCheckAfterSubmission { get; set; }
         public bool ShuffleQuestions { get; set; }
         public bool IsVisible { get; set; }
-        public ReviewResultOptions ReviewResult { get; set; }
+        public ShowToStudentOptions ShowToStudent { get; set; }
         public double OrderIndex { get; set; }
     }
 }

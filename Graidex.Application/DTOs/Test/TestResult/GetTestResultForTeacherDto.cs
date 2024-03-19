@@ -10,7 +10,9 @@ namespace Graidex.Application.DTOs.Test.TestResult
     {   
         public List<GetResultAnswerForReviewDto> ResultAnswers { get; set; } = new List<GetResultAnswerForReviewDto>();
 
-        public bool IsAutoChecked { get; set; }
+        public bool RequireTeacherReview { get; set; }
+
+        public bool ShowToStudent { get; set; }
 
         public bool CanReview { get; set; }
 

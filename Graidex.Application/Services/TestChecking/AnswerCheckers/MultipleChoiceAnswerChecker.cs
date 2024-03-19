@@ -10,7 +10,7 @@ namespace Graidex.Application.Services.TestChecking.AnswerCheckers
 {
     public class MultipleChoiceAnswerChecker : AnswerChecker<MultipleChoiceQuestion, MultipleChoiceAnswer>
     {
-        protected override Task EvaluateAsync(MultipleChoiceQuestion question, MultipleChoiceAnswer answer)
+        protected override void Evaluate(MultipleChoiceQuestion question, MultipleChoiceAnswer answer)
         {
             answer.Points = 0;
 
@@ -30,10 +30,6 @@ namespace Graidex.Application.Services.TestChecking.AnswerCheckers
             {
                 answer.Points = question.MaxPoints;
             }
-
-            answer.Feedback = question.DefaultFeedback;
-
-            return Task.CompletedTask;
         }
     }
 }

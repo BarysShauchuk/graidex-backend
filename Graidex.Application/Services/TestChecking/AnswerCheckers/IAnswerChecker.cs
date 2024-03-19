@@ -10,7 +10,7 @@ namespace Graidex.Application.Services.TestChecking.AnswerCheckers
 {
     public interface IAnswerChecker
     {
-        public Task EvaluateAsync(Question question, Answer answer);
+        public void Evaluate(Question question, Answer answer);
 
         public Type QuestionType { get; }
         public Type AnswerType { get; }

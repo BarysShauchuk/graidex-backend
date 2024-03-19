@@ -29,8 +29,8 @@ namespace Graidex.Application.Validators.Tests.Test
                 .NotEmpty()
                 .InclusiveBetween(0, 10).WithMessage("The grade to pass must be an integer from 0 and 10.");
 
-            RuleFor(x => x.ReviewResult)
-                .IsInEnum().WithMessage("Review result must be 1-'SetManually', 2-'AfterSubmission' or 3-'AfterAutoCheck'");
+            RuleFor(x => x.ShowToStudent)
+                .IsInEnum().WithMessage("ShowToStudent must be either 1-'SetManually' or 2-'AfterSubmission'");
         }
     }
 }

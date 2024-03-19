@@ -39,7 +39,7 @@ namespace Graidex.Application.DTOs.Test.TestDraft
 
         public bool ShuffleQuestions { get; set; }
 
-        public ReviewResultOptions ReviewResult { get; set; }
+        public ShowToStudentOptions ShowToStudent { get; set; }
 
         public double OrderIndex { get; set; }
     }

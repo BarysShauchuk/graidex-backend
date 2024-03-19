@@ -21,7 +21,11 @@ namespace Graidex.Application.Services.Tests
         public Task<OneOf<GetTestAttemptForStudentDto, NotFound, ConditionFailed>> GetAllQuestionsWithSavedAnswersAsync(int testResultId);
         public Task<OneOf<Success, NotFound, ItemImmutable, ValidationFailed>> UpdateTestAttemptByIdAsync(int testResultId, int index, GetAnswerForStudentDto answerDto);
         public Task<OneOf<Success, NotFound>> SubmitTestAttemptByIdAsync(int testResultId);
-        public Task<OneOf<Success, ConditionFailed>> AddTestResultsToCheckingQueueAsync(int testId, IEnumerable<int> testResultIds);
+        // public Task<OneOf<Success, ConditionFailed>> AddTestResultsToCheckingQueueAsync(int testId, IEnumerable<int> testResultIds);
+
+        public Task<OneOf<Success, ConditionFailed>> SetShowTestResultsToStudentsAsync(int testId, IEnumerable<int> testResultIds, bool show);
+        public Task CheckTestResultsWithAIAsync(int testId, IEnumerable<int> testResultIds, CancellationToken cancellationToken);
+
         public Task<OneOf<GetTestResultForTeacherDto, NotFound, ConditionFailed>> GetTestResultByIdAsync(int testResultId);
         public Task<OneOf<List<GetTestResultListedForTeacherDto>, NotFound>> GetAllTestResultsByTestIdAsync(int testId);
         public Task<OneOf<GetTestResultForStudentDto, NotFound, ConditionFailed>> GetTestResultForStudentByIdAsync(int testResultId);

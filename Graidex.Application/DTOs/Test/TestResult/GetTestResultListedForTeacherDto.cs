@@ -19,7 +19,8 @@ namespace Graidex.Application.DTOs.Test.TestResult
 
         public required int Grade { get; set; }
 
-        public required bool CanReview { get; set; }
+        public required bool ShowToStudent { get; set; }
 
+        public required bool RequireTeacherReview { get; set; }
     }
 }

@@ -18,7 +18,6 @@ using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using FluentValidation;
-using Graidex.Application.Services.TestChecking.TestCheckingQueue;
 using Graidex.Application.Factories.Tests;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -35,7 +34,6 @@ namespace Graidex.Application.Services.Tests
         private readonly ITestResultRepository testResultRepository;
         private readonly ISubjectRepository subjectRepository;
         private readonly IMapper mapper;
-        private readonly ITestCheckingInQueue testCheckingQueue;
         private readonly IValidator<List<TestBaseQuestionDto>> testBaseQuestionsListValidator;
         private readonly IValidator<CreateTestDraftDto> createTestDraftDtoValidator;
         private readonly IValidator<UpdateTestDraftDto> updateTestDraftDtoValidator;
@@ -56,7 +54,6 @@ namespace Graidex.Application.Services.Tests
             ITestResultRepository testResultRepository,
             ISubjectRepository subjectRepository,
             IMapper mapper,
-            ITestCheckingInQueue testCheckingQueue,
             IValidator<List<TestBaseQuestionDto>> testBaseQuestionsListValidator,
             IValidator<CreateTestDraftDto> createTestDraftDtoValidator,
             IValidator<UpdateTestDraftDto> updateTestDraftDtoValidator,
@@ -76,7 +73,6 @@ namespace Graidex.Application.Services.Tests
             this.testResultRepository = testResultRepository;
             this.subjectRepository = subjectRepository;
             this.mapper = mapper;
-            this.testCheckingQueue = testCheckingQueue;
             this.testBaseQuestionsListValidator = testBaseQuestionsListValidator;
             this.createTestDraftDtoValidator = createTestDraftDtoValidator;
             this.updateTestDraftDtoValidator = updateTestDraftDtoValidator;
