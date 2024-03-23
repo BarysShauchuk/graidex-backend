@@ -20,6 +20,7 @@ using Graidex.Application.DTOs.Users.Teachers;
 
 namespace Graidex.Application.Services.Authentication
 {
+    // TODO: Refactor
     /// <summary>
     /// Authentication Service.
     /// </summary>
@@ -187,6 +188,13 @@ namespace Graidex.Application.Services.Authentication
                 foreach (var role in roles)
                 {
                     claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+
+                if (roles.Count() == 1)
+                {
+                    claims.Add(
+                        new Claim(ClaimTypes.NameIdentifier, 
+                        UserIdentity.Get(user.Email, roles.First())));
                 }
             }
 

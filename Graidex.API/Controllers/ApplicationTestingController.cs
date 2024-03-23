@@ -1,4 +1,5 @@
 ﻿using Graidex.Application.Services.TestChecking;
+﻿using Graidex.API.Hubs;
 using Graidex.Application.Services.Tests.TestChecking;
 using Graidex.Domain.Exceptions;
 using Graidex.Domain.Interfaces;
@@ -6,6 +7,7 @@ using Graidex.Domain.Models.Tests.Answers;
 using Graidex.Domain.Models.Tests.Questions;
 using Graidex.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Graidex.API.Controllers
@@ -18,17 +20,20 @@ namespace Graidex.API.Controllers
         private readonly GraidexMongoDbClient mongoDbClient;
         private readonly ISubjectRepository subjectRepository;
         private readonly IConfiguration configuration;
+        private readonly IHubContext<NotificationsHub, INotificationsClient> hubContext;
 
         public ApplicationTestingController(
             GraidexDbContext dbContext,
             GraidexMongoDbClient mongoDbClient,
             ISubjectRepository subjectRepository,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IHubContext<NotificationsHub, INotificationsClient> hubContext)
         {
             this.dbContext = dbContext;
             this.mongoDbClient = mongoDbClient;
             this.subjectRepository = subjectRepository;
             this.configuration = configuration;
+            this.hubContext = hubContext;
         }
 
         [HttpDelete("drop-data")]

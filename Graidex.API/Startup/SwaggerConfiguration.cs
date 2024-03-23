@@ -25,6 +25,8 @@ namespace Graidex.API.Startup
                 });
 
                 options.OperationFilter<SecurityRequirementsOperationFilter>();
+
+                // options.AddSignalRSwaggerGen(); TODO [v2/FEAT-1]: Add SignalR support to Swagger
             });
 
             return services;
