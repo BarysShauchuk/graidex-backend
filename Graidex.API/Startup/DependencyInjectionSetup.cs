@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Graidex.API.HostedServices;
 using Graidex.API.WebServices;
 using Graidex.Application;
 using Graidex.Application.Factories.Answers;
@@ -14,7 +13,6 @@ using Graidex.Application.Services.Authorization.Requirements.Teacher;
 using Graidex.Application.Services.Subjects;
 using Graidex.Application.Services.TestChecking;
 using Graidex.Application.Services.TestChecking.AnswerCheckers;
-using Graidex.Application.Services.TestChecking.TestCheckingQueue;
 using Graidex.Application.Services.Tests;
 using Graidex.Application.Services.Tests.TestChecking;
 using Graidex.Application.Services.Users.Students;
@@ -81,8 +79,9 @@ namespace Graidex.API.Startup
             services.AddScoped<IAuthorizationHandler, IsTeacherOfDraftHandler>();
             services.AddScoped<IAuthorizationHandler, IsTeacherOfTestHandler>();
             services.AddScoped<IAuthorizationHandler, IsStudentOfVisibleTestHandler>();
-            services.AddScoped<IAuthorizationHandler, IsStudentOfAttemptHandler>();
+            services.AddScoped<IAuthorizationHandler, IsStudentOfTestResultHandler>();
             services.AddScoped<IAuthorizationHandler, IsTeacherOfSubjectContentHandler>();
+            services.AddScoped<IAuthorizationHandler, IsTeacherOfTestResultHandler>();
 
             services.AddAuthorization(options =>
             {
@@ -149,11 +148,11 @@ namespace Graidex.API.Startup
                     policyBuilder.AddRequirements(new IsStudentOfVisibleTestRequirement());
                 });
 
-                options.AddPolicy("StudentOfAttempt", policyBuilder =>
+                options.AddPolicy("StudentOfTestResult", policyBuilder =>
                 {
                     policyBuilder.RequireAuthenticatedUser();
                     policyBuilder.RequireRole("Student");
-                    policyBuilder.AddRequirements(new IsStudentOfAttemptRequirement());
+                    policyBuilder.AddRequirements(new IsStudentOfTestResultRequirement());
                 });
 
                 options.AddPolicy("TeacherOfSubjectContent", policyBuilder =>
@@ -161,6 +160,13 @@ namespace Graidex.API.Startup
                     policyBuilder.RequireAuthenticatedUser();
                     policyBuilder.RequireRole("Teacher");
                     policyBuilder.AddRequirements(new IsTeacherOfSubjectContentRequirement());
+                });
+
+                options.AddPolicy("TeacherOfTestResult", policyBuilder =>
+                {
+                    policyBuilder.RequireAuthenticatedUser();
+                    policyBuilder.RequireRole("Teacher");
+                    policyBuilder.AddRequirements(new IsTeacherOfTestResultRequirement());
                 });
             });
 
@@ -214,42 +220,9 @@ namespace Graidex.API.Startup
 
         public static IServiceCollection RegisterTestCheckingServices(this IServiceCollection services)
         {
-            services.AddHostedService<TestCheckingBackgroundService>();
-            services.RegisterTestCheckingQueue();
-
-            services.AddScoped<TestCheckingService>();
-
-            services.AddScoped<ITestCheckingService>(
-                sp => sp.GetRequiredService<TestCheckingService>());
-
-            services.AddScoped<ITestResultRecalculationService>(
-                sp => sp.GetRequiredService<TestCheckingService>());
-
-            services.RegisterTestCheckingHandlers();
-
-            return services;
-        }
-
-        private static IServiceCollection RegisterTestCheckingQueue(this IServiceCollection services)
-        {
-            services.AddSingleton<TestCheckingQueue>();
-
-            services.AddSingleton<ITestCheckingInQueue>(
-                sp => sp.GetRequiredService<TestCheckingQueue>());
-
-            services.AddSingleton<ITestCheckingOutQueue>(
-                sp => sp.GetRequiredService<TestCheckingQueue>());
-
-            return services;
-        }
-
-        private static IServiceCollection RegisterTestCheckingHandlers(this IServiceCollection services)
-        {
-            services.AddSingleton<IAnswerChecker, OpenAnswerChecker>();
+            services.AddSingleton<ITestCheckingService, TestCheckingService>();
             services.AddSingleton<IAnswerChecker, SingleChoiceAnswerChecker>();
             services.AddSingleton<IAnswerChecker, MultipleChoiceAnswerChecker>();
-            
-            services.AddSingleton<IAnswerCheckHandler, AnswerCheckHandler>();
 
             return services;
         }

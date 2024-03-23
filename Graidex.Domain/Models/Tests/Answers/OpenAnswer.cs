@@ -16,5 +16,7 @@ namespace Graidex.Domain.Models.Tests.Answers
         /// Gets or sets the response text of the open answer.
         /// </summary>
         public string Text { get; set; } = string.Empty;
+
+        public override bool RequireTeacherReview { get; set; } = true;
     }
 }

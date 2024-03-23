@@ -17,14 +17,14 @@ namespace Graidex.Domain.Models.Tests
         public int Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the flag indicating whether the test was already checked automatically.
+        /// Gets or sets the flag indicating whether the test require teacher review.
         /// </summary>
-        public bool IsAutoChecked { get; set; }
+        public bool RequireTeacherReview { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets the flag indicating whether the test result can be reviewed by student.
+        /// Gets or sets the flag indicating whether the test result can be viewed by student.
         /// </summary>
-        public bool CanReview { get; set; }
+        public bool ShowToStudent { get; set; }
 
         /// <summary>
         /// Gets or sets the time of the start of the test.

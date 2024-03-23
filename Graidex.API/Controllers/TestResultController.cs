@@ -1,15 +1,8 @@
-﻿using Amazon.Auth.AccessControlPolicy;
-using Graidex.Application.DTOs.Test.Answers.TestAttempt;
-using Graidex.Application.DTOs.Test.TestAttempt;
+﻿using Graidex.Application.DTOs.Test.Answers.TestAttempt;
 using Graidex.Application.DTOs.Test.TestResult;
-using Graidex.Application.OneOfCustomTypes;
 using Graidex.Application.Services.Tests;
-using Graidex.Domain.Models.Tests;
-using Graidex.Domain.Models.Tests.Answers;
-using Graidex.Domain.Models.Tests.Questions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 
 namespace Graidex.API.Controllers
 {
@@ -38,7 +31,7 @@ namespace Graidex.API.Controllers
         }
 
         [HttpGet("get-all-questions-with-answers/{testResultId}")]
-        [Authorize(Roles = "Student", Policy = "StudentOfAttempt")]
+        [Authorize(Roles = "Student", Policy = "StudentOfTestResult")]
         public async Task<ActionResult> GetAllQuestionsWithSavedAnswers(int testResultId)
         {
             var result = await this.testResultService.GetAllQuestionsWithSavedAnswersAsync(testResultId);
@@ -50,7 +43,7 @@ namespace Graidex.API.Controllers
         }
 
         [HttpPut("update-test-attempt/{testResultId}")]
-        [Authorize(Roles = "Student", Policy = "StudentOfAttempt")]
+        [Authorize(Roles = "Student", Policy = "StudentOfTestResult")]
         public async Task<ActionResult> UpdateTestAttempt(int testResultId, int index, GetAnswerForStudentDto answerDto)
         {
             var result = await this.testResultService.UpdateTestAttemptByIdAsync(testResultId, index, answerDto);
@@ -63,7 +56,7 @@ namespace Graidex.API.Controllers
         }
 
         [HttpPut("submit-test-attempt/{testResultId}")]
-        [Authorize(Roles = "Student", Policy = "StudentOfAttempt")]
+        [Authorize(Roles = "Student", Policy = "StudentOfTestResult")]
         public async Task<ActionResult> SubmitTestAttempt(int testResultId)
         {
             var result = await this.testResultService.SubmitTestAttemptByIdAsync(testResultId);
@@ -73,7 +66,7 @@ namespace Graidex.API.Controllers
                 notFound => NotFound());
         }
 
-        [HttpPut("add-test-results-to-checking-queue/{testId}")]
+        /*[HttpPut("add-test-results-to-checking-queue/{testId}")]
         [Authorize (Roles = "Teacher", Policy = "TeacherOfTest")]
         public async Task<ActionResult> AddTestResultsToCheckingQueue(int testId, IEnumerable<int> testResultIds)
         {
@@ -82,10 +75,21 @@ namespace Graidex.API.Controllers
             return result.Match<ActionResult>(
                 success => Ok(),
                 conditionFailed => BadRequest(conditionFailed.Comment));
+        }*/
+
+        [HttpPut("set-show-test-results-to-student/{testId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfTest")]
+        public async Task<ActionResult> SetShowTestResultsToStudents(int testId, IEnumerable<int> testResultIds, bool show)
+        {
+            var result = await this.testResultService.SetShowTestResultsToStudentsAsync(testId, testResultIds, show);
+
+            return result.Match<ActionResult>(
+                success => Ok(),
+                conditionFailed => BadRequest(conditionFailed.Comment));
         }
 
         [HttpGet("get-test-result/{testResultId}")]
-        [Authorize(Roles = "Teacher")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfTestResult")]
         public async Task<ActionResult> GetTestResultForTeacherAttempt(int testResultId)
         {
             var result = await this.testResultService.GetTestResultByIdAsync(testResultId);
@@ -96,8 +100,31 @@ namespace Graidex.API.Controllers
                 conditionFailed => BadRequest(conditionFailed.Comment));
         }
 
+        [HttpGet("get-all-test-results/{testId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfTest")]
+        public async Task<ActionResult> GetAllTestResultsByTestId(int testId)
+        {
+            var result = await this.testResultService.GetAllTestResultsByTestIdAsync(testId);
+
+            return result.Match<ActionResult>(
+                testResultListedDtos => Ok(testResultListedDtos),
+                notFound => NotFound());
+        }
+        
+        [HttpGet("get-test-result-for-student/{testResultId}")]
+        [Authorize(Roles = "Student", Policy = "StudentOfTestResult")]
+        public async Task<ActionResult> GetTestResultForStudentAttempt(int testResultId)
+        {
+            var result = await this.testResultService.GetTestResultForStudentByIdAsync(testResultId);
+
+            return result.Match<ActionResult>(
+                getTestResultForStudentDto => Ok(getTestResultForStudentDto),
+                notFound => NotFound(),
+                conditionFailed => BadRequest(conditionFailed.Comment));
+        }
+
         [HttpPut("leave-feedback-on-answer/{testResultId}")]
-        [Authorize(Roles = "Teacher")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfTestResult")]
         public async Task<ActionResult> LeaveFeedBack(int testResultId, List<LeaveFeedbackForAnswerDto> feedbackDtos)
         {
             var result = await this.testResultService.LeaveFeedBackOnAnswerAsync(testResultId, feedbackDtos);

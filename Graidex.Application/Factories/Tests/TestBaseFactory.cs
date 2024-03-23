@@ -48,7 +48,7 @@ namespace Graidex.Application.Factories.Tests
                 EndDateTime = parameters.EndDateTime,
                 TimeLimit = parameters.TimeLimit,
                 AutoCheckAfterSubmission = parameters.AutoCheckAfterSubmission,
-                ReviewResult = parameters.ReviewResult,
+                ShowToStudent = parameters.ReviewResult,
                 ShuffleQuestions = parameters.ShuffleQuestions,
             };
 

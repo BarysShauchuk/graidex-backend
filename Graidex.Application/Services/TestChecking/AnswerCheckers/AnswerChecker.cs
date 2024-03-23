@@ -15,9 +15,9 @@ namespace Graidex.Application.Services.TestChecking.AnswerCheckers
         public Type QuestionType { get; } = typeof(Q);
         public Type AnswerType { get; } = typeof(A);
 
-        protected abstract Task EvaluateAsync(Q question, A answer);
+        protected abstract void Evaluate(Q question, A answer);
 
-        public Task EvaluateAsync(Question question, Answer answer)
+        public void Evaluate(Question question, Answer answer)
         {
             if (question is not Q q)
             {
@@ -29,8 +29,7 @@ namespace Graidex.Application.Services.TestChecking.AnswerCheckers
                 throw new ArgumentException($"Wrong answer type, {AnswerType.Name} expected", nameof(answer));
             }
 
-            return this.EvaluateAsync(q, a);
+            this.Evaluate(q, a);
         }
-
     }
 }

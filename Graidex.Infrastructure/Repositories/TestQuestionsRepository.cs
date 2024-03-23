@@ -10,6 +10,7 @@ using Graidex.Infrastructure.Configuration;
 using Graidex.Domain.Models.Tests.Questions;
 using Graidex.Infrastructure.Data;
 using MongoDB.Bson.Serialization;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Graidex.Infrastructure.Repositories
 {
@@ -20,6 +21,14 @@ namespace Graidex.Infrastructure.Repositories
         public TestQuestionsRepository(GraidexMongoDbClient client)
         {
             this.client = client;
+        }
+
+        public async Task<Question> GetQuestionAsync(int testBaseId, int questionIndex)
+        {
+            return await this.client.TestQuestionsLists
+                .Find(x => x.TestBaseId == testBaseId)
+                .Project(x => x.Questions[questionIndex])
+                .FirstOrDefaultAsync();
         }
 
         public async Task<TestBaseQuestionsList> GetQuestionsListAsync(int testBaseId)

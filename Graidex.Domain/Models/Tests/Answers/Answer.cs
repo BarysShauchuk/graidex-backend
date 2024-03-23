@@ -11,5 +11,6 @@ namespace Graidex.Domain.Models.Tests.Answers
         public int Points { get; set; }
         public string? Feedback { get; set; }
         public int QuestionIndex { get; set; }
+        public virtual bool RequireTeacherReview { get; set; }
     }
 }

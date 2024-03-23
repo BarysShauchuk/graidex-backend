@@ -9,5 +9,6 @@ namespace Graidex.Application.DTOs.Test.Answers.TestAttempt
     public class GetOpenAnswerForStudentDto : GetAnswerForStudentDto
     {
         public required string Text { get; set; } = string.Empty;
+        public bool RequireReview { get; set; }
     }
 }

@@ -10,6 +10,7 @@ namespace Graidex.Domain.Interfaces
     public interface ITestBaseQuestionsRepository
     {
         public Task<TestBaseQuestionsList> GetQuestionsListAsync(int testBaseId);
+        public Task<Question> GetQuestionAsync(int testBaseId, int questionIndex);
         public Task UpdateQuestionsListAsync(TestBaseQuestionsList testBaseQuestionsList);
     }
 }
