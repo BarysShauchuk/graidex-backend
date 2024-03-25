@@ -25,5 +25,11 @@ namespace Graidex.Application.Interfaces
         /// </summary>
         /// <returns>An enumerable of roles for the currently logged in user.</returns>
         public IEnumerable<string> GetRoles();
+
+        /// <summary>
+        /// Gets the IP address of the user making the request.
+        /// </summary>
+        /// <returns>The IP address of the user making the request.</returns>
+        public string? GetIpAddress();
     }
 }

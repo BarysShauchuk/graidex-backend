@@ -74,5 +74,11 @@ namespace Graidex.API.WebServices
             
             return roleClaims.Select(roleClaim => roleClaim.Value);
         }
+
+        ///inheritdoc/>
+        public string? GetIpAddress()
+        {
+            return this.httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
+        }
     }
 }

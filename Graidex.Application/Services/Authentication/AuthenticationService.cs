@@ -17,6 +17,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Graidex.Application.DTOs.Users.Students;
 using Graidex.Application.DTOs.Users.Teachers;
+using Graidex.Application.Interfaces;
+using MediatR;
+using Graidex.Application.Notifications.Authentication.Login;
+using Microsoft.Extensions.Logging;
 
 namespace Graidex.Application.Services.Authentication
 {
@@ -32,6 +36,9 @@ namespace Graidex.Application.Services.Authentication
         private readonly IMapper mapper;
         private readonly IValidator<CreateStudentDto> studentDtoValidator;
         private readonly IValidator<CreateTeacherDto> teacherValidator;
+        private readonly IMediator mediator;
+        private readonly ILogger<AuthenticationService> logger;
+        private readonly ICurrentUserService currentUserService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationService"/> class.
@@ -48,7 +55,10 @@ namespace Graidex.Application.Services.Authentication
             IConfiguration configuration,
             IMapper mapper,
             IValidator<CreateStudentDto> studentDtoValidator,
-            IValidator<CreateTeacherDto> teacherValidator)
+            IValidator<CreateTeacherDto> teacherValidator,
+            IMediator mediator,
+            ILogger<AuthenticationService> logger,
+            ICurrentUserService currentUserService)
         {
             this.studentRepository = studentRepository;
             this.teacherRepository = teacherRepository;
@@ -56,6 +66,9 @@ namespace Graidex.Application.Services.Authentication
             this.mapper = mapper;
             this.studentDtoValidator = studentDtoValidator;
             this.teacherValidator = teacherValidator;
+            this.mediator = mediator;
+            this.logger = logger;
+            this.currentUserService = currentUserService;
         }
 
         /// <inheritdoc/>
@@ -108,7 +121,10 @@ namespace Graidex.Application.Services.Authentication
                 return new WrongPassword();
             }
 
-            var token = await Task.Run(() => CreateStudentToken(student, keyToken));
+            var token = CreateStudentToken(student, keyToken);
+
+            await this.NotifyUserNewLogin(student.Email, nameof(Student));
+
             return token;
         }
 
@@ -162,7 +178,10 @@ namespace Graidex.Application.Services.Authentication
                 return new WrongPassword();
             }
 
-            var token = await Task.Run(() => CreateTeacherToken(teacher, keyToken));
+            var token = CreateTeacherToken(teacher, keyToken);
+
+            await this.NotifyUserNewLogin(teacher.Email, nameof(Teacher));
+
             return token;
         }
 
@@ -208,6 +227,27 @@ namespace Graidex.Application.Services.Authentication
 
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
             return jwt;
+        }
+
+        private async Task NotifyUserNewLogin(string email, string role)
+        {
+            try
+            {
+                await this.mediator.Publish(new NewLoginNotification
+                {
+                    Email = email,
+                    Role = role,
+                    Data = new()
+                    {
+                        IpAddress = this.currentUserService.GetIpAddress(),
+                        LoginTime = DateTimeOffset.UtcNow
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "Error while publishing login notification.");
+            }
         }
     }
 }

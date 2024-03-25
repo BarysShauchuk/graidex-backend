@@ -84,6 +84,11 @@ namespace Graidex.Application.Services.Tests.TestChecking
 
         public int CalculateGrade(int points, int maxPoints)
         {
+            if (maxPoints == 0)
+            {
+                return 0;
+            }
+
             return (int)Math.Round(points * 10d / maxPoints);
         }
 

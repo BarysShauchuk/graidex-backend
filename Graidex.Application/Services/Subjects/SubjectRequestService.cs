@@ -13,31 +13,43 @@ using System.Threading.Tasks;
 using Graidex.Domain.Models;
 using Graidex.Domain.Models.Users;
 using Graidex.Application.DTOs.Subject;
+using MediatR;
+using Graidex.Application.Notifications.SubjectRequests;
+using Graidex.Application.Notifications.SubjectRequests.Created;
+using Graidex.Application.Notifications.SubjectRequests.Accepted;
+using Microsoft.Extensions.Logging;
 
 namespace Graidex.Application.Services.Subjects
 {
     public class SubjectRequestService : ISubjectRequestService
     {
+        private readonly IMediator mediator;
         private readonly ICurrentUserService currentUser;
         private readonly ITeacherRepository teacherRepository;
         private readonly IStudentRepository studentRepository;
         private readonly ISubjectRepository subjectRepository;
         private readonly ISubjectRequestRepository subjectRequestRepository;
         private readonly IMapper mapper;
+        private readonly ILogger<SubjectRequestService> logger;
+
         public SubjectRequestService(
+            IMediator mediator,
             ICurrentUserService currentUser,
             ITeacherRepository teacherRepository,
             IStudentRepository studentRepository,
             ISubjectRepository subjectRepository,
             ISubjectRequestRepository subjectRequestRepository,
-            IMapper mapper) 
+            IMapper mapper,
+            ILogger<SubjectRequestService> logger) 
         {
+            this.mediator = mediator;
             this.currentUser = currentUser;
             this.teacherRepository = teacherRepository;
             this.studentRepository = studentRepository;
             this.subjectRepository = subjectRepository;
             this.subjectRequestRepository = subjectRequestRepository;
             this.mapper = mapper;
+            this.logger = logger;
         }
         public async Task<OneOf<Success, UserNotFound, NotFound, UserAlreadyExists>> CreateRequestAsync(int subjectId, string studentEmail)
         {    
@@ -67,6 +79,22 @@ namespace Graidex.Application.Services.Subjects
                     Date = DateTime.UtcNow
                 };
                 await this.subjectRequestRepository.Add(subjectRequest);
+            }
+
+            try
+            {
+                await mediator.Publish(new SubjectRequestCreatedNotification
+                {
+                    StudentEmail = studentEmail,
+                    Data = new()
+                    {
+                        SubjectTitle = subject.Title
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError(e, "Error while sending notification to student");
             }
 
             return new Success();
@@ -166,6 +194,30 @@ namespace Graidex.Application.Services.Subjects
             subject.Students.Add(student);
             await this.subjectRepository.Update(subject);
             await this.subjectRequestRepository.Delete(subjectRequest);
+
+            try
+            {
+                var teacherEmail = this.teacherRepository
+                .GetAll()
+                .Where(x => x.Id == subject.TeacherId)
+                .Select(x => x.Email)
+                .FirstOrDefault();
+
+                await this.mediator.Publish(new SubjectRequestAcceptedNotification
+                {
+                    TeacherEmail = teacherEmail,
+                    Data = new()
+                    {
+                        SubjectTitle = subject.Title,
+                        StudentEmail = student.Email,
+                        SubjectId = subject.Id
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError(e, "Error while sending notification to teacher");
+            }
 
             return new Success();
         }

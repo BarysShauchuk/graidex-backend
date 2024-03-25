@@ -65,5 +65,33 @@ namespace Graidex.Application.Services.Authentication
                 _ => null,
             };
         }
+
+        /// <summary>
+        /// Gets the string representation of  the teacher identity.
+        /// </summary>
+        /// <param name="email">
+        /// Teacher email.
+        /// </param>
+        /// <returns>
+        /// Teacher identity string.
+        /// </returns>
+        public static string GetTeacherIdentity(string email)
+        {
+            return Get(email, nameof(Teacher));
+        }
+
+        /// <summary>
+        /// Gets the string representation of  the student identity.
+        /// </summary>
+        /// <param name="email">
+        /// Student email.
+        /// </param>
+        /// <returns>
+        /// Student identity string.
+        /// </returns>
+        public static string GetStudentIdentity(string email)
+        {
+            return Get(email, nameof(Student));
+        }
     }
 }

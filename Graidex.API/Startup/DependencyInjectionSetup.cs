@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Graidex.API.HostedServices;
 using Graidex.API.WebServices;
 using Graidex.Application;
 using Graidex.Application.Factories.Answers;
@@ -17,6 +18,7 @@ using Graidex.Application.Services.Tests;
 using Graidex.Application.Services.Tests.TestChecking;
 using Graidex.Application.Services.Users.Students;
 using Graidex.Application.Services.Users.Teachers;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -196,6 +198,11 @@ namespace Graidex.API.Startup
 
             services.AddValidatorsFromAssemblyContaining<IApplicationAssemblyMarker>();
             services.AddAutoMapper(typeof(IApplicationAssemblyMarker).Assembly);
+            services.AddMediatR(conf =>
+            {
+                conf.RegisterServicesFromAssemblyContaining<IApplicationAssemblyMarker>();
+                conf.RegisterServicesFromAssemblyContaining<IAPIAssemblyMarker>();
+            });
 
             services.AddSingleton<
                 Microsoft.AspNetCore.StaticFiles.IContentTypeProvider, 

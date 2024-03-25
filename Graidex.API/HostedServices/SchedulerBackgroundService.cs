@@ -5,7 +5,7 @@ namespace Graidex.API.HostedServices
 {
     public class SchedulerBackgroundService : BackgroundService
     {
-        private static readonly TimeSpan Period = TimeSpan.FromSeconds(5);
+        private static readonly TimeSpan Period = TimeSpan.FromSeconds(30);
         private readonly ILogger<SchedulerBackgroundService> _logger;
         private readonly IHubContext<NotificationsHub, INotificationsClient> notificationsHubContext;
 
@@ -31,12 +31,7 @@ namespace Graidex.API.HostedServices
         private async Task DoWork()
         {
             // TODO: Implement
-
-            var dateTime = DateTime.Now;
-            _logger.LogInformation($"Server time: {dateTime}");
-
-            await notificationsHubContext.Clients.All
-                .ReceiveApplicationTestNotification($"Server time: {dateTime}");
+            await Task.Delay(1);
         }
     }
 }

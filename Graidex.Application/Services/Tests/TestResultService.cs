@@ -9,12 +9,18 @@ using Graidex.Application.DTOs.Test.TestResult;
 using Graidex.Application.DTOs.Users.Students;
 using Graidex.Application.Factories.Answers;
 using Graidex.Application.Interfaces;
+using Graidex.Application.Notifications.TestResults.Created;
+using Graidex.Application.Notifications.TestResults.ReviewedByTeacher;
+using Graidex.Application.Notifications.TestResults.ShownToStudent;
+using Graidex.Application.Notifications.TestResults.Submitted;
 using Graidex.Application.OneOfCustomTypes;
 using Graidex.Application.Services.Tests.TestChecking;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Tests;
 using Graidex.Domain.Models.Tests.Answers;
 using Graidex.Domain.Models.Tests.Questions;
+using MediatR;
+using Microsoft.Extensions.Logging;
 using OneOf;
 using OneOf.Types;
 
@@ -33,6 +39,10 @@ namespace Graidex.Application.Services.Tests
         private readonly IValidator<GetAnswerForStudentDto> getAnswerForStudentDtoValidator;
         private readonly IValidator<List<LeaveFeedbackForAnswerDto>> leaveFeedbackOnAnswerDtoListValidator;
         private readonly ITestCheckingService testCheckingService;
+        private readonly IMediator mediator;
+        private readonly ILogger<TestResultService> logger;
+        private readonly ISubjectRepository subjectRepository;
+        private readonly ITeacherRepository teacherRepository;
         private const int ExtraMinutesForSubmission = 1;
 
         public TestResultService(
@@ -46,7 +56,11 @@ namespace Graidex.Application.Services.Tests
             IMapper mapper,
             IValidator<GetAnswerForStudentDto> getAnswerForStudentDtoValidator,
             IValidator<List<LeaveFeedbackForAnswerDto>> leaveFeedbackOnAnswerDtoListValidator,
-            ITestCheckingService testCheckingService)
+            ITestCheckingService testCheckingService,
+            IMediator mediator,
+            ILogger<TestResultService> logger,
+            ISubjectRepository subjectRepository,
+            ITeacherRepository teacherRepository)
         {
             this.currentUser = currentUser;
             this.studentRepository = studentRepository;
@@ -59,6 +73,10 @@ namespace Graidex.Application.Services.Tests
             this.getAnswerForStudentDtoValidator = getAnswerForStudentDtoValidator;
             this.leaveFeedbackOnAnswerDtoListValidator = leaveFeedbackOnAnswerDtoListValidator;
             this.testCheckingService = testCheckingService;
+            this.mediator = mediator;
+            this.logger = logger;
+            this.subjectRepository = subjectRepository;
+            this.teacherRepository = teacherRepository;
         }
 
         public async Task<OneOf<GetTestAttemptForStudentDto, UserNotFound, NotFound, ConditionFailed>> StartTestAttemptAsync(int testId)
@@ -128,12 +146,44 @@ namespace Graidex.Application.Services.Tests
 
             var testAttemptDto = await this.GetAllQuestionsWithSavedAnswersAsync(testResult.Id);
 
-            if (testAttemptDto.IsT0)
+            if (!testAttemptDto.IsT0)
             {
-                return testAttemptDto.AsT0;
+                return new NotFound();
             }
 
-            return new NotFound();
+            try
+            {
+                var teacherId =
+                    this.subjectRepository
+                    .GetAll()
+                    .Where(x => x.Id == test.SubjectId)
+                    .Select(x => x.TeacherId)
+                    .FirstOrDefault();
+
+                var teacherEmail = 
+                    this.teacherRepository
+                    .GetAll()
+                    .Where(x => x.Id == teacherId)
+                    .Select(x => x.Email)
+                    .FirstOrDefault();
+
+                await this.mediator.Publish(new TestResultCreatedNotification
+                {
+                    TeacherEmail = teacherEmail,
+                    Data = new()
+                    {
+                        TestId = test.Id,
+                        StudentEmail = student.Email,
+                        EndDateTime = endTime,
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError(e, "Error while starting test attempt");
+            }
+
+            return testAttemptDto.AsT0;
         }
 
         private static DateTimeOffset MinDateTime(DateTimeOffset a, DateTimeOffset b)
@@ -276,6 +326,41 @@ namespace Graidex.Application.Services.Tests
 
             await this.testResultRepository.Update(testAttempt);
 
+            try
+            {
+                string studentEmail = this.currentUser.GetEmail();
+
+                var teacherId =
+                    this.subjectRepository
+                    .GetAll()
+                    .Where(x => x.Id == test.SubjectId)
+                    .Select(x => x.TeacherId)
+                    .FirstOrDefault();
+
+                var teacherEmail =
+                    this.teacherRepository
+                    .GetAll()
+                    .Where(x => x.Id == teacherId)
+                    .Select(x => x.Email)
+                    .FirstOrDefault();
+
+                await mediator.Publish(new TestResultSubmittedNotification
+                {
+                    TeacherEmail = teacherEmail,
+                    Data = new()
+                    {
+                        TestId = test.Id,
+                        StudentEmail = studentEmail,
+                        StartDateTime = testAttempt.StartTime,
+                        EndDateTime = testAttempt.EndTime,
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError(e, "Error while submitting test attempt");
+            }
+
             return new Success();
         }
 
@@ -315,6 +400,45 @@ namespace Graidex.Application.Services.Tests
             }
 
             await this.testResultRepository.UpdateShowToStudentAsync(testResultIds, show);
+
+            if (!show)
+            {
+                return new Success();
+            }
+
+            try
+            {
+
+                var testTitle = (await this.testRepository.GetById(testId))?.Title ?? "";
+
+                var studentIds =
+                    this.testResultRepository
+                    .GetAll()
+                    .Where(x => testResultIds.Contains(x.Id))
+                    .Select(x => x.StudentId);
+
+                var studentEmails =
+                    this.studentRepository
+                    .GetAll()
+                    .Where(x => studentIds.Contains(x.Id))
+                    .Select(x => x.Email)
+                    .ToArray();
+
+                await mediator.Publish(new TestResultShownToStudentsNotification
+                {
+                    StudentEmails = studentEmails,
+                    Data = new()
+                    {
+                        TestId = testId,
+                        TestTitle = testTitle,
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError(e, "Error while setting show test results to students");
+            }
+
             return new Success();
         }
 
@@ -491,6 +615,33 @@ namespace Graidex.Application.Services.Tests
             await this.testResultAnswersRepository.UpdateAnswersListAsync(new TestResultAnswersList { TestResultId = testResultId, Answers = answersList.Answers });
 
             await this.testResultRepository.Update(testResult);
+
+            try
+            {
+                var testTitle =
+                    (await this.testRepository.GetById(testResult.TestId))?.Title ?? "";
+
+                var studentEmail = 
+                    this.studentRepository
+                    .GetAll()
+                    .Where(x => x.Id == testResult.StudentId)
+                    .Select(x => x.Email)
+                    .FirstOrDefault();
+
+                await this.mediator.Publish(new TestResultReviewedByTeacherNotification
+                {
+                    StudentEmail = studentEmail,
+                    Data = new()
+                    {
+                        TestId = testResult.TestId,
+                        TestTitle = testTitle,
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError(e, "Error while leaving feedback on answer");
+            }
 
             return new Success();
         }
