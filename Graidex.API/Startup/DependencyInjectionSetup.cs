@@ -1,17 +1,17 @@
 ﻿using FluentValidation;
+﻿using Azure.AI.OpenAI;
 using Graidex.API.WebServices;
 using Graidex.Application;
 using Graidex.Application.Factories.Answers;
 using Graidex.Application.Factories.Tests;
 using Graidex.Application.Interfaces;
+using Graidex.Application.Services.AI;
 using Graidex.Application.Services.Authentication;
 using Graidex.Application.Services.Authorization.PolicyHandlers.Student;
 using Graidex.Application.Services.Authorization.PolicyHandlers.Teacher;
-using Graidex.Application.Services.Authorization.Requirements;
 using Graidex.Application.Services.Authorization.Requirements.Student;
 using Graidex.Application.Services.Authorization.Requirements.Teacher;
 using Graidex.Application.Services.Subjects;
-using Graidex.Application.Services.TestChecking;
 using Graidex.Application.Services.TestChecking.AnswerCheckers;
 using Graidex.Application.Services.Tests;
 using Graidex.Application.Services.Tests.TestChecking;
@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Tokens;
+using Graidex.Application.Services.TestChecking.AnswerCheckers.AnswerCheckersAI;
 
 namespace Graidex.API.Startup
 {
@@ -205,6 +206,17 @@ namespace Graidex.API.Startup
 
             services.AddSingleton<IAnswerChecker, SingleChoiceAnswerChecker>();
             services.AddSingleton<IAnswerChecker, MultipleChoiceAnswerChecker>();
+
+            services.AddSingleton<IAnswerCheckerAI, OpenAnswerCheckerAI>();
+
+            return services;
+        }
+
+        public  static IServiceCollection RegisterAIServices(this IServiceCollection services, ConfigurationManager configuration)
+        {
+            services.AddSingleton<OpenAIClient>((services) =>
+                new OpenAIClient(configuration.GetSection("AppSettings").GetSection("OpenAIToken").Value));
+            services.AddSingleton<IAIService, OpenAIService>();
 
             return services;
         }

@@ -1,7 +1,4 @@
-﻿using Graidex.Application.Services.TestChecking;
-using Graidex.Application.Services.Tests.TestChecking;
-using Graidex.Domain.Exceptions;
-using Graidex.Domain.Interfaces;
+﻿using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Tests.Answers;
 using Graidex.Domain.Models.Tests.Questions;
 using Graidex.Infrastructure.Data;
@@ -18,6 +15,7 @@ namespace Graidex.API.Controllers
         private readonly GraidexMongoDbClient mongoDbClient;
         private readonly ISubjectRepository subjectRepository;
         private readonly IConfiguration configuration;
+
 
         public ApplicationTestingController(
             GraidexDbContext dbContext,
@@ -70,6 +68,28 @@ namespace Graidex.API.Controllers
             DateTime dateTime = dateTimeOff.DateTime;
 
             return Ok(new { efdt = efDateTime, efdt2 = efDateTime2 });
+        }
+
+        [HttpPost("test-2")]
+        public async Task<ActionResult> Test2()
+        {
+           return Ok();
+        }
+
+        [HttpPost("test-3")]
+        public async Task<ActionResult> Test3()
+        {
+            Question question = new SingleChoiceQuestion
+            {
+                Text = "Test question",
+            };
+
+            Answer answer = new SingleChoiceAnswer
+            {
+                
+            };
+
+            return Ok();
         }
     }
 }

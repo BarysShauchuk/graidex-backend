@@ -1,5 +1,7 @@
-﻿using Graidex.Application.Services.TestChecking;
+﻿using Graidex.Application.Services.AI;
+using Graidex.Application.Services.TestChecking;
 using Graidex.Application.Services.TestChecking.AnswerCheckers;
+using Graidex.Application.Services.TestChecking.AnswerCheckers.AnswerCheckersAI;
 using Graidex.Domain.Exceptions;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Tests;
@@ -9,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Graidex.Application.Services.Tests.TestChecking
@@ -16,58 +19,17 @@ namespace Graidex.Application.Services.Tests.TestChecking
     public class TestCheckingService : ITestCheckingService
     {
         private readonly Dictionary<(Type, Type), IAnswerChecker> answerCheckers = [];
-
-        public TestCheckingService(IEnumerable<IAnswerChecker> answerCheckers)
-        {
+        private readonly Dictionary<(Type, Type), IAnswerCheckerAI> answerCheckersAI = [];
+        public TestCheckingService(
+            IEnumerable<IAnswerChecker> answerCheckers,
+            IEnumerable<IAnswerCheckerAI> answerCheckersAI)
+        {   
             this.answerCheckers = answerCheckers
                 .ToDictionary(x => (x.QuestionType, x.AnswerType));
+
+            this.answerCheckersAI = answerCheckersAI
+                .ToDictionary(x => (x.QuestionType, x.AnswerType));
         }
-
-        /*public async Task CheckTestAttemptAsync(int testResultId)
-        {
-            var testResult = await this.testResultRepository.GetById(testResultId);
-            if (testResult is null)
-            {
-                throw new EntityNotFoundException(
-                    $"{nameof(TestResult)} with id={testResultId} wasn't found.", 
-                    typeof(TestResult));
-            }
-
-            var test = await this.testRepository.GetById(testResult.TestId);
-            if (test is null)
-            {
-                throw new EntityNotFoundException(
-                    $"{nameof(Test)} with id={testResult.TestId} wasn't found.", 
-                    typeof(Test));
-            }
-
-            var studentAnswers
-                =  await this.testResultAnswersRepository.GetAnswersListAsync(testResultId);
-            
-            var testQuestions
-                = await this.testQuestionsRepository.GetQuestionsListAsync(testResult.TestId);
-
-            var tasks = new List<Task>();
-            foreach (var answer in studentAnswers.Answers)
-            {
-                var question = testQuestions.Questions[answer.QuestionIndex];
-                tasks.Add(this.answerCheckHandler.EvaluateAsync(question, answer));
-            }
-
-            await Task.WhenAll(tasks);
-
-            this.RecalculateTestResultEvaluation(testResult, testQuestions, studentAnswers);
-
-            testResult.RequireTeacherReview = true;
-
-            *//*if (test.ShowToStudent == Test.ShowToStudentOptions.AfterAutoCheck)
-            {
-                testResult.ShowToStudent = true;
-            }*//*
-            
-            await this.testResultRepository.Update(testResult);
-            await this.testResultAnswersRepository.UpdateAnswersListAsync(studentAnswers);
-        }*/
 
         public void CheckAnswer(Question question, Answer answer)
         {
@@ -80,6 +42,19 @@ namespace Graidex.Application.Services.Tests.TestChecking
             }
 
             answerChecker.Evaluate(question, answer);
+        }
+
+        public async Task CheckAnswerWithAI(Question question, Answer answer, CancellationToken cancellationToken)
+        {
+            answer.Feedback = question.DefaultFeedback;
+
+            if (!this.answerCheckersAI.TryGetValue(
+                               (question.GetType(), answer.GetType()), out var answerCheckerAI))
+            {
+                return;
+            }
+
+            await answerCheckerAI.EvaluateAsync(question, answer, cancellationToken);
         }
 
         public int CalculateGrade(int points, int maxPoints)

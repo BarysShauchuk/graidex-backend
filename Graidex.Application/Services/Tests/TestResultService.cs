@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using AutoMapper.Internal;
 using FluentValidation;
 using Graidex.Application.DTOs.Test.Answers.TestAttempt;
 using Graidex.Application.DTOs.Test.Questions;
@@ -14,7 +13,6 @@ using Graidex.Application.Services.Tests.TestChecking;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Tests;
 using Graidex.Domain.Models.Tests.Answers;
-using Graidex.Domain.Models.Tests.Questions;
 using OneOf;
 using OneOf.Types;
 
@@ -279,34 +277,6 @@ namespace Graidex.Application.Services.Tests
             return new Success();
         }
 
-        /*public async Task<OneOf<Success, ConditionFailed>> AddTestResultsToCheckingQueueAsync(int testId, IEnumerable<int> testResultIds)
-        {
-            var allTestResultsOfTest = this.testResultRepository
-                .GetAll()
-                .Where(x => x.TestId == testId)
-                .Select(x => new { id = x.Id, isEnded = x.EndTime <= DateTime.UtcNow })
-                .ToList();
-
-            var allTestResultIdsOfTest = allTestResultsOfTest.Select(x => x.id).ToList();
-
-            if (testResultIds.Any(x => !allTestResultIdsOfTest.Contains(x)))
-            {
-                return new ConditionFailed($"Not all test results belong to the test");
-            }
-
-            if (!allTestResultsOfTest.All(x => x.isEnded))
-            {
-                return new ConditionFailed("Not all test attempts are ended");
-            }
-
-            foreach (var testResultId in testResultIds)
-            {
-                await this.testCheckingQueue.AddAsync(testResultId);
-            }
-
-            return new Success();
-        }*/
-
         public async Task<OneOf<Success, ConditionFailed>> SetShowTestResultsToStudentsAsync(int testId, IEnumerable<int> testResultIds, bool show)
         {
             if (!this.AllTestResultsBelongToTest(testId, testResultIds))
@@ -318,9 +288,41 @@ namespace Graidex.Application.Services.Tests
             return new Success();
         }
 
-        public async Task CheckTestResultsWithAIAsync(int testId, IEnumerable<int> testResultIds, CancellationToken cancellationToken)
+        public async Task<OneOf<Success, NotFound>> CheckTestResultsWithAIAsync(int testId, IEnumerable<int> testResultIds, CancellationToken cancellationToken)
         {
-            // TODO: AI CHECK HERE
+            var test = await this.testRepository.GetById(testId);
+            if (test is null)
+            {
+                return new NotFound();
+            }
+
+            var testResults = this.testResultRepository
+                .GetAll()
+                .Where(x => testResultIds.Contains(x.Id) && x.EndTime <= DateTimeOffset.Now && x.TestId == testId)
+                .ToList();
+            
+            foreach (var testResult in testResults)
+            {
+                var questions
+                    = await this.testBaseQuestionsRepository.GetQuestionsListAsync(testResult.TestId);
+
+                var answers
+                    = await this.testResultAnswersRepository.GetAnswersListAsync(testResult.Id);
+
+                foreach (var answer in answers.Answers)
+                {
+                    int pointsBefore = answer.Points;
+                    var question = questions.Questions[answer.QuestionIndex];
+                    await testCheckingService.CheckAnswerWithAI(question, answer, cancellationToken);
+                    testResult.TotalPoints += answer.Points - pointsBefore;
+                }
+
+                testResult.Grade = this.testCheckingService.CalculateGrade(testResult.TotalPoints, test.MaxPoints);
+                await this.testResultAnswersRepository.UpdateAnswersListAsync(new TestResultAnswersList { TestResultId = testResult.Id, Answers = answers.Answers });
+                await this.testResultRepository.Update(testResult);
+            }
+
+            return new Success();
         }
 
         private bool AllTestResultsBelongToTest(int testId, IEnumerable<int> testResultIds)

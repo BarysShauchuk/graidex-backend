@@ -66,17 +66,6 @@ namespace Graidex.API.Controllers
                 notFound => NotFound());
         }
 
-        /*[HttpPut("add-test-results-to-checking-queue/{testId}")]
-        [Authorize (Roles = "Teacher", Policy = "TeacherOfTest")]
-        public async Task<ActionResult> AddTestResultsToCheckingQueue(int testId, IEnumerable<int> testResultIds)
-        {
-            var result = await this.testResultService.AddTestResultsToCheckingQueueAsync(testId, testResultIds);
-
-            return result.Match<ActionResult>(
-                success => Ok(),
-                conditionFailed => BadRequest(conditionFailed.Comment));
-        }*/
-
         [HttpPut("set-show-test-results-to-student/{testId}")]
         [Authorize(Roles = "Teacher", Policy = "TeacherOfTest")]
         public async Task<ActionResult> SetShowTestResultsToStudents(int testId, IEnumerable<int> testResultIds, bool show)
@@ -145,6 +134,17 @@ namespace Graidex.API.Controllers
             return result.Match<ActionResult>(
                 getStudentAttemptsDescriptionDto => Ok(getStudentAttemptsDescriptionDto),
                 userNotFound => NotFound(userNotFound.Comment),
+                notFound => NotFound());
+        }
+
+        [HttpPut("check-test-results-with-ai/{testId}")]
+        [Authorize(Roles = "Teacher", Policy = "TeacherOfTest")]
+        public async Task<ActionResult> CheckTestResultsWithAI(int testId, IEnumerable<int> testResultIds, CancellationToken cancellationToken)
+        {
+            var result = await this.testResultService.CheckTestResultsWithAIAsync(testId, testResultIds, cancellationToken);
+
+            return result.Match<ActionResult>(
+                success => Ok(),
                 notFound => NotFound());
         }
     }
