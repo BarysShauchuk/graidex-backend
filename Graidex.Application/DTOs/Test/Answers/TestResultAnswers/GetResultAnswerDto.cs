@@ -17,5 +17,6 @@ namespace Graidex.Application.DTOs.Test.Answers.TestAttempt
         public int Points { get; set; }
         public string? Feedback { get; set; }
         public int QuestionIndex { get; set; }
+        public bool RequireTeacherReview { get; set; }
     }
 }

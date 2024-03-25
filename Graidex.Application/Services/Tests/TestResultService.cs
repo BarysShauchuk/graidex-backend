@@ -326,14 +326,12 @@ namespace Graidex.Application.Services.Tests
         private bool AllTestResultsBelongToTest(int testId, IEnumerable<int> testResultIds)
         {
             var allTestResultsOfTest = this.testResultRepository
-                .GetAll()
-                .Where(x => x.TestId == testId)
-                .Select(x => new { id = x.Id })
-                .ToList();
+            .GetAll()
+            .Where(x => x.TestId == testId)
+            .Select(x => x.Id)
+            .ToList();
 
-            var allTestResultIdsOfTest = allTestResultsOfTest.Select(x => x.id).ToList();
-
-            return testResultIds.Any(x => !allTestResultIdsOfTest.Contains(x));
+            return allTestResultsOfTest.All(x => testResultIds.Contains(x));
         }
 
         public async Task<OneOf<GetTestResultForTeacherDto, NotFound, ConditionFailed>> GetTestResultByIdAsync(int testResultId)
