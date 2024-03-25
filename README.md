@@ -30,7 +30,8 @@ This is a student testing system that provides teachers with an effective evalua
     "FrontendUrl": "[Url for frontend]",
     "MongoDb": {
       "DatabaseName": "GraidexDb"
-    }
+    },
+    "OpenAIToken" : "[OpenAI token string]"
   },
   "Logging": {
     "LogLevel": {
