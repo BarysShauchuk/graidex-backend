@@ -331,7 +331,7 @@ namespace Graidex.Application.Services.Tests
             .Select(x => x.Id)
             .ToList();
 
-            return allTestResultsOfTest.All(x => testResultIds.Contains(x));
+            return testResultIds.All(x => allTestResultsOfTest.Contains(x));
         }
 
         public async Task<OneOf<GetTestResultForTeacherDto, NotFound, ConditionFailed>> GetTestResultByIdAsync(int testResultId)
