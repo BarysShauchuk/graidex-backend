@@ -1,8 +1,4 @@
-﻿using Graidex.Application.Services.TestChecking;
-using Graidex.Application.Services.TestChecking.TestCheckingQueue;
-using Graidex.Application.Services.Tests.TestChecking;
-using Graidex.Domain.Exceptions;
-using Graidex.Domain.Interfaces;
+﻿using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Tests.Answers;
 using Graidex.Domain.Models.Tests.Questions;
 using Graidex.Infrastructure.Data;
@@ -19,23 +15,18 @@ namespace Graidex.API.Controllers
         private readonly GraidexMongoDbClient mongoDbClient;
         private readonly ISubjectRepository subjectRepository;
         private readonly IConfiguration configuration;
-        private readonly IAnswerCheckHandler answerCheckersContainer;
-        private readonly ITestCheckingInQueue testCheckingQueue;
+
 
         public ApplicationTestingController(
             GraidexDbContext dbContext,
             GraidexMongoDbClient mongoDbClient,
             ISubjectRepository subjectRepository,
-            IConfiguration configuration,
-            IAnswerCheckHandler answerCheckHandler,
-            ITestCheckingInQueue testCheckingQueue)
+            IConfiguration configuration)
         {
             this.dbContext = dbContext;
             this.mongoDbClient = mongoDbClient;
             this.subjectRepository = subjectRepository;
             this.configuration = configuration;
-            this.answerCheckersContainer = answerCheckHandler;
-            this.testCheckingQueue = testCheckingQueue;
         }
 
         [HttpDelete("drop-data")]
@@ -82,19 +73,7 @@ namespace Graidex.API.Controllers
         [HttpPost("test-2")]
         public async Task<ActionResult> Test2()
         {
-            Question question = new OpenQuestion 
-            {
-                Text = "Test question",
-            };
-
-            Answer answer = new OpenAnswer
-            {
-                Text = "Test answer",
-            };
-
-            await this.answerCheckersContainer.EvaluateAsync(question, answer);
-
-            return Ok();
+           return Ok();
         }
 
         [HttpPost("test-3")]
@@ -109,8 +88,6 @@ namespace Graidex.API.Controllers
             {
                 
             };
-
-            await this.answerCheckersContainer.EvaluateAsync(question, answer);
 
             return Ok();
         }

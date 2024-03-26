@@ -1,23 +1,17 @@
 ﻿using Graidex.Domain.Models.Tests.Answers;
 using Graidex.Domain.Models.Tests.Questions;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Graidex.Application.Services.TestChecking.AnswerCheckers
+namespace Graidex.Application.Services.TestChecking.AnswerCheckers.AnswerCheckersAI
 {
-    public abstract class AnswerChecker<Q, A> : IAnswerChecker 
+    public abstract class AnswerCheckerAI<Q, A> : IAnswerCheckerAI
         where Q : Question where A : Answer
     {
         public Type QuestionType { get; } = typeof(Q);
         public Type AnswerType { get; } = typeof(A);
 
-        protected abstract void Evaluate(Q question, A answer);
+        protected abstract Task EvaluateAsync(Q question, A answer, CancellationToken cancellationToken);
 
-        public void Evaluate(Question question, Answer answer)
+        public async Task EvaluateAsync(Question question, Answer answer, CancellationToken cancellationToken)
         {
             if (question is not Q q)
             {
@@ -29,7 +23,7 @@ namespace Graidex.Application.Services.TestChecking.AnswerCheckers
                 throw new ArgumentException($"Wrong answer type, {AnswerType.Name} expected", nameof(answer));
             }
 
-            this.Evaluate(q, a);
+            await EvaluateAsync(q, a, cancellationToken);
         }
     }
 }

@@ -20,6 +20,7 @@ builder.Services.RegisterWebServices();
 builder.Services.RegisterApplicationServices();
 builder.Services.RegisterFactories();
 builder.Services.RegisterTestCheckingServices();
+builder.Services.RegisterAIServices(builder.Configuration);
 
 builder.Services.RegisterSwaggerServices();
 

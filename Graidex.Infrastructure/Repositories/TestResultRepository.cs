@@ -72,5 +72,16 @@ namespace Graidex.Infrastructure.Repositories
             this.context.TestResults.Remove(entity);
             await this.context.SaveChangesAsync();
         }
+
+        public async Task UpdateShowToStudentAsync(IEnumerable<int> testResultIds, bool showToStudent)
+        {
+            var testResults = this.context.TestResults.Where(x => testResultIds.Contains(x.Id));
+            foreach (var testResult in testResults)
+            {
+                testResult.ShowToStudent = showToStudent;
+            }
+
+            await this.context.SaveChangesAsync();
+        }
     }
 }

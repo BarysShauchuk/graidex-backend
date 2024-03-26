@@ -18,5 +18,7 @@ namespace Graidex.Domain.Interfaces
         /// <param name="id">The id of the test result to retrieve.</param>
         /// <returns>A task that represents the asynchronous operation to find the <see cref="TestResult"/> object with the specified id.</returns>
         public Task<TestResult?> GetById(int id);
+
+        public Task UpdateShowToStudentAsync(IEnumerable<int> testResultIds, bool showToStudent);
     }
 }

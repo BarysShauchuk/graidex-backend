@@ -1,5 +1,7 @@
-﻿using Graidex.Application.Services.TestChecking;
-using Graidex.Application.Services.TestChecking.TestCheckingQueue;
+﻿using Graidex.Application.Services.AI;
+using Graidex.Application.Services.TestChecking;
+using Graidex.Application.Services.TestChecking.AnswerCheckers;
+using Graidex.Application.Services.TestChecking.AnswerCheckers.AnswerCheckersAI;
 using Graidex.Domain.Exceptions;
 using Graidex.Domain.Interfaces;
 using Graidex.Domain.Models.Tests;
@@ -9,76 +11,55 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Graidex.Application.Services.Tests.TestChecking
 {
-    public class TestCheckingService : ITestCheckingService, ITestResultRecalculationService
+    public class TestCheckingService : ITestCheckingService
     {
-        private readonly ITestBaseQuestionsRepository testQuestionsRepository;
-        private readonly ITestResultRepository testResultRepository;
-        private readonly ITestRepository testRepository;
-        private readonly ITestResultAnswersRepository testResultAnswersRepository;
-        private readonly IAnswerCheckHandler answerCheckHandler;
-
+        private readonly Dictionary<(Type, Type), IAnswerChecker> answerCheckers = [];
+        private readonly Dictionary<(Type, Type), IAnswerCheckerAI> answerCheckersAI = [];
         public TestCheckingService(
-            ITestBaseQuestionsRepository testQuestionsRepository,
-            ITestResultRepository testResultRepository,
-            ITestRepository testRepository,
-            ITestResultAnswersRepository testResultAnswersRepository,
-            IAnswerCheckHandler answerCheckHandler)
-        {
-            this.testQuestionsRepository = testQuestionsRepository;
-            this.testResultRepository = testResultRepository;
-            this.testRepository = testRepository;
-            this.testResultAnswersRepository = testResultAnswersRepository;
-            this.answerCheckHandler = answerCheckHandler;
+            IEnumerable<IAnswerChecker> answerCheckers,
+            IEnumerable<IAnswerCheckerAI> answerCheckersAI)
+        {   
+            this.answerCheckers = answerCheckers
+                .ToDictionary(x => (x.QuestionType, x.AnswerType));
+
+            this.answerCheckersAI = answerCheckersAI
+                .ToDictionary(x => (x.QuestionType, x.AnswerType));
         }
 
-        public async Task CheckTestAttemptAsync(int testResultId)
+        public void CheckAnswer(Question question, Answer answer)
         {
-            var testResult = await this.testResultRepository.GetById(testResultId);
-            if (testResult is null)
+            answer.Feedback = question.DefaultFeedback;
+
+            if (!this.answerCheckers.TryGetValue(
+                (question.GetType(), answer.GetType()), out var answerChecker))
             {
-                throw new EntityNotFoundException(
-                    $"{nameof(TestResult)} with id={testResultId} wasn't found.", 
-                    typeof(TestResult));
+                return;
             }
 
-            var test = await this.testRepository.GetById(testResult.TestId);
-            if (test is null)
+            answerChecker.Evaluate(question, answer);
+        }
+
+        public async Task CheckAnswerWithAI(Question question, Answer answer, CancellationToken cancellationToken)
+        {
+            answer.Feedback = question.DefaultFeedback;
+
+            if (!this.answerCheckersAI.TryGetValue(
+                               (question.GetType(), answer.GetType()), out var answerCheckerAI))
             {
-                throw new EntityNotFoundException(
-                    $"{nameof(Test)} with id={testResult.TestId} wasn't found.", 
-                    typeof(Test));
+                return;
             }
 
-            var studentAnswers
-                =  await this.testResultAnswersRepository.GetAnswersListAsync(testResultId);
-            
-            var testQuestions
-                = await this.testQuestionsRepository.GetQuestionsListAsync(testResult.TestId);
+            await answerCheckerAI.EvaluateAsync(question, answer, cancellationToken);
+        }
 
-            var tasks = new List<Task>();
-            foreach (var answer in studentAnswers.Answers)
-            {
-                var question = testQuestions.Questions[answer.QuestionIndex];
-                tasks.Add(this.answerCheckHandler.EvaluateAsync(question, answer));
-            }
-
-            await Task.WhenAll(tasks);
-
-            this.RecalculateTestResultEvaluation(testResult, testQuestions, studentAnswers);
-
-            testResult.IsAutoChecked = true;
-
-            if (test.ReviewResult == Test.ReviewResultOptions.AfterAutoCheck)
-            {
-                testResult.CanReview = true;
-            }
-            
-            await this.testResultRepository.Update(testResult);
-            await this.testResultAnswersRepository.UpdateAnswersListAsync(studentAnswers);
+        public int CalculateGrade(int points, int maxPoints)
+        {
+            return (int)Math.Round(points * 10d / maxPoints);
         }
 
         public void RecalculateTestResultEvaluation(TestResult testResult, TestBaseQuestionsList testQuestions, TestResultAnswersList testResultAnswers)
@@ -87,7 +68,7 @@ namespace Graidex.Application.Services.Tests.TestChecking
             int maxPoints = testQuestions.Questions.Sum(x => x.MaxPoints);
 
             testResult.TotalPoints = points;
-            testResult.Grade = (int)Math.Round(points * 10d / maxPoints);
+            testResult.Grade = this.CalculateGrade(points, maxPoints);
         }
     }
 }

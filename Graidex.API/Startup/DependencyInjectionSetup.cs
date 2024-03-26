@@ -1,20 +1,18 @@
 ﻿using FluentValidation;
-using Graidex.API.HostedServices;
+﻿using Azure.AI.OpenAI;
 using Graidex.API.WebServices;
 using Graidex.Application;
 using Graidex.Application.Factories.Answers;
 using Graidex.Application.Factories.Tests;
 using Graidex.Application.Interfaces;
+using Graidex.Application.Services.AI;
 using Graidex.Application.Services.Authentication;
 using Graidex.Application.Services.Authorization.PolicyHandlers.Student;
 using Graidex.Application.Services.Authorization.PolicyHandlers.Teacher;
-using Graidex.Application.Services.Authorization.Requirements;
 using Graidex.Application.Services.Authorization.Requirements.Student;
 using Graidex.Application.Services.Authorization.Requirements.Teacher;
 using Graidex.Application.Services.Subjects;
-using Graidex.Application.Services.TestChecking;
 using Graidex.Application.Services.TestChecking.AnswerCheckers;
-using Graidex.Application.Services.TestChecking.TestCheckingQueue;
 using Graidex.Application.Services.Tests;
 using Graidex.Application.Services.Tests.TestChecking;
 using Graidex.Application.Services.Users.Students;
@@ -23,6 +21,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Tokens;
+using Graidex.Application.Services.TestChecking.AnswerCheckers.AnswerCheckersAI;
 
 namespace Graidex.API.Startup
 {
@@ -203,43 +202,21 @@ namespace Graidex.API.Startup
 
         public static IServiceCollection RegisterTestCheckingServices(this IServiceCollection services)
         {
-            services.AddHostedService<TestCheckingBackgroundService>();
-            services.RegisterTestCheckingQueue();
+            services.AddSingleton<ITestCheckingService, TestCheckingService>();
 
-
-            services.AddScoped<TestCheckingService>();
-
-            services.AddScoped<ITestCheckingService>(
-                sp => sp.GetRequiredService<TestCheckingService>());
-
-            services.AddScoped<ITestResultRecalculationService>(
-                sp => sp.GetRequiredService<TestCheckingService>());
-
-            services.RegisterTestCheckingHandlers();
-
-            return services;
-        }
-
-        private static IServiceCollection RegisterTestCheckingQueue(this IServiceCollection services)
-        {
-            services.AddSingleton<TestCheckingQueue>();
-
-            services.AddSingleton<ITestCheckingInQueue>(
-                sp => sp.GetRequiredService<TestCheckingQueue>());
-
-            services.AddSingleton<ITestCheckingOutQueue>(
-                sp => sp.GetRequiredService<TestCheckingQueue>());
-
-            return services;
-        }
-
-        private static IServiceCollection RegisterTestCheckingHandlers(this IServiceCollection services)
-        {
-            services.AddSingleton<IAnswerChecker, OpenAnswerChecker>();
             services.AddSingleton<IAnswerChecker, SingleChoiceAnswerChecker>();
             services.AddSingleton<IAnswerChecker, MultipleChoiceAnswerChecker>();
-            
-            services.AddSingleton<IAnswerCheckHandler, AnswerCheckHandler>();
+
+            services.AddSingleton<IAnswerCheckerAI, OpenAnswerCheckerAI>();
+
+            return services;
+        }
+
+        public  static IServiceCollection RegisterAIServices(this IServiceCollection services, ConfigurationManager configuration)
+        {
+            services.AddSingleton<OpenAIClient>((services) =>
+                new OpenAIClient(configuration.GetSection("AppSettings").GetSection("OpenAIToken").Value));
+            services.AddSingleton<IAIService, OpenAIService>();
 
             return services;
         }
