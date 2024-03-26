@@ -30,6 +30,9 @@ This is a student testing system that provides teachers with an effective evalua
     "FrontendUrl": "[Url for frontend]",
     "MongoDb": {
       "DatabaseName": "GraidexDb"
+    },
+    "Scheduler": {
+      "RefreshingPeriodInMinutes": 30
     }
   },
   "Logging": {
