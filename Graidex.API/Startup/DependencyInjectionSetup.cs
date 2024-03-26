@@ -5,6 +5,7 @@ using Graidex.Application;
 using Graidex.Application.Factories.Answers;
 using Graidex.Application.Factories.Tests;
 using Graidex.Application.Interfaces;
+using Graidex.Application.Schedulers;
 using Graidex.Application.Services.Authentication;
 using Graidex.Application.Services.Authorization.PolicyHandlers.Student;
 using Graidex.Application.Services.Authorization.PolicyHandlers.Teacher;
@@ -18,6 +19,7 @@ using Graidex.Application.Services.Tests;
 using Graidex.Application.Services.Tests.TestChecking;
 using Graidex.Application.Services.Users.Students;
 using Graidex.Application.Services.Users.Teachers;
+using Graidex.Infrastructure.Configuration;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -234,9 +236,21 @@ namespace Graidex.API.Startup
             return services;
         }
 
-        public static IServiceCollection RegisterSchedulerServices(this IServiceCollection services)
+        public static IServiceCollection RegisterSchedulerServices(this IServiceCollection services, ConfigurationManager configuration)
         {
+            services.Configure<SchedulerConfig>(
+                configuration.GetSection("AppSettings").GetSection("Scheduler"));
+
             services.AddHostedService<SchedulerBackgroundService>();
+
+            services.AddSingleton<TestOpensNotificationScheduler>();
+
+            services.AddSingleton<IScheduleRefresher>(provider =>
+                provider.GetRequiredService<TestOpensNotificationScheduler>());
+
+            services.AddSingleton<ITestScheduler>(
+                provider => provider.GetRequiredService<TestOpensNotificationScheduler>());
+
             return services;
         }
 

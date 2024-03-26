@@ -1,37 +1,31 @@
-﻿using Graidex.API.Hubs;
-using Microsoft.AspNetCore.SignalR;
+﻿using Graidex.Application.Schedulers;
+using Microsoft.Extensions.Options;
 
 namespace Graidex.API.HostedServices
 {
     public class SchedulerBackgroundService : BackgroundService
     {
-        private static readonly TimeSpan Period = TimeSpan.FromSeconds(30);
-        private readonly ILogger<SchedulerBackgroundService> _logger;
-        private readonly IHubContext<NotificationsHub, INotificationsClient> notificationsHubContext;
+        private readonly SchedulerConfig config;
+        private readonly IEnumerable<IScheduleRefresher> scheduleRefreshers;
 
         public SchedulerBackgroundService(
-            ILogger<SchedulerBackgroundService> logger,
-            IHubContext<NotificationsHub, INotificationsClient> notificationsHubContext)
+            IOptions<SchedulerConfig> options,
+            IEnumerable<IScheduleRefresher> scheduleRefreshers)
         {
-            _logger = logger;
-            this.notificationsHubContext = notificationsHubContext;
+            this.config = options.Value;
+            this.scheduleRefreshers = scheduleRefreshers;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            using var timer = new PeriodicTimer(Period);
+            using var timer = new PeriodicTimer(config.RefreshingPeriod);
 
-            while (!stoppingToken.IsCancellationRequested 
-                && await timer.WaitForNextTickAsync(stoppingToken)) 
+            do
             {
-                await DoWork();
+                await Task.WhenAll(this.scheduleRefreshers.Select(x => x.RefreshSchedule()));
             }
-        }
-
-        private async Task DoWork()
-        {
-            // TODO: Implement
-            await Task.Delay(1);
+            while (!stoppingToken.IsCancellationRequested && 
+                    await timer.WaitForNextTickAsync(stoppingToken));
         }
     }
 }

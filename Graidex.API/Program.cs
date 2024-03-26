@@ -24,7 +24,7 @@ builder.Services.RegisterAuthorizationServices();
 
 builder.Services.RegisterWebServices();
 builder.Services.RegisterApplicationServices();
-builder.Services.RegisterSchedulerServices();
+builder.Services.RegisterSchedulerServices(builder.Configuration);
 builder.Services.RegisterNotificationsServices();
 builder.Services.RegisterFactories();
 builder.Services.RegisterTestCheckingServices();

@@ -19,7 +19,8 @@ using System.Threading.Channels;
 using System.Threading.Tasks;
 using FluentValidation;
 using Graidex.Application.Factories.Tests;
-using static System.Net.Mime.MediaTypeNames;
+using Graidex.Application.Schedulers;
+using Microsoft.Extensions.Logging;
 
 namespace Graidex.Application.Services.Tests
 {
@@ -43,6 +44,8 @@ namespace Graidex.Application.Services.Tests
         private readonly IValidator<DuplicateTestDraftDto> duplicateTestDraftDtoValidator;
         private readonly IValidator<CreateTestDraftFromTestDto> createTestDraftFromTestDtoValidator;
         private readonly ITestBaseFactory testBaseFactory;
+        private readonly ITestScheduler testScheduler;
+        private readonly ILogger<TestService> logger;
 
         public TestService(
             ICurrentUserService currentUser,
@@ -62,7 +65,9 @@ namespace Graidex.Application.Services.Tests
             IValidator<UpdateTestTimeDto> updateTestTimeDtoValidator,
             IValidator<DuplicateTestDraftDto> duplicateTestDraftDtoValidator,
             IValidator<CreateTestDraftFromTestDto> createTestDraftFromTestDtoValidator,
-            ITestBaseFactory testBaseFactory)
+            ITestBaseFactory testBaseFactory,
+            ITestScheduler testScheduler,
+            ILogger<TestService> logger)
         {
             this.currentUser = currentUser;
             this.teacherRepository = teacherRepository;
@@ -82,6 +87,8 @@ namespace Graidex.Application.Services.Tests
             this.duplicateTestDraftDtoValidator = duplicateTestDraftDtoValidator;
             this.createTestDraftFromTestDtoValidator = createTestDraftFromTestDtoValidator;
             this.testBaseFactory = testBaseFactory;
+            this.testScheduler = testScheduler;
+            this.logger = logger;
         }
 
         public async Task<OneOf<List<TestBaseQuestionDto>, NotFound>> GetTestQuestionsAsync(int testId)
@@ -244,6 +251,15 @@ namespace Graidex.Application.Services.Tests
             questions.TestBaseId = test.Id;
             await this.testBaseQuestionsRepository.UpdateQuestionsListAsync(questions);
 
+            try
+            {
+                await this.testScheduler.HandleTestAdded(test);
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError(e, e.Message);
+            }
+
             return this.mapper.Map<GetTestDto>(test);
         }
 
@@ -314,6 +330,16 @@ namespace Graidex.Application.Services.Tests
             this.mapper.Map(updateTestTimeDto, test);
 
             await testRepository.Update(test);
+
+            try
+            {
+                await this.testScheduler.HandleTestUpdated(test);
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError(e, e.Message);
+            }
+
             return new Success();
         }
 
@@ -331,6 +357,15 @@ namespace Graidex.Application.Services.Tests
             }
 
             await this.testRepository.Delete(test);
+
+            try
+            {
+                await this.testScheduler.HandleTestDeleted(testId);
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError(e, e.Message);
+            }
 
             return new Success();
         }
