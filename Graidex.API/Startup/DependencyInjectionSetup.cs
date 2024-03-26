@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Graidex.API.HostedServices;
 using Graidex.API.WebServices;
 using Graidex.Application;
 using Graidex.Application.Factories.Answers;
