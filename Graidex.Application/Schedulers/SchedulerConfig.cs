@@ -8,7 +8,21 @@ namespace Graidex.Application.Schedulers
 {
     public class SchedulerConfig
     {
-        public required int RefreshingPeriodInMinutes { get; set; }
+        private int refreshingPeriodInMinutes = 5;
+        public int RefreshingPeriodInMinutes
+        {
+            get => this.refreshingPeriodInMinutes;
+            set
+            {
+                if (value < 1)
+                {
+                    throw new ArgumentException("Refreshing period must be greater than 0");
+                }
+
+                this.refreshingPeriodInMinutes = value;
+            }
+        }
+
         public TimeSpan RefreshingPeriod => TimeSpan.FromMinutes(this.RefreshingPeriodInMinutes);
     }
 }
